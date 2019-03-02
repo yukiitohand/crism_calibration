@@ -1,4 +1,4 @@
-function [imgBI] = minipipeline_calibration_IR_BI_woBPinterp(CDRBIdata,varargin)
+function [imgBI] = minipipeline_calibration_IR_BI_woBPinterp_wBI(CDRBIdata,varargin)
 % [img_bias] = minipipeline_calibration_IR_BI_woBPinterp(CDRBIdata,varargin)
 %  re-calculate CDR BI data without performing bad pixel interpolation
 

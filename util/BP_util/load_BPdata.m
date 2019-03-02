@@ -37,7 +37,7 @@ EDRSCptrn = get_basenameOBS_fromProp(propEDRSC);
 % read bad pixel data
 crismdata_obj.readCDR('BP');
 for i=1:length(crismdata_obj.cdr.BP)
-    bpdata = crismdata_obj.cdr.BP{i};
+    bpdata = crismdata_obj.cdr.BP(i);
     basename_edrsc = extractMatchedBasename_v2(EDRSCptrn,bpdata.lbl.SOURCE_PRODUCT_ID); 
     if ~isempty(basename_edrsc)
         BPdata_post = bpdata;

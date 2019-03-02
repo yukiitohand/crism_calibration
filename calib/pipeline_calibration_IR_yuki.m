@@ -109,7 +109,7 @@ TRRIFdata.readCDR('BP');
 switch EDRdata.lbl.OBSERVATION_TYPE
     case {'FRT','HRL','HRS','MSP','HSP'}
         for i=1:length(TRRIFdata.cdr.BP)
-            bpdata = TRRIFdata.cdr.BP{i};
+            bpdata = TRRIFdata.cdr.BP(i);
             if ~any(strcmpi(EDRdata.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
                 if any(strcmpi(DFdata1.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
                     BPdata1 = bpdata;
@@ -123,7 +123,7 @@ switch EDRdata.lbl.OBSERVATION_TYPE
     case {'FRS','ATO'}
         % in case of FRS, DFdata1 and DFdata2 are same.
         for i=1:length(TRRIFdata.cdr.BP)
-            bpdata = TRRIFdata.cdr.BP{i};
+            bpdata = TRRIFdata.cdr.BP(i);
             if ~any(strcmpi(EDRdata.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
                 if any(strcmpi(DFdata1.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
                     BPdata1 = bpdata; BPdata2 = bpdata;
@@ -275,7 +275,7 @@ end
 % shutter mirror nonrepeatability correction
 TRRIFdata.readCDR('SP');
 for i=1:length(TRRIFdata.cdr.SP)
-    spdata = TRRIFdata.cdr.SP{i};
+    spdata = TRRIFdata.cdr.SP(i);
     spdata_prop = getProp_basenameCDR4(spdata.basename);
     switch upper(spdata_prop.sensor_id)
         case 'L'

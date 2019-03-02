@@ -22,7 +22,6 @@ if isempty(BKdata.basenames_SOURCE_OBS)
 end
 
 
-
 %-------------------------------------------------------------------------%
 % Read associated EDR DF image
 %basenameDF = BKdata.basenames_SOURCE_OBS.DF;

@@ -29,7 +29,7 @@ HKdata = BKdata.readCDR('HK');
 
 BKdata.readCDR('BI');
 for i=1:length(BKdata.cdr.BI)
-    bidata = BKdata.cdr.BI{i};
+    bidata = BKdata.cdr.BI(i);
     if bidata.lbl.MRO_FRAME_RATE{1} == frame_rate
         BIdata = bidata;
     end

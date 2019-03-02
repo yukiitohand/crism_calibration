@@ -103,7 +103,7 @@ end
 % apply bad a priori pixel interpolation
 TRRIFdata.readCDR('BP');
 for i=1:length(TRRIFdata.cdr.BP)
-    bpdata = TRRIFdata.cdr.BP{i};
+    bpdata = TRRIFdata.cdr.BP(i);
     if ~any(strcmpi(EDRdata.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
         if any(strcmpi(DFdata1.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
             BPdata1 = bpdata;

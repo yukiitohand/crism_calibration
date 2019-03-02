@@ -147,7 +147,7 @@ SPdata.readCDR('BP');
 switch EDRdata.lbl.OBSERVATION_TYPE
     case {'FRT','HRL','HRS','MSP','HSP'}
         for i=1:length(SPdata.cdr.BP)
-            bpdata = SPdata.cdr.BP{i};
+            bpdata = SPdata.cdr.BP(i);
             if ~any(strcmpi(EDRdata.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
                 if any(strcmpi(DFdata1.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
                     BPdata1 = bpdata;
@@ -161,7 +161,7 @@ switch EDRdata.lbl.OBSERVATION_TYPE
     case {'FRS','ATO'}
         % in case of FRS, DFdata1 and DFdata2 are same.
         for i=1:length(SPdata.cdr.BP)
-            bpdata = SPdata.cdr.BP{i};
+            bpdata = SPdata.cdr.BP(i);
             if ~any(strcmpi(EDRdata.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
                 if any(strcmpi(DFdata1.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
                     BPdata1 = bpdata; BPdata2 = bpdata;

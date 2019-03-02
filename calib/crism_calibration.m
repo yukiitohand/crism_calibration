@@ -99,7 +99,7 @@ switch EDRdata.lbl.OBSERVATION_TYPE
         crism_obs.load_data(crism_obs.info.basenameDF{2},crism_obs.info.dir_edr,'df2');
         DFdata2 = crism_obs.data.df2;      
         for j=1:length(TRRIFdata.cdr.BK)
-            bkdata = TRRIFdata.cdr.BK{j};
+            bkdata = TRRIFdata.cdr.BK(j);
             if strcmpi(bkdata.get_obsid, obs_id_scene)
                 if strcmpi(bkdata.get_obs_number,'06')
                     BKdata1 = bkdata;
@@ -117,7 +117,7 @@ switch EDRdata.lbl.OBSERVATION_TYPE
         DFdata1 = crism_obs.data.df1;
         DFdata2 = crism_obs.data.df1;
         for j=1:length(TRRIFdata.cdr.BK)
-            bkdata = TRRIFdata.cdr.BK{j};
+            bkdata = TRRIFdata.cdr.BK(j);
             if strcmpi(bkdata.get_obsid, obs_id_scene)
                 if strcmpi(bkdata.get_obs_number,'00')
                     BKdata1 = bkdata; BKdata2 = bkdata;
@@ -130,7 +130,7 @@ switch EDRdata.lbl.OBSERVATION_TYPE
         crism_obs.load_data(crism_obs.info.basenameDF{2},crism_obs.info.dir_edr,'df2');
         DFdata2 = crism_obs.data.df2;      
         for j=1:length(TRRIFdata.cdr.BK)
-            bkdata = TRRIFdata.cdr.BK{j};
+            bkdata = TRRIFdata.cdr.BK(j);
             if strcmpi(bkdata.get_obsid, obs_id_scene)
                 if strcmpi(bkdata.get_obs_number,'00')
                     BKdata1 = bkdata;

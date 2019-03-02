@@ -1,4 +1,4 @@
-function [img_bias] = minipipeline_calibration_IR_BI_woBPinterp(CDRBIdata,varargin)
+function [imgBI] = minipipeline_calibration_IR_BI_woBPinterp(CDRBIdata,varargin)
 % [img_bias] = minipipeline_calibration_IR_BI_woBPinterp(CDRBIdata,varargin)
 %  re-calculate CDR BI data without performing bad pixel interpolation
 
@@ -30,22 +30,23 @@ else
     end
 end
 
-if isempty(CDRBIdata.basenamesCDR), CDRBIdata.load_basenamesCDR(); end
-if isempty(CDRBIdata.basenames_SOURCE_OBS)
-    CDRBIdata.load_basenames_SOURCE_OBS(); 
-end
-
+% if isempty(CDRBIdata.basenamesCDR), CDRBIdata.load_basenamesCDR(); end
+% if isempty(CDRBIdata.basenames_SOURCE_OBS)
+%     CDRBIdata.load_basenames_SOURCE_OBS(); 
+% end
+CDRBIdata.load_basenamesCDR('Download',dwld,'Force',force,'OUT_file',outfile);
+CDRBIdata.load_basenames_SOURCE_OBS('Download',dwld,'Force',force,'OUT_file',outfile); 
 
 % get source BIdata download if not exists.
-EDRBIdataList = [];
-for i=1:length(CDRBIdata.basenames_SOURCE_OBS.BI)
-    basename_edrbi = CDRBIdata.basenames_SOURCE_OBS.BI{i};
-    [dirfullpath_local_obsbi,~,~,~,~]...
-        = get_dirpath_observation(basename_edrbi,'Download',dwld,...
-        'Force',force,'OUT_file',outfile);
-    bidata = CRISMdata(basename_edrbi,dirfullpath_local_obsbi);
-    EDRBIdataList = [EDRBIdataList bidata];
-end
+EDRBIdataList = CDRBIdata.read_SOURCE_OBS('BI');
+% for i=1:length(CDRBIdata.basenames_SOURCE_OBS.BI)
+%     basename_edrbi = CDRBIdata.basenames_SOURCE_OBS.BI{i};
+%     [dirfullpath_local_obsbi,~,~,~,~]...
+%         = get_dirpath_observation(basename_edrbi,'Download',dwld,...
+%         'Force',force,'OUT_file',outfile);
+%     bidata = CRISMdata(basename_edrbi,dirfullpath_local_obsbi);
+%     EDRBIdataList = [EDRBIdataList bidata];
+% end
 
 % read HKP
 for i=1:length(EDRBIdataList)
@@ -109,6 +110,6 @@ for b=1:B
     c1(1,:,b) = chat(2,:);
 end
 
-img_bias = c0;
+imgBI = c0;
 
 end

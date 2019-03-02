@@ -288,12 +288,14 @@ classdef CRISMdata < HSI
         
         function [cdr] = readCDR(obj,acro)
             if iscell(obj.basenamesCDR.(acro))
-                cdr = cell(1,length(obj.basenamesCDR.(acro)));
+                % cdr = cell(1,length(obj.basenamesCDR.(acro)));
+                cdr = CRISMdata.empty(0,0);
                 for i=1:length(obj.basenamesCDR.(acro))
                     basename_acro = obj.basenamesCDR.(acro){i};
                     dirpath_acro = obj.dir_cdr.(acro){i};
                     data = CRISMdata(basename_acro,dirpath_acro);
-                    cdr{i} = data;
+                    % cdr{i} = data;
+                    cdr = [cdr data];
                 end
                 obj.cdr.(acro) = cdr;
             else
@@ -317,12 +319,14 @@ classdef CRISMdata < HSI
         
         function [source_obs] = read_SOURCE_OBS(obj,actID)
             if iscell(obj.basenames_SOURCE_OBS.(actID))
-                source_obs = cell(1,length(obj.basenames_SOURCE_OBS.(actID)));
+                %source_obs = cell(1,length(obj.basenames_SOURCE_OBS.(actID)));
+                source_obs = CRISMdata.empty(0,0);
                 for i=1:length(obj.basenames_SOURCE_OBS.(actID))
                     basename_acro = obj.basenames_SOURCE_OBS.(actID){i};
                     dirpath_acro = obj.dir_.(actID){i};
                     data = CRISMdata(basename_acro,dirpath_acro);
-                    source_obs{i} = data;
+                    %source_obs{i} = data;
+                    source_obs = [source_obs data];
                 end
                 obj.source_obs.(actID) = source_obs;
             else

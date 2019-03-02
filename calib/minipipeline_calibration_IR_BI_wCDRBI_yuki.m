@@ -90,9 +90,38 @@ HDdata = CDRBIdata.readCDR('HD');
 HKdata = CDRBIdata.readCDR('HK');
 
 % BPdata and DMdata are only necessary when bprmvl is on.
+    function [BPdata] = get_BPdata_fromEDRBI(EDRBIdataList_s,dwld)
+        sclk_EDRBI_list = zeros(1,length(EDRBIdataList_s));
+        for ii=1:length(EDRBIdataList_s)
+            [sclk_stop_i] = EDRBIdataList_s(ii).get_sclk_stop();
+            sclk_EDRBI_list(ii) = sclk_stop_i;
+        end
+
+        sclk_stop = max(sclk_EDRBI_list);
+        propBP_search = create_propCDR4basename;
+        propBP_search.acro_calibration_type = 'BP';
+        propBP_search.binning = get_binning_id(EDRBIdataList_s(1).lbl.PIXEL_AVERAGING_WIDTH);
+        propBP_search.wavelength_filter = EDRBIdataList_s(1).lbl.MRO_WAVELENGTH_FILTER;
+        propBP_search.frame_rate = get_frame_rate_id(EDRBIdataList_s(1).lbl.MRO_FRAME_RATE{1});
+        % for the BP products, exposure is almost always 0. Do not set it.
+        % propBP_search.exposure = DFdata.lbl.MRO_EXPOSURE_PARAMETER;
+        propBP_search.sensor_id = EDRBIdataList_s(1).lbl.MRO_SENSOR_ID;
+        propBP_search.sclk = floor(sclk_stop);
+        [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1,'force',1);
+        get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
+        BPdata = CRISMdata(basenameBPmrb,'');
+        for ii=1:length(EDRBIdataList_s)
+            basenameEDRBI_i = EDRBIdataList_s(ii).basename;
+            if isempty(extractMatchedBasename_v2(basenameEDRBI_i,BPdata.lbl.SOURCE_PRODUCT_ID))
+                error('It seems no BPdata associated with %s.',basenameEDRBI_i);
+            end
+        end
+    end
 if bprmvl
-    DMdata = CDRBIdata.readCDR('DM');
-    
+    % find BPdata
+    BPdata = get_BPdata_fromEDRBI(EDRBIdataList_s,dwld);
+    BPdata.load_basenamesCDR();
+    DMdata = BPdata.readCDR('DM');
 else
     DMdata = []; BPdata = [];
 end

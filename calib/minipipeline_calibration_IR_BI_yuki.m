@@ -1,4 +1,4 @@
-function [imgBI] = minipipeline_calibration_IR_BI_yuki(EDRBIdataList_s,PPdata,BSdata,HDdata,HKdata,DMdata,BPdata,varargin)
+function [imgBI] = minipipeline_calibration_IR_BI_yuki(EDRBIdataList,PPdata,BSdata,HDdata,HKdata,DMdata,BPdata,varargin)
 % [imgBI] = minipipeline_calibration_IR_BI_yuki(EDRBIdataList_s,PPdata,BSdata,HDdata,HKdata,DMdata,BPdata,varargin)
 %  re-calculate CDR BI data from the collection of EDR BI data
 %  INPUTS
@@ -47,18 +47,23 @@ end
 
 %-------------------------------------------------------------------------%
 % check frame rate
-propEDRBIdataList = [EDRBIdataList.prop];
-frame_rate_ids = [propEDRBIdataList.frame_rate];
-if length(unique(frame_rate_ids)) > 1
+% propEDRBIdataList = [EDRBIdataList.prop];
+frame_rate_list = zeros(1,length(EDRBIdataList));
+for i=1:length(EDRBIdataList)
+    frame_rate_list(i) = EDRBIdataList(i).lbl.MRO_FRAME_RATE{1};
+end
+if length(unique(frame_rate_list)) > 1
     error('frame rate of the data does not seem to be unique.');
 end
 
 %-------------------------------------------------------------------------%
 % get exposuretime
-expo_timeList = zeros(length(EDRBIdataList_s),1);
-for i=1:length(EDRBIdataList_s)
-    frame_rate = EDRBIdataList_s(i).lbl.MRO_FRAME_RATE{1};
-    integ = EDRBIdataList_s(i).lbl.MRO_EXPOSURE_PARAMETER;
+expo_timeList = zeros(length(EDRBIdataList),1);
+integ_list = zeros(length(EDRBIdataList),1);
+for i=1:length(EDRBIdataList)
+    frame_rate = EDRBIdataList(i).lbl.MRO_FRAME_RATE{1};
+    integ = EDRBIdataList(i).lbl.MRO_EXPOSURE_PARAMETER;
+    integ_list(i) = integ;
     [t] = get_integrationTime(integ,frame_rate,'Hz');
     expo_timeList(i) = t;
 end
@@ -66,12 +71,12 @@ end
 %-------------------------------------------------------------------------%
 % covert raw 12bit biases to 14bits, then mean
 DN14a = []; 
-for i=1:length(EDRBIdataList_s)
+for i=1:length(EDRBIdataList)
     % read raw 12bit image -----------------------------------------------%
-    DN12 = EDRBIdataList_s(i).readimg();
+    DN12 = EDRBIdataList(i).readimg();
     % convert 12bits to 14bits -------------------------------------------%
-    EDRBIdataList_s(i).read_ROWNUM_TABLE();
-    [ DN14 ] = DN12toDN14( DN12,PPdata,EDRBIdataList_s(i).rownum_table );
+    EDRBIdataList(i).read_ROWNUM_TABLE();
+    [ DN14 ] = DN12toDN14( DN12,PPdata,EDRBIdataList(i).ROWNUM_TABLE );
     % flag saturated pixels ----------------------------------------------%
     if dn4095_rmvl
         flg_saturation = (DN12==4095);
@@ -86,7 +91,7 @@ for i=1:length(EDRBIdataList_s)
         otherwise
             error('Undefined mean_robust=%d',mean_robust);
     end
-    DN14a = cat(3,DN14a,DN14a_i);
+    DN14a = cat(1,DN14a,DN14a_i);
 end
 
 %-------------------------------------------------------------------------%
@@ -94,19 +99,23 @@ end
 [L,S,B] = size(DN14a);
 if isempty(BSdata.tab),BSdata.readTAB(); end
 term_a0IList = [];
-for i=1:length(EDRBIdataList_s)
-    binx = EDRBIdataList_s(i).lbl.PIXEL_AVERAGING_WIDTH;
-    hkt = EDRBIdataList_s(i).readHKT();
+for i=1:length(EDRBIdataList)
+    binx = EDRBIdataList(i).lbl.PIXEL_AVERAGING_WIDTH;
+    hkt = EDRBIdataList(i).readHKT();
     hkt = correctHKTwithHD(hkt,HDdata);
     hkt = correctHKTwithHK(hkt,HKdata);
     rate = cat(1,hkt.data.RATE);
+    rate = unique(rate);
+    if length(rate)>1
+        error('something wrong with rate information in HKT of %s',EDRBIdataList(i).basename);
+    end
     a0I = rateQuadrantTABformatter(rate,BSdata.tab,'A0','BINX',binx);
-    row_lambdaList = reshape(EDRBIdataList_s(i).rownum_table,[1 1 B])+1; % +1 is already performed.
-    integ_t = expo_timeList(i);
+    row_lambdaList = reshape(EDRBIdataList(i).ROWNUM_TABLE,[1 1 B])+1; % +1 is already performed.
+    integ_t = integ_list(i);
     term_integ_t = (502/480)*(480-integ_t);
     
     term_a0I = repmat(a0I,[1,1,B]).*heaviside(repmat(row_lambdaList,[1,S,1])-repmat(term_integ_t,[1,S,B]));
-    term_a0IList = cat(3,term_a0IList,term_a0I);
+    term_a0IList = cat(1,term_a0IList,term_a0I);
 end
 
 %-------------------------------------------------------------------------%
@@ -116,7 +125,7 @@ c0 = nan(1,S,B);
 c1 = nan(1,S,B);
 T = [ones(L,1) expo_timeList];
 for b=1:B
-    Y2 = Y3(:,:,B);
+    Y2 = Y3(:,:,b);
     chat = T\Y2;
     c0(1,:,b) = chat(1,:);
     c1(1,:,b) = chat(2,:);

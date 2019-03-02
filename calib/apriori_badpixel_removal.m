@@ -1,0 +1,79 @@
+function [ DN14c,BP ] = apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,varargin )
+% [ DN14c ] = apriori_badpixel_removal( DN14b,BPdata1,BPdata2 )
+%  Apply a priori bad pixel removal
+%  Input parameters:
+%    DN14b   : 14bit DN image (L,S,B) processed until quadratic ghost
+%    BPdata1 : CRISMdata obj, CDR BP data, using DF before the measurement
+%    BPdata2 : CRISMdata obj, CDR BP data, using DF after the measurement
+%  Output parameters
+%    DN14c    : processed 14bit DN data
+%    BP       : bad pixels
+%
+%  *Detail*
+
+interpOpt = 1;
+if (rem(length(varargin),2)==1)
+    error('Optional parameters should always go by pairs');
+else
+    for i=1:2:(length(varargin)-1)
+        switch upper(varargin{i})
+            case 'INTERPOPT'
+                interpOpt = varargin{i+1};
+            otherwise
+                % Hmmm, something wrong with the parameter string
+                error(['Unrecognized option: ''' varargin{i} '''']);
+        end
+    end
+end
+
+if isempty(BPdata1.img),BPdata1.readimg(); end
+if isempty(BPdata2.img),BPdata2.readimg(); end
+if isempty(DMdata.img),DMdata.readimg(); end
+
+[L,S,B] = size(DN14b);
+
+BP = or(BPdata1.img,BPdata2.img);
+
+DN14c = DN14b;
+% for l=1:L
+%     d = DN14b(l,:,:);
+%     d(BP) = nan;
+%     DN14c(l,:,:) = d;
+% end
+
+inMask = DMdata.img~=1;
+outMask = DMdata.img==1;
+
+switch interpOpt
+    case 1
+        % interpolation
+        for b = 1:B
+            imb = DN14c(:,:,b);
+            imbip = imb;
+            bp = squeeze(BP(1,:,b));
+            bp = and((bp==1),squeeze(outMask(1,:,b)));
+            gp = and((bp==0),squeeze(outMask(1,:,b)));
+            gp = find(gp);
+            xq = 1:S;
+            for l=1:L
+                if ~isempty(gp)
+                    y1ip = interp1(gp,imb(l,gp),xq(bp),'linear','extrap');
+                    imbip(l,bp) = y1ip;
+                end
+            end
+            DN14c(:,:,b) = imbip;
+        end
+    case 2
+end
+
+% restore the DMmask
+% inMask = DMdata.img~=1;
+% for l=1:L
+%     d = DN14c(l,:,:);
+%     d_ori = DN14b(l,:,:);
+%     d(inMask) = d_ori(inMask);
+%     DN14c(l,:,:) = d;
+% end
+
+
+end

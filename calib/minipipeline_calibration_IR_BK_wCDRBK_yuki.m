@@ -1,9 +1,9 @@
-function [RT14g_bkgd,BKdata_o] = minipipeline_calibration_IR_BK_wBK_yuki(CDRBKdata,BIdata,BPdata,varargin)
-% [RT14g_bkgd,BKdata_o] = minipipeline_calibration_IR_BK_wCDRBK_yuki(BKdata,varargin)
-%  re-calculate Background CDR using SOURCE_PRODUCTS stored in lbl of
+function [RT14g_bkgd,BKdata_o] = minipipeline_calibration_IR_BK_wCDRBK_yuki(CDRBKdata,CDRBIdata,CDRBPdata,varargin)
+% [RT14g_bkgd,BKdata_o] = minipipeline_calibration_IR_BK_wCDRBK_yuki(CDRBKdata,CDRBIdata,CDRBPdata,varargin)
+%  re-calculate Background CDR using SOURCE_PRODUCTS stored in lbl of CDR
 %  BKdata.
 %   INPUTS
-%    BKdata: CRISMdata object of the CDR BK data
+%    CDRBKdata: CRISMdata object of the CDR BK data
 %    BIdata: CRISMdata object of CDR BI data (estimation should be done
 %            outside for now.
 %    BPdata: CRISMdata object of CDR BP data (estimation should be done
@@ -87,7 +87,7 @@ DMdata = CDRBKdata.readCDR('DM');
 
 %-------------------------------------------------------------------------%
 [RT14g_bkgd,BKdata_o] = minipipeline_calibration_IR_BK_yuki(...
-    DFdata,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,BPdata,...
+    DFdata,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,CDRBIdata,DMdata,CDRBPdata,...
     GHdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',bprmvl,...
     'MEAN_ROBUST',mean_robust,'MEAN_DN14',mean_DN14);
 

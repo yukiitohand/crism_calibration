@@ -56,13 +56,14 @@ switch folder_type
         s = sclk/86400; % 86400=24*3600 (1 day)
         ds = floor(s);
         yyyy_doy_shifted = shift_yyyy_doy('1980_001',ds); % estimate yyyy_doy
+        yyyy_doy_shifted = shift_yyyy_doy(yyyy_doy_shifted,1);
 
         j=0;
         exist_flg=0;
         
         while (~exist_flg)
-            shift_day = 1-j; % start looking from the one day ahead, just in case.
-            yyyy_doy_shifted = shift_yyyy_doy(yyyy_doy_shifted,shift_day);
+            % start looking from the one day ahead, just in case.
+            
             subdir_remote = get_subdir_CDR_remote(acro,folder_type,yyyy_doy_shifted);
             subdir_local = get_subdir_CDR_local(acro,folder_type,yyyy_doy_shifted);
             [basenameCDRList] = crism_readDownloadBasename(basenameCDRPtrn,...
@@ -74,7 +75,7 @@ switch folder_type
                 basenameCDRmrb = basenameCDRList{idx_mrb};
                 exist_flg = 1;
             else
-                j=j+1;
+                yyyy_doy_shifted = shift_yyyy_doy(yyyy_doy_shifted,-1);
             end
         end
     case 2

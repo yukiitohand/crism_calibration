@@ -142,8 +142,7 @@ switch EDRdata.lbl.OBSERVATION_TYPE
     otherwise
         error('Please define for other cases')
 end
-
-vr = 'Y';
+vr = '';
 product_type = 'TRR';
 
 %% variable input arguments
@@ -193,6 +192,21 @@ end
 
 if force && skip_ifexist
     error('You are forcing or skipping? Not sure what you want');
+end
+
+if isempty(vr) % vr is hard coded if not set.
+    switch lower(mode_calib)
+        case 'yuki'
+            vr = 'Y';
+        case 'yuki2'
+            vr = 'B';
+        case 'yuki3'
+            vr = 'C';
+        case 'original'
+            vr = 'O';
+        otherwise
+            error('mode_calib %s is not defined.',mode_calib);
+    end
 end
 
 %% setting saving directory
@@ -275,8 +289,6 @@ end
 
 if ~exist(save_dir,'dir'), mkdir(save_dir); end
 
-
-
 %% main processing
 switch lower(mode_calib)
     case 'yuki'
@@ -289,6 +301,31 @@ switch lower(mode_calib)
             TRRIFdata,EDRdata,DFdata1,DFdata2,BKdata1,BKdata2,2,...
             'APBPRMVL',apbprmvl,'SAVE_MEMORY',save_mem,'DN4095_RMVL',1,...
             'BKGD_ROBUST',1);
+    case 'yuki3'
+        %custom SPdata
+        TRRIFdata.load_basenamesCDR();
+        TRRIFdata.readCDR('SP');
+        for i=1:length(TRRIFdata.cdr.SP)
+            spdata = TRRIFdata.cdr.SP(i);
+            spdata_prop = getProp_basenameCDR4(spdata.basename);
+            switch upper(spdata_prop.sensor_id)
+                case 'L'
+                    SPdata = spdata;
+                case 'S'
+                    SPdataVNIR = spdata;
+                otherwise
+                    error('sensor_id %s is wrong',sensor_id);
+            end
+        end
+        [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o]...
+          = minipipeline_calibration_IR_SP_wCDRSP_yuki(...
+            SPdata,2,'SAVE_MEMORY',save_mem,'APBPRMVL',apbprmvl,...
+            'BK_DN4095_RMVL',1,'BK_BPRMVL',0,...
+            'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',0);
+        [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_yuki(...
+            TRRIFdata,EDRdata,DFdata1,DFdata2,BKdata1,BKdata2,2,...
+            'APBPRMVL',apbprmvl,'SAVE_MEMORY',save_mem,'DN4095_RMVL',1,...
+            'BKGD_ROBUST',1,'SPdata_o',SPdata_o);
     case 'original'
         [RDn,RDn_woc] = pipeline_calibration_IR_original(TRRIFdata,EDRdata,...
             DFdata1,DFdata2,BKdata1,BKdata2,1,'APBPRMVL',apbprmvl,...

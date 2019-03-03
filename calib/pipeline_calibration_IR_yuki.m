@@ -27,11 +27,14 @@ save_mem = false;
 apbprmvl = 'HighOrd';
 dn4095_rmvl = false;
 bkgd_robust = false;
+SPdata_o = [];
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
 else
     for i=1:2:(length(varargin)-1)
         switch upper(varargin{i})
+            case 'SPDATA_O'
+                SPdata_o = varargin{i+1};
             case 'SAVE_MEMORY'
                 save_mem = varargin{i+1};
             case 'APBPRMVL'
@@ -300,7 +303,8 @@ SHdata = TRRIFdata.readCDR('SH');
 
 %-------------------------------------------------------------------------%
 % calculate spectroradiometric responsitivity
-[RSPj] = calculate_RSP(SPdata,SR);
+if isempty(SPdata_o), SPdata_o = SPdata;
+[RSPj] = calculate_RSP(SPdata_o,SR);
 rowNumTableRSPj = SPdata.read_ROWNUM_TABLE();
 
 %-------------------------------------------------------------------------%

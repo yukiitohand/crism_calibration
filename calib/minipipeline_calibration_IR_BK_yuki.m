@@ -1,6 +1,6 @@
-function [RT14g_bkgd,BKdata_o] = minipipeline_calibration_IR_BK_yuki(...
+function [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_yuki(...
     DFdata,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,BPdata,GHdata,LCdata,varargin)
-% [RT14g_bkgd,BKdata_o] = minipipeline_calibration_IR_BK_yuki(...
+% [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_yuki(...
 %    DFdata,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,BPdata,GHdata,LCdata,varargin)
 %  re-calculate Background from DF image.
 %   INPUTS
@@ -17,9 +17,10 @@ function [RT14g_bkgd,BKdata_o] = minipipeline_calibration_IR_BK_yuki(...
 %    GHdata:
 %    LCdata:
 %   OUTPUTS
-%    RT14g_bkgd: produced bakground image [1,S,B] (S: samples,B: bands) 
+%    RT14g_bkgd: produced background image [1,S,B] (S: samples,B: bands) 
 %    BKdata_o: BKdata that stores processed image at img. Band inverse is
 %               not performed.
+%    RT14g_df_all: produced background image [L,S,B] non averaged
 %   OPTIONAL PARAMETERS
 %   'DN4095_RMVL': binary, whether or not to perform replacement of saturated
 %                  pixels or not.
@@ -115,16 +116,19 @@ if mean_DN14
         otherwise
             error('Undefined bkgd_robust=%d',bkgd_robust);
     end
-
+else
+    DN14e_df = DN14d_df;
 end
 
 %-------------------------------------------------------------------------%
 % fourth step (nonlinearity correction)
 [ DN14g_df ] = nonlinearity_correction( DN14e_df,LCdata,hkt_dfcc,'BINX',binx );
+[ DN14g_df_all ] = nonlinearity_correction( DN14d_df,LCdata,hkt_dfcc,'BINX',binx );
 
 %-------------------------------------------------------------------------%
 % fifth step (division by exposure time)
 [ RT14g_df ] = divide_by_integrationTime( DN14g_df,hkt_dfcc );
+[ RT14g_df_all ] = divide_by_integrationTime( DN14g_df_all,hkt_dfcc );
 
 %-------------------------------------------------------------------------%
 % taking mean last

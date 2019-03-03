@@ -1,7 +1,8 @@
-function [RT14g_bkgd,BKdata_o] = minipipeline_calibration_IR_BK_wCDRBK_yuki(CDRBKdata,CDRBIdata,CDRBPdata,varargin)
-% [RT14g_bkgd,BKdata_o] = minipipeline_calibration_IR_BK_wCDRBK_yuki(CDRBKdata,CDRBIdata,CDRBPdata,varargin)
+function [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_wCDRBK_yuki(CDRBKdata,CDRBIdata,CDRBPdata,varargin)
+% [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_wCDRBK_yuki(CDRBKdata,CDRBIdata,CDRBPdata,varargin)
 %  re-calculate Background CDR using SOURCE_PRODUCTS stored in lbl of CDR
-%  BKdata.
+%  BKdata. This is a wrapper function for 
+%     "minipipeline_calibration_IR_BK_yuki"
 %   INPUTS
 %    CDRBKdata: CRISMdata object of the CDR BK data
 %    BIdata: CRISMdata object of CDR BI data (estimation should be done
@@ -9,9 +10,10 @@ function [RT14g_bkgd,BKdata_o] = minipipeline_calibration_IR_BK_wCDRBK_yuki(CDRB
 %    BPdata: CRISMdata object of CDR BP data (estimation should be done
 %            outside for now.
 %   OUTPUTS
-%    RT14g_bkgd: produced bakground image [1,S,B] (S: samples,B: bands) 
+%    RT14g_bkgd: produced background image [1,S,B] (S: samples,B: bands) 
 %    BKdata_o: BKdata that stores processed image at img. Band inverse is
 %               not performed.
+%    RT14g_df_all: produced background image [L,S,B] non averaged
 %   OPTIONAL PARAMETERS
 %   'DN4095_RMVL': binary, whether or not to perform replacement of saturated
 %                  pixels or not.
@@ -86,7 +88,7 @@ LCdata = CDRBKdata.readCDR('LC');
 DMdata = CDRBKdata.readCDR('DM');
 
 %-------------------------------------------------------------------------%
-[RT14g_bkgd,BKdata_o] = minipipeline_calibration_IR_BK_yuki(...
+[RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_yuki(...
     DFdata,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,CDRBIdata,DMdata,CDRBPdata,...
     GHdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',bprmvl,...
     'MEAN_ROBUST',mean_robust,'MEAN_DN14',mean_DN14);

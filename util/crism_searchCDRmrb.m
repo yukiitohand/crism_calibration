@@ -56,7 +56,7 @@ switch folder_type
         s = sclk/86400; % 86400=24*3600 (1 day)
         ds = floor(s);
         yyyy_doy_shifted = shift_yyyy_doy('1980_001',ds); % estimate yyyy_doy
-        yyyy_doy_shifted = shift_yyyy_doy(yyyy_doy_shifted,1);
+        %yyyy_doy_shifted = shift_yyyy_doy(yyyy_doy_shifted,1);
 
         j=0;
         exist_flg=0;
@@ -72,7 +72,13 @@ switch folder_type
             [propCDRcandidates] = getProp_basenameCDRList(basenameCDRList,propCDRref.level);
             [propCDRmrb,idx_mrb,psclk_mrb] = find_psclk_mrb_fromCDRpropList(propCDRcandidates,propCDRref);
             if ~isempty(propCDRmrb)
-                basenameCDRmrb = basenameCDRList{idx_mrb};
+                if iscell(basenameCDRList)
+                    basenameCDRmrb = basenameCDRList{idx_mrb};
+                elseif ischar(basenameCDRList)
+                    basenameCDRmrb = basenameCDRList;
+                else
+                    error('Something wrong...');
+                end
                 exist_flg = 1;
             else
                 yyyy_doy_shifted = shift_yyyy_doy(yyyy_doy_shifted,-1);
@@ -86,8 +92,12 @@ switch folder_type
         % [basenameCDRList] = readDownloadBasename_v3(basenameCDRPtrn,dirpath_cdr,remote_subdir,varargin{:});
         [propCDRcandidates] = getProp_basenameCDRList(basenameCDRList,propCDRref.level);
         [propCDRmrb,idx_mrb,psclk_mrb] = find_psclk_mrb_fromCDRpropList(propCDRcandidates,propCDRref);
-        if ~isempty(propCDRmrb)
+        if iscell(basenameCDRList)
             basenameCDRmrb = basenameCDRList{idx_mrb};
+        elseif ischar(basenameCDRList)
+            basenameCDRmrb = basenameCDRList;
+        else
+            error('Something wrong...');
         end
     case 3
         subdir_local = joinPath('CAT_ENVI/aux_files/CDRs/',acro);
@@ -97,8 +107,12 @@ switch folder_type
         [basenameCDRList] = extractMatchedBasename_v2(basenameCDRPtrn,[{fnamelist.name}]);
         [propCDRcandidates] = getProp_basenameCDRList(basenameCDRList,propCDRref.level);
         [propCDRmrb,idx_mrb,psclk_mrb] = find_psclk_mrb_fromCDRpropList(propCDRcandidates,propCDRref);
-        if ~isempty(propCDRmrb)
+        if iscell(basenameCDRList)
             basenameCDRmrb = basenameCDRList{idx_mrb};
+        elseif ischar(basenameCDRList)
+            basenameCDRmrb = basenameCDRList;
+        else
+            error('Something wrong...');
         end
     otherwise
         error('not defined case');

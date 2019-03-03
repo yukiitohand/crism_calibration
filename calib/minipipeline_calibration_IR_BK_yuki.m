@@ -91,7 +91,9 @@ hkt_dfcc = correctHKTwithHK(hkt_dfc,HKdata);
 
 %-------------------------------------------------------------------------%
 % replace saturated pixel
-DN14b_df(DFmask) = nan;
+if dn4095_rmvl
+    DN14b_df(DFmask) = nan;
+end
 % [DN14c_df] = saturation_removal(DN14b_df,VLdata,DFmask);
 
 %-------------------------------------------------------------------------%

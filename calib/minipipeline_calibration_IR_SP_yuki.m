@@ -1,16 +1,28 @@
-function [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = minipipeline_calibration_IR_SP_yuki(...
-    SPdata,DFdata1,DFdata2,BKdata1,BKdata2,BPdata1,BPdata2,bkoption,varargin)
-%   Mini pipeline for the calibration of the CRISM images
+function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_calibration_IR_SP_yuki(...
+    EDRSPdata,DFdata1,DFdata2,BKdata1,BKdata2,BPdata1,BPdata2,BIdata,...
+    PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,GHdata,DMdata,LCdata,LLdata,...
+    bkoption,varargin)
+% [RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_calibration_IR_SP_yuki(...
+%     EDRSPdata,DFdata1,DFdata2,BKdata1,BKdata2,BPdata1,BPdata2,BIdata,...
+%     PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,GHdata,DMdata,LCdata,LLdata,...
+%     bkoption,varargin)
+%   Mini pipeline for the calibration of CDR SPdata
 %  Input Parameters
-%   TRRIFdata, EDRdata: TRRIFdata is just for the information of CDR and
-%                       other information
+%   EDRSPdata: EDR SPdata
 %   DFdata1,DFdata2, prior and post DF measurements
 %   BKdata1,BKdata2, prior and post Background measurements
+%   PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,GHdata,DMdata,LCdata,LLdata
 %   bkoption: option for the use of background image. {1,2}
 %             1: linear background estimation using prior and post dark
 %                measurements.
 %             2: flat background estimation using only prior dark
 %                measurements.
+%   OUTPUTS
+%    SPdata_o: SPdata that stores processed image at img. Band inverse is
+%               not performed. RT14j_woc is stored.
+%    RT14j_woc: non interpolated version of SPdata
+%    RT14j: interpolated version of SPdata
+%    RT14h2_bk1_o: non interpolated version of processed dark frame
 %   Optional Parameters
 %    'SAVE_MEMORY'
 %       saving memory or not. true or false
@@ -24,10 +36,28 @@ function [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = minipipeline_calibration_IR_SP_yuki
 %                  is used for the estimation of the higher order leaked 
 %                  light
 %       (default) 'HighOrd'
+%
+%   ****** Parameters for manual BK production ****************************
+%   'BK_DN4095_RMVL': binary, whether or not to perform replacement of saturated
+%                  pixels or not.
+%                  (default) true
+%   'BK_MEAN_ROBUST': integer {0,1}, mode for how mean operation is performed.
+%        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
+%        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
+%      (default) 1
+%   'BK_BPRMVL'     : binary, whether or not to perform bad pixel removal. 
+%                  (default) false     
+%   'BK_MEAN_DN14'  : binary,when mean operation is performed
+%                  1: before non-linearity correction
+%                  0: last (after divided by integration time
+%                  (default) 1
 save_mem = false;
 apbprmvl = 'HighOrd';
-dn4095_rmvl = false;
-bkgd_robust = false;
+bk_dn4095_rmvl = true;
+bk_mean_robust = 1;
+bk_bprmvl = false;
+bk_mean_DN14 = true;
+
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
 else
@@ -40,13 +70,14 @@ else
                 if ~any(strcmpi(apbprmvl,{'HighOrd','None'}))
                     error('apbprmvl (%s) should be either {"HighOrd","None"}',apbprmvl);
                 end
-            case 'DN4095_RMVL'
-                dn4095_rmvl = varargin{i+1};
-            case 'BKGD_ROBUST'
-                bkgd_robust = varargin{i+1};
-                if bkoption==1
-                    error('no effect of "Bkgd_robust" when bkoption=%d',bkoption);
-                end
+            case 'BK_DN4095_RMVL'
+                bk_dn4095_rmvl = varargin{i+1};
+            case 'BK_BPRMVL'
+                bk_bprmvl = varargin{i+1};
+            case 'BK_MEAN_ROBUST'
+                bk_mean_robust = varargin{i+1};
+            case 'BK_MEAN_DN14'
+                bk_mean_DN14 = varargin{i+1};
             otherwise
                 % Hmmm, something wrong with the parameter string
                 error(['Unrecognized option: ''' varargin{i} '''']);
@@ -55,76 +86,31 @@ else
 end
 
 if isempty(SPdata.basenamesCDR), SPdata.load_basenamesCDR(); end
-if isempty(SPdata.basenames_SOURCE_OBS)
-    SPdata.load_basenames_SOURCE_OBS(); 
-end
 
+%-------------------------------------------------------------------------%
+% actual processing
+%-------------------------------------------------------------------------%
+frame_rate = EDRSPdata.lbl.MRO_FRAME_RATE{1};
+binx = EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH;
 
-% get EDRSPdata from SPdata
-basenameEDRSP = SPdata.basenames_SOURCE_OBS.SP;
-if iscell(basenameEDRSP)
-    error('Mulitple EDR SP is used. not supported.');
-end
-EDRSPdata = CRISMdata(basenameEDRSP,'');
-
-% get DFdata from SPdata
-propEDRDF1 = create_propOBSbasename();
-propEDRDF1.obs_counter = sprintf('%02s',dec2hex(hex2dec(EDRSPdata.prop.obs_counter)-1));
-propEDRDF1.obs_class_type = EDRSPdata.prop.obs_class_type;
-propEDRDF1.obs_id = EDRSPdata.prop.obs_id;
-propEDRDF1.product_type = EDRSPdata.prop.product_type;
-propEDRDF1.sensor_id = EDRSPdata.prop.sensor_id;
-propEDRDF1.activity_id = 'DF';
-
-[~,~,~,basenameEDRDF1] = get_dirpath_observation_fromProp(propEDRDF1,'dwld',1);
-
-DFdata1 = CRISMdata(basenameEDRDF1,'');
-sclk_df1 = DFdata1.get_sclk_stop();
-
-
-% get BKdata using sclk of the DFdata
-
-
-
-% get BPdata using sclk of the DFdata
-
-
-
-frame_rate = SPdata.lbl.MRO_FRAME_RATE{1};
-binx = SPdata.lbl.PIXEL_AVERAGING_WIDTH;
-
-DN = EDRdata.readimg();
-if dn4095_rmvl
+DN = EDRSPdata.readimg();
+if bk_dn4095_rmvl
     flg_saturation = (DN==4095); % added by Yuki Feb.18, 2019 
 end
 
 % it was expected that saturated pixels are taken as nan after the
 % subtraction of background, but it seems that sometimes, it doesn't occur 
 % maybe because of some are not saturated.
-rownum_table = EDRdata.read_ROWNUM_TABLE();
+rownum_table = EDRSPdata.read_ROWNUM_TABLE();
 %-------------------------------------------------------------------------%
 % first step (DN12 --> DN14)
-PPdata = SPdata.readCDR('PP');
 [ DN14 ] = DN12toDN14( DN,PPdata,rownum_table );
 if save_mem
     clear DN;
 end
 %-------------------------------------------------------------------------%
 % second step (subtract bias)
-SPdata.readCDR('BI');
-for i=1:length(SPdata.cdr.BI)
-    bidata = SPdata.cdr.BI{i};
-    if bidata.lbl.MRO_FRAME_RATE{1} == frame_rate
-        BIdata = bidata;
-    end
-end
-BSdata = SPdata.readCDR('BS');
-DBdata = SPdata.readCDR('DB');
-EBdata = SPdata.readCDR('EB');
-HDdata = SPdata.readCDR('HD');
-HKdata = SPdata.readCDR('HK');
-% TRRIFdata.readHKT(); hkt = TRRIFdata.hkt;
-hkt = EDRdata.readHKT();
+hkt = EDRSPdata.readHKT();
 hkt = correctHKTwithHD(hkt,HDdata);
 hkt = correctHKTwithHK(hkt,HKdata);
 % using Temperature recorded in the label in TRR I/F data 
@@ -135,7 +121,6 @@ if save_mem
 end
 %-------------------------------------------------------------------------%
 % the third step (remove detector quadrant electronics ghost)
-GHdata = SPdata.readCDR('GH');
 [ DN14b,sumGhost ] = remove_quadrantGhost( DN14a,GHdata,hkt,'BINX',binx );
 if save_mem
     clear DN14a;
@@ -143,40 +128,6 @@ end
 
 %-------------------------------------------------------------------------%
 % apply bad a priori pixel interpolation
-SPdata.readCDR('BP');
-switch EDRdata.lbl.OBSERVATION_TYPE
-    case {'FRT','HRL','HRS','MSP','HSP'}
-        for i=1:length(SPdata.cdr.BP)
-            bpdata = SPdata.cdr.BP(i);
-            if ~any(strcmpi(EDRdata.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
-                if any(strcmpi(DFdata1.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
-                    BPdata1 = bpdata;
-                elseif any(strcmpi(DFdata2.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
-                    BPdata2 = bpdata;
-                end
-            else
-                BPdata_post = bpdata;
-            end
-        end
-    case {'FRS','ATO'}
-        % in case of FRS, DFdata1 and DFdata2 are same.
-        for i=1:length(SPdata.cdr.BP)
-            bpdata = SPdata.cdr.BP(i);
-            if ~any(strcmpi(EDRdata.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
-                if any(strcmpi(DFdata1.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
-                    BPdata1 = bpdata; BPdata2 = bpdata;
-                end
-            else
-                BPdata_post = bpdata;
-            end
-        end
-    otherwise
-        error('Undefined observation type %s.',EDRdata.lbl.OBSERVATION_TYPE);
-end
-
-DMdata = SPdata.readCDR('DM');
-% [ DN14c,BP ] = apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
-
 switch upper(apbprmvl)
     case 'HIGHORD'
         [ DN14c,BP ] = apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
@@ -190,13 +141,26 @@ end
 % saturation removal is performed after detector quadrant ghost removal.
 % this way is manually defined by Yuki. Doesn't follow the direction in the
 % crism_dpsis.pdf
-if dn4095_rmvl
+if bk_dn4095_rmvl
     DN14b(flg_saturation) = nan;
 end
 
 %-------------------------------------------------------------------------%
+% step 3.5 (take a mean over the obtained DN14 data)
+% This step is specific for SP processing pipeline
+switch bk_mean_robust
+    case 0
+        DN14b = nanmean(DN14b(:,:,:),1);
+        DN14c = nanmean(DN14c(:,:,:),1);
+    case 1
+        DN14b = robust_v2('mean',DN14b,1,'NOutliers',2);
+        DN14c = robust_v2('mean',DN14c,1,'NOutliers',2);
+    otherwise
+        error('Undefined mean_robust=%d',bk_mean_robust);
+end
+
+%-------------------------------------------------------------------------%
 % fourth step (nonlinearity correction)
-LCdata = SPdata.readCDR('LC');
 [ DN14g ] = nonlinearity_correction( DN14c,LCdata,hkt,'BINX',binx );
 [ DN14g_woc ] = nonlinearity_correction( DN14b,LCdata,hkt,'BINX',binx );
 if save_mem
@@ -215,10 +179,14 @@ end
 %%
 %-------------------------------------------------------------------------%
 % process darks from scratch
-[~,BKdata1_o] = calculate_Bkgd_wDF(DFdata1,bkgd_robust,PPdata,BSdata,...
-    DBdata,EBdata,HDdata,HKdata,BIdata,GHdata,LCdata);
-[~,BKdata2_o] = calculate_Bkgd_wDF(DFdata2,bkgd_robust,PPdata,BSdata,...
-    DBdata,EBdata,HDdata,HKdata,BIdata,GHdata,LCdata);
+[RT14g_df1_1,BKdata1_o,RT14g_df1] = minipipeline_calibration_IR_BK_yuki(...
+    DFdata1,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
+    BPdata1,GHdata,LCdata,'DN4095_RMVL',bk_dn4095_rmvl,'BPRMVL',bk_bprmvl,...
+    'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14);
+[RT14g_df1_2,BKdata2_o,RT14g_df2] = minipipeline_calibration_IR_BK_yuki(...
+    DFdata2,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
+    BPdata2,GHdata,LCdata,'DN4095_RMVL',bk_dn4095_rmvl,'BPRMVL',bk_bprmvl,...
+    'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14);
 %%
 %-------------------------------------------------------------------------%
 % background subtraction
@@ -240,7 +208,6 @@ end
 %-------------------------------------------------------------------------%
 % dark column subtract
 % I think additional dark column subtract is applied somewhere
-DMdata = SPdata.readCDR('DM');
 [RT14h2,dc] = dark_column_subtract(RT14h,DMdata);
 [RT14h2_woc,dc] = dark_column_subtract(RT14h_woc,DMdata);
 [RT14h2_bk1_o,dc_bk1] = dark_column_subtract(RT14h_bk1_o,DMdata);
@@ -251,9 +218,13 @@ end
 
 %-------------------------------------------------------------------------%
 % second order light removal
-LLdata = SPdata.readCDR('LL');
 [RT14j,K] = subtract_highorderlight(RT14h2,LLdata);
 RT14j_woc = RT14h2_woc - K;
 if save_mem
     clear RT14h2 RT14h2_woc;
+end
+
+SPdata_o = CRISMdata(EDRSPdata.basename,'');
+SPdata_o.img = RT14j_woc;
+
 end

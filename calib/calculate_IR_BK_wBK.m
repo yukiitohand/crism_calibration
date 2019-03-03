@@ -1,4 +1,4 @@
-function [RT14g_bkgd,BKdata_o] = calculate_IR_BK_wBK(BKdata,bkgd_robust)
+function [RT14g_bkgd,BKdata_o] = calculate_IR_BK_wBK(BKdata,varargin)
 % [RT14g_bkgd,BKdata_o] = calculate_IR_BK_wBK(BKdata,bkgd_robust)
 %  re-calculate Background CDR using SOURCE_PRODUCTS stored in lbl of
 %  BKdata.
@@ -37,6 +37,10 @@ end
 
 GHdata = BKdata.readCDR('GH');
 LCdata = TRRIFdata.readCDR('LC');
+
+cdr = [];
+cdr.PP = PPdata;
+cdr.BS = BSdata;
 
 [RT14g_bkgd,BKdata_o] = calculate_Bkgd_wDF(DFdata,bkgd_robust,...
         PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,GHdata,LCdata);

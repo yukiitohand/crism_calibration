@@ -57,6 +57,7 @@ bk_dn4095_rmvl = true;
 bk_mean_robust = 1;
 bk_bprmvl = false;
 bk_mean_DN14 = true;
+SPdata_ref = [];
 
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
@@ -78,14 +79,14 @@ else
                 bk_mean_robust = varargin{i+1};
             case 'BK_MEAN_DN14'
                 bk_mean_DN14 = varargin{i+1};
+            case 'SPDATA_REF'
+                SPdata_ref = varargin{i+1};
             otherwise
                 % Hmmm, something wrong with the parameter string
                 error(['Unrecognized option: ''' varargin{i} '''']);
         end
     end
 end
-
-if isempty(SPdata.basenamesCDR), SPdata.load_basenamesCDR(); end
 
 %-------------------------------------------------------------------------%
 % actual processing
@@ -114,7 +115,7 @@ hkt = EDRSPdata.readHKT();
 hkt = correctHKTwithHD(hkt,HDdata);
 hkt = correctHKTwithHK(hkt,HKdata);
 % using Temperature recorded in the label in TRR I/F data 
-% [ DN14a,BI_m ] = subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,TRRIFdata.lbl );
+%[ DN14a,BI_m ] = subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,[],'BINX',binx);
 [ DN14a,BI_m ] = subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,'BINX',binx);
 if save_mem
     clear DN14;
@@ -142,7 +143,10 @@ end
 % this way is manually defined by Yuki. Doesn't follow the direction in the
 % crism_dpsis.pdf
 if bk_dn4095_rmvl
-    DN14b(flg_saturation) = nan;
+    DN14d = DN14c;
+    DN14d(flg_saturation) = nan;
+    DN14d_woc = DN14b;
+    DN14d_woc(flg_saturation) = nan;
 end
 
 %-------------------------------------------------------------------------%
@@ -150,19 +154,19 @@ end
 % This step is specific for SP processing pipeline
 switch bk_mean_robust
     case 0
-        DN14b = nanmean(DN14b(:,:,:),1);
-        DN14c = nanmean(DN14c(:,:,:),1);
+        DN14e_woc = nanmean(DN14d_woc(:,:,:),1);
+        DN14e = nanmean(DN14d(:,:,:),1);
     case 1
-        DN14b = robust_v2('mean',DN14b,1,'NOutliers',2);
-        DN14c = robust_v2('mean',DN14c,1,'NOutliers',2);
+        DN14e_woc = robust_v2('mean',DN14d_woc,1,'NOutliers',4);
+        DN14e = robust_v2('mean',DN14d,1,'NOutliers',4);
     otherwise
         error('Undefined mean_robust=%d',bk_mean_robust);
 end
 
 %-------------------------------------------------------------------------%
 % fourth step (nonlinearity correction)
-[ DN14g ] = nonlinearity_correction( DN14c,LCdata,hkt,'BINX',binx );
-[ DN14g_woc ] = nonlinearity_correction( DN14b,LCdata,hkt,'BINX',binx );
+[ DN14g ] = nonlinearity_correction( DN14e,LCdata,hkt,'BINX',binx );
+[ DN14g_woc ] = nonlinearity_correction( DN14e,LCdata,hkt,'BINX',binx );
 if save_mem
     clear DN14c DN14b;
 end
@@ -171,6 +175,8 @@ end
 % fifth step (division by exposure time)
 [ RT14g ] = divide_by_integrationTime( DN14g,hkt );
 [ RT14g_woc ] = divide_by_integrationTime( DN14g_woc,hkt );
+% [ RT14g ] = divide_by_integrationTime( DN14c,hkt );
+% [ RT14g_woc ] = divide_by_integrationTime( DN14b,hkt );
 if save_mem
     clear DN14g DN14g_woc;
 end
@@ -187,6 +193,12 @@ end
     DFdata2,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
     BPdata2,GHdata,LCdata,'DN4095_RMVL',bk_dn4095_rmvl,'BPRMVL',bk_bprmvl,...
     'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14);
+hkt_df1 = DFdata1.readHKT();
+hkt_df1c = correctHKTwithHD(hkt_df1,HDdata);
+hkt_df1cc = correctHKTwithHK(hkt_df1c,HKdata);
+hkt_df2 = DFdata2.readHKT();
+hkt_df2c = correctHKTwithHD(hkt_df2,HDdata);
+hkt_df2cc = correctHKTwithHK(hkt_df2c,HKdata);
 %%
 %-------------------------------------------------------------------------%
 % background subtraction
@@ -212,14 +224,16 @@ end
 [RT14h2_woc,dc] = dark_column_subtract(RT14h_woc,DMdata);
 [RT14h2_bk1_o,dc_bk1] = dark_column_subtract(RT14h_bk1_o,DMdata);
 [RT14h2_bk2_o,dc_bk2] = dark_column_subtract(RT14h_bk2_o,DMdata);
-if save_mem
-    clear RT14h RT14h_woc;
-end
+% if save_mem
+%     clear RT14h RT14h_woc;
+% end
 
 %-------------------------------------------------------------------------%
 % second order light removal
 [RT14j,K] = subtract_highorderlight(RT14h2,LLdata);
 RT14j_woc = RT14h2_woc - K;
+% [RT14j,K] = subtract_highorderlight(RT14h,LLdata);
+% RT14j_woc = RT14h_woc - K;
 if save_mem
     clear RT14h2 RT14h2_woc;
 end

@@ -62,6 +62,7 @@ bk_mean_DN14 = true;
 dwld = 0;
 force = false;
 outfile = '';
+BIdata = [];
 
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
@@ -89,6 +90,8 @@ else
                 force = varargin{i+1};
             case 'OUT_FILE'
                 outfile = varargin{i+1};
+            case 'BIDATA'
+                BIdata = varargin{i+1};
             otherwise
                 % Hmmm, something wrong with the parameter string
                 error(['Unrecognized option: ''' varargin{i} '''']);
@@ -147,11 +150,18 @@ DFdata2.download(dwld);
         [sclk_df_stop,p_df_stop] = DFdata.get_sclk_stop();
         propBP_search.sclk = floor(sclk_df_stop);
         propBP_search.partition = p_df_stop;
-        [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1,'force',1);
+        [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1);
         get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
         BPdata = CRISMdata(basenameBPmrb,'');
         if isempty(extractMatchedBasename_v2(DFdata.basename,BPdata.lbl.SOURCE_PRODUCT_ID))
-            error('It seems no BPdata associated with %s.',DFdata.basename);
+            fprintf('It seems no BKdata associated with %s.\n in local database',DFdata.basename);
+            fprintf('Connect to remote server...\n');
+            [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1,'force',1);
+            get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
+            BPdata = CRISMdata(basenameBPmrb,'');
+            if isempty(extractMatchedBasename_v2(DFdata.basename,BPdata.lbl.SOURCE_PRODUCT_ID))
+                error('It seems no BKdata associated with %s.',DFdata.basename);
+            end
         end
     end
 BPdata1 = get_BPdata_fromDF(DFdata1,dwld);
@@ -187,18 +197,34 @@ end
         propBI_search.frame_rate = get_frame_rate_id(EDRBIdataList_s(1).lbl.MRO_FRAME_RATE{1});
         propBI_search.sensor_id = EDRBIdataList_s(1).lbl.MRO_SENSOR_ID;
         propBI_search.sclk = floor(sclk_stop);
-        [basenameBImrb,propBImrb] = crism_searchCDRmrb(propBI_search,'dwld',1,'force',1);
+        [basenameBImrb,propBImrb] = crism_searchCDRmrb(propBI_search,'dwld',1);
         get_dirpath_cdr(basenameBImrb,'dwld',dwld);
         BIdata = CRISMdata(basenameBImrb,'');
+        
+        is_in_local_database = 1;
         for ii=1:length(EDRBIdataList_s)
             basenameEDRBI_i = EDRBIdataList_s(ii).basename;
             if isempty(extractMatchedBasename_v2(basenameEDRBI_i,BIdata.lbl.SOURCE_PRODUCT_ID))
-                error('It seems no BIdata associated with %s.',basenameEDRBI_i);
+                fprintf('It seems no BIdata associated with %s.\n',basenameEDRBI_i);
+                is_in_local_database = 0;
             end
         end
+        if ~is_in_local_database
+            [basenameBImrb,propBImrb] = crism_searchCDRmrb(propBI_search,'dwld',1,'force',1);
+            get_dirpath_cdr(basenameBImrb,'dwld',dwld);
+            BIdata = CRISMdata(basenameBImrb,'');
+            for ii=1:length(EDRBIdataList_s)
+                basenameEDRBI_i = EDRBIdataList_s(ii).basename;
+                if isempty(extractMatchedBasename_v2(basenameEDRBI_i,BIdata.lbl.SOURCE_PRODUCT_ID))
+                    error('It seems no BIdata associated with %s.',basenameEDRBI_i);
+                end
+            end
+        end
+            
     end
-
-[BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s);
+if isempty(BIdata)
+    [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,dwld);
+end
 
 %-------------------------------------------------------------------------%
 % get BKdata using sclk of the DFdata
@@ -213,17 +239,36 @@ end
         [sclk_df_stop,p_df_stop] = DFdata.get_sclk_stop();
         propBK_search.sclk = floor(sclk_df_stop);
         propBK_search.partition = p_df_stop;
-        [basenameBKmrb,propBKmrb] = crism_searchCDRmrb(propBK_search,'dwld',1,'force',1);
+        [basenameBKmrb,propBKmrb] = crism_searchCDRmrb(propBK_search,'dwld',1);
         get_dirpath_cdr(basenameBKmrb,'dwld',dwld);
         BKdata = CRISMdata(basenameBKmrb,'');
         % check if the most recent before product is actually the one we are
         % looking for.
         if isempty(extractMatchedBasename_v2(DFdata.basename,BKdata.lbl.SOURCE_PRODUCT_ID))
-            error('It seems no BKdata associated with %s.',DFdata.basename);
+            fprintf('It seems no BKdata associated with %s.\n in local database',DFdata.basename);
+            fprintf('Connect to remote server...\n');
+            [basenameBKmrb,propBKmrb] = crism_searchCDRmrb(propBK_search,'dwld',1,'force',1);
+            get_dirpath_cdr(basenameBKmrb,'dwld',dwld);
+            BKdata = CRISMdata(basenameBKmrb,'');
+            if isempty(extractMatchedBasename_v2(DFdata.basename,BKdata.lbl.SOURCE_PRODUCT_ID))
+                error('It seems no BKdata associated with %s.',DFdata.basename);
+            end
         end
+        
     end
 BKdata1 = get_BKdata_fromDF(DFdata1,dwld);
 BKdata2 = get_BKdata_fromDF(DFdata2,dwld);
+
+%-------------------------------------------------------------------------%
+% Read othe CDRs
+PPdata = SPdata.readCDR('PP');
+BSdata = SPdata.readCDR('BS'); DBdata = SPdata.readCDR('DB');
+EBdata = SPdata.readCDR('EB'); HDdata = SPdata.readCDR('HD');
+HKdata = SPdata.readCDR('HK');
+GHdata = SPdata.readCDR('GH');
+LCdata = SPdata.readCDR('LC');
+DMdata = SPdata.readCDR('DM');
+LLdata = SPdata.readCDR('LL');
 
 %-------------------------------------------------------------------------%
 % main pipeline
@@ -232,6 +277,6 @@ BKdata2 = get_BKdata_fromDF(DFdata2,dwld);
     PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,GHdata,DMdata,LCdata,LLdata,...
     bkoption,'SAVE_MEMORY',save_mem,'APBPRMVL',apbprmvl,...
     'BK_DN4095_RMVL',bk_dn4095_rmvl,'BK_BPRMVL',bk_bprmvl,...
-    'BK_MEAN_ROBUST',bk_mean_robust,'BK_MEAN_DN14',bk_mean_DN14);
+    'BK_MEAN_ROBUST',bk_mean_robust,'BK_MEAN_DN14',bk_mean_DN14,'SPdata_ref',SPdata);
 
 end

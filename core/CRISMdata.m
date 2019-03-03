@@ -323,7 +323,7 @@ classdef CRISMdata < HSI
                 source_obs = CRISMdata.empty(0,0);
                 for i=1:length(obj.basenames_SOURCE_OBS.(actID))
                     basename_acro = obj.basenames_SOURCE_OBS.(actID){i};
-                    dirpath_acro = obj.dir_.(actID){i};
+                    dirpath_acro = obj.dir_SOURCE_OBS.(actID){i};
                     data = CRISMdata(basename_acro,dirpath_acro);
                     %source_obs{i} = data;
                     source_obs = [source_obs data];
@@ -357,17 +357,17 @@ classdef CRISMdata < HSI
 %             end 
 %         end
         
-        function [sclk] = get_sclk_start(obj)
+        function [sclk,p] = get_sclk_start(obj)
             sclkstr = obj.lbl.SPACECRAFT_CLOCK_START_COUNT;
             sclk = sscanf(sclkstr,'%d/%f');
-            sclk_period = sclk(1);
+            p = sclk(1);
             sclk = sclk(2);
         end
             
-        function [sclk] = get_sclk_stop(obj)
+        function [sclk,p] = get_sclk_stop(obj)
             sclkstr = obj.lbl.SPACECRAFT_CLOCK_STOP_COUNT;
             sclk = sscanf(sclkstr,'%d/%f');
-            sclk_period = sclk(1);
+            p = sclk(1);
             sclk = sclk(2);
         end
         

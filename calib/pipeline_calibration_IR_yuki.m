@@ -75,7 +75,7 @@ end
 % second step (subtract bias)
 TRRIFdata.readCDR('BI');
 for i=1:length(TRRIFdata.cdr.BI)
-    bidata = TRRIFdata.cdr.BI{i};
+    bidata = TRRIFdata.cdr.BI(i);
     if bidata.lbl.MRO_FRAME_RATE{1} == frame_rate
         BIdata = bidata;
     end
@@ -180,10 +180,14 @@ end
 %-------------------------------------------------------------------------%
 % [~,BKdata1_o] = calcluate_Bkgd_BK(BKdata1,bkgd_robust);
 % [~,BKdata2_o] = calcluate_Bkgd_BK(BKdata2,bkgd_robust);
-[~,BKdata1_o] = calculate_Bkgd_wDF(DFdata1,PPdata,BSdata,DBdata,EBdata,...
-    HDdata,HKdata,BIdata,GHdata,LCdata);
-[~,BKdata2_o] = calculate_Bkgd_wDF(DFdata2,PPdata,BSdata,DBdata,EBdata,...
-    HDdata,HKdata,BIdata,GHdata,LCdata);
+[~,BKdata1_o,RT14g_df1] = minipipeline_calibration_IR_BK_yuki(...
+    DFdata1,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
+    BPdata1,GHdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',0,...
+    'MEAN_ROBUST',bkgd_robust,'MEAN_DN14',0);
+[~,BKdata2_o,RT14g_df2] = minipipeline_calibration_IR_BK_yuki(...
+    DFdata2,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
+    BPdata2,GHdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',0,...
+    'MEAN_ROBUST',bkgd_robust,'MEAN_DN14',0);
 % DFdata1.readimg();
 % rownum_table_df1 = DFdata1.read_ROWNUM_TABLE();
 % [ DN14_df1 ] = DN12toDN14( DFdata1.img,PPdata,rownum_table_df1 );

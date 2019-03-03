@@ -12,8 +12,8 @@ function [propCDRmrb,idx_mrb,psclk_mrb] = find_psclk_mrb_fromCDRpropList(propCDR
 
 propCDRmrb = [];idx_mrb = []; psclk_mrb = [];
 if ~isempty(propCDRList)
-    psclkList = [propCDRList.sclk]+10^10*[propCDRList.partition];
-    psclk_ref = propCDRref.sclk+10^10*propCDRref.partition;
+    psclkList = [propCDRList.sclk];%+10^10*[propCDRList.partition];
+    psclk_ref = propCDRref.sclk;%+10^10*propCDRref.partition;
     [psclk_mrb,idx_mrb] = maxleq(psclkList,psclk_ref);
     if ~isempty(psclk_mrb)
         propCDRmrb = propCDRList(idx_mrb);

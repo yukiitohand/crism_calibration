@@ -6,9 +6,21 @@ function [ RT14g ] = divide_by_integrationTime( DN14g,hkt )
 
 integ_t = [hkt.data.EXPOSURE;];
 integ_t = integ_t(:);
+if L==1
+    integ_t = unique(integ_t);
+    if length(integ_t)>1
+        error('Something wrong');
+    end
+end
 
 rate = [hkt.data.RATE];
 rate = rate(:);
+if L==1
+    rate = unique(rate);
+    if length(rate)>1
+        error('Something wrong');
+    end
+end
 
 [t] = get_integrationTime(integ_t,rate);
 

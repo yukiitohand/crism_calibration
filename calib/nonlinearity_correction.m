@@ -53,6 +53,12 @@ end
 
 rate = [hkt.data.RATE];
 rate = rate(:);
+if L==1
+    rate = unique(rate);
+    if length(rate)>1
+        error('Something wrong');
+    end
+end
 
 a = rateQuadrantTABformatter(rate,LCdata.tab,'A','BINX',binx);
 b = rateQuadrantTABformatter(rate,LCdata.tab,'B','BINX',binx);

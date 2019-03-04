@@ -28,6 +28,7 @@ apbprmvl = 'HighOrd';
 dn4095_rmvl = false;
 bkgd_robust = false;
 SPdata_o = [];
+bk_meanDN14 = false;
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
 else
@@ -44,11 +45,13 @@ else
                 end
             case 'DN4095_RMVL'
                 dn4095_rmvl = varargin{i+1};
-            case 'BKGD_ROBUST'
+            case {'BKGD_ROBUST','BK_MEAN_ROBUST'}
                 bkgd_robust = varargin{i+1};
                 if bkoption==1
                     error('no effect of "Bkgd_robust" when bkoption=%d',bkoption);
                 end
+            case 'BK_MEAN_DN14'
+                bk_meanDN14 = varargin{i+1};
             otherwise
                 % Hmmm, something wrong with the parameter string
                 error(['Unrecognized option: ''' varargin{i} '''']);
@@ -186,11 +189,17 @@ end
 [~,BKdata1_o,RT14g_df1] = minipipeline_calibration_IR_BK_yuki(...
     DFdata1,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
     BPdata1,GHdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',0,...
-    'MEAN_ROBUST',bkgd_robust,'MEAN_DN14',0);
+    'MEAN_ROBUST',bkgd_robust,'MEAN_DN14',bk_meanDN14);
 [~,BKdata2_o,RT14g_df2] = minipipeline_calibration_IR_BK_yuki(...
     DFdata2,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
     BPdata2,GHdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',0,...
-    'MEAN_ROBUST',bkgd_robust,'MEAN_DN14',0);
+    'MEAN_ROBUST',bkgd_robust,'MEAN_DN14',bk_meanDN14);
+hkt_df1 = DFdata1.readHKT();
+hkt_df1c = correctHKTwithHD(hkt_df1,HDdata);
+hkt_df1cc = correctHKTwithHK(hkt_df1c,HKdata);
+hkt_df2 = DFdata2.readHKT();
+hkt_df2c = correctHKTwithHD(hkt_df2,HDdata);
+hkt_df2cc = correctHKTwithHK(hkt_df2c,HKdata);
 % DFdata1.readimg();
 % rownum_table_df1 = DFdata1.read_ROWNUM_TABLE();
 % [ DN14_df1 ] = DN12toDN14( DFdata1.img,PPdata,rownum_table_df1 );
@@ -202,7 +211,7 @@ end
 % [ DN14b_df1 ] = remove_quadrantGhost( DN14a_df1,GHdata,hkt_df1,'BINX',binx );
 % [ DN14g_df1 ] = nonlinearity_correction( DN14b_df1,LCdata,hkt_df1cc,'BINX',binx );
 % [ RT14g_df1 ] = divide_by_integrationTime( DN14g_df1,hkt_df1cc );
-% 
+
 % DFdata2.readimg();
 % rownum_table_df2 = DFdata2.read_ROWNUM_TABLE();
 % [ DN14_df2 ] = DN12toDN14( DFdata2.img,PPdata,rownum_table_df2 );
@@ -303,7 +312,7 @@ SHdata = TRRIFdata.readCDR('SH');
 
 %-------------------------------------------------------------------------%
 % calculate spectroradiometric responsitivity
-if isempty(SPdata_o), SPdata_o = SPdata;
+if isempty(SPdata_o), SPdata_o = SPdata; end
 [RSPj] = calculate_RSP(SPdata_o,SR);
 rowNumTableRSPj = SPdata.read_ROWNUM_TABLE();
 

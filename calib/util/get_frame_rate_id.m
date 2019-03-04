@@ -1,5 +1,5 @@
-function [frame_rate_id] = get_frame_rate_id(frame_rate)
-% [frame_rate_id] = get_frame_rate_id(frame_rate)
+function [frame_rate_id] = get_frame_rate_id(frame_rateHz)
+% [frame_rate_id] = get_frame_rate_id(frame_rateHz)
 % get_frame_rate_id from given frame_rate
 
 %   rate  rateHz[Hz]
@@ -9,7 +9,7 @@ function [frame_rate_id] = get_frame_rate_id(frame_rate)
 %      3      15
 %      4      30
 
-switch frame_rate
+switch frame_rateHz
     case 1
         frame_rate_id = 0;
     case 3.75
@@ -21,7 +21,7 @@ switch frame_rate
     case 30
         frame_rate_id = 4;
     otherwise
-        error('Invalid frame_rate %f.',frame_rate);
+        error('Invalid frame_rate %f.',frame_rateHz);
 end
 
 end

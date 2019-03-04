@@ -1,5 +1,5 @@
-function [datafrmtd] = rateQuadrantTABformatter(rate,tab,colname,varargin)
-% [datafrmtd] = rateQuadrantTABformatter(rate,tab,colname)
+function [datafrmtd] = rateQuadrantTABformatter(rate_id,tab,colname,varargin)
+% [datafrmtd] = rateQuadrantTABformatter(rate_id,tab,colname)
 %   format a column (colname) of the CRISM TAB data with columns defined 
 %   as 'RATE','QUADRANT', and something, like
 %         0,1,31.0
@@ -20,7 +20,7 @@ function [datafrmtd] = rateQuadrantTABformatter(rate,tab,colname,varargin)
 %         4,4,31.0
 %
 %  Input Parameters
-%     rate: frame rate at each line, [L x 1] or scalar
+%     rate_id: frame rate id at each line, [L x 1] or scalar
 %     tab: struct of table data having two fields 'data' and 'colinfo'
 %          the 'data' field is the data of the table having 'RATE' and 
 %          'QUADRANT'
@@ -64,12 +64,12 @@ S = 640 / binx;
 idxs = 4.*[tab.data.RATE;] + [tab.data.QUADRANT;];
 tbl_srtd(idxs) = tab.data;
 
-L = length(rate);
-rate = rate(:);
+L = length(rate_id);
+rate_id = rate_id(:);
 datafrmtd = zeros([L,S,1]);
 for i=1:4 % quadrant ID
     x = get_quadrantPxl(i,'BINX',binx);
-    idx = 4.*rate + i;
+    idx = 4.*rate_id + i;
     datatmp = [tbl_srtd(idx).(colname)];
     datatmp = datatmp(:);
     datafrmtd(:,x,1) = repmat(datatmp,[1,length(x),1]);

@@ -1,7 +1,7 @@
 function [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_yuki(...
-    DFdata,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,BPdata,GHdata,LCdata,varargin)
+    DFdata,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,BPdata,GHdata,VLdata,LCdata,varargin)
 % [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_yuki(...
-%    DFdata,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,BPdata,GHdata,LCdata,varargin)
+%    DFdata,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,BPdata,GHdata,VLdata,LCdata,varargin)
 %  re-calculate Background from DF image.
 %   INPUTS
 %    DFdata: CRISMdata object of the DF data
@@ -15,6 +15,7 @@ function [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_yuk
 %    DMdata:
 %    BPdata:
 %    GHdata:
+%    VLdata:
 %    LCdata:
 %   OUTPUTS
 %    RT14g_bkgd: produced background image [1,S,B] (S: samples,B: bands) 
@@ -65,12 +66,13 @@ end
 DN12_df = DFdata.readimg();
 
 frame_rate = DFdata.lbl.MRO_FRAME_RATE{1};
+rate_id = get_frame_rate_id(frame_rate);
 binx = DFdata.lbl.PIXEL_AVERAGING_WIDTH;
 
 %-------------------------------------------------------------------------%
 % flag saturated pixels
 if dn4095_rmvl
-    DFmask = (DN12_df==4095);
+    DFmask4095 = (DN12_df==4095);
 end
 
 %-------------------------------------------------------------------------%
@@ -92,17 +94,19 @@ hkt_dfcc = correctHKTwithHK(hkt_dfc,HKdata);
 
 %-------------------------------------------------------------------------%
 % replace saturated pixel
+% now uses VLdata
 if dn4095_rmvl
-    DN14b_df(DFmask) = nan;
+    [DN14c_df,mask_saturation,mask_dead] = saturation_removal(DN14b_df,VLdata,DFmask4095,...
+    'binx',binx,'rate',rate_id,'is_sphere',false);
+    % DN14b_df(DFmask4095) = nan;
 end
-% [DN14c_df] = saturation_removal(DN14b_df,VLdata,DFmask);
 
 %-------------------------------------------------------------------------%
 % bad pixel removal
 if bprmvl
-    [ DN14d_df,BP ] = apriori_badpixel_removal( DN14b_df,BPdata,BPdata,DMdata,'InterpOpt',1 );
+    [ DN14d_df,BP ] = apriori_badpixel_removal( DN14c_df,BPdata,BPdata,DMdata,'InterpOpt',1 );
 else
-    DN14d_df = DN14b_df;
+    DN14d_df = DN14c_df;
 end
 
 %-------------------------------------------------------------------------%

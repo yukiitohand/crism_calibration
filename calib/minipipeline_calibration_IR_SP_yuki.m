@@ -1,10 +1,10 @@
 function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_calibration_IR_SP_yuki(...
     EDRSPdata,DFdata1,DFdata2,BKdata1,BKdata2,BPdata1,BPdata2,BIdata,...
-    PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,GHdata,DMdata,LCdata,LLdata,...
+    PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,GHdata,VLdata,DMdata,LCdata,LLdata,...
     bkoption,varargin)
 % [RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_calibration_IR_SP_yuki(...
 %     EDRSPdata,DFdata1,DFdata2,BKdata1,BKdata2,BPdata1,BPdata2,BIdata,...
-%     PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,GHdata,DMdata,LCdata,LLdata,...
+%     PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,GHdata,VLdata,DMdata,LCdata,LLdata,...
 %     bkoption,varargin)
 %   Mini pipeline for the calibration of CDR SPdata
 %  Input Parameters
@@ -92,11 +92,12 @@ end
 % actual processing
 %-------------------------------------------------------------------------%
 frame_rate = EDRSPdata.lbl.MRO_FRAME_RATE{1};
+rate_id = get_frame_rate_id(frame_rate);
 binx = EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH;
 
 DN = EDRSPdata.readimg();
 if bk_dn4095_rmvl
-    flg_saturation = (DN==4095); % added by Yuki Feb.18, 2019 
+    flg_dsat = (DN==4095); % added by Yuki Feb.18, 2019 
 end
 
 % it was expected that saturated pixels are taken as nan after the
@@ -128,25 +129,29 @@ if save_mem
 end
 
 %-------------------------------------------------------------------------%
-% apply bad a priori pixel interpolation
-switch upper(apbprmvl)
-    case 'HIGHORD'
-        [ DN14c,BP ] = apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
-    case 'NONE'
-        DN14c = DN14b;
-end
-%-------------------------------------------------------------------------%
 % flag saturated pixels
-% VLdata = TRRIFdata.readCDR('VL');
+%VLdata = TRRIFdata.readCDR('VL');
 % added by Yuki Itoh.
 % saturation removal is performed after detector quadrant ghost removal.
 % this way is manually defined by Yuki. Doesn't follow the direction in the
 % crism_dpsis.pdf
+% Updated Mar.05 2019 by using VLdata
 if bk_dn4095_rmvl
-    DN14d = DN14c;
-    DN14d(flg_saturation) = nan;
-    DN14d_woc = DN14b;
-    DN14d_woc(flg_saturation) = nan;
+%     DN14d = DN14c;
+%     DN14d(flg_saturation) = nan;
+    [DN14c,mask_saturation,mask_dead] = saturation_removal(DN14b,VLdata,flg_dsat,...
+        'binx',binx,'rate',rate_id,'is_sphere',true);
+    %DN14c_woc = DN14b;
+    %DN14d_woc(flg_saturation) = nan;
+end
+
+%-------------------------------------------------------------------------%
+% apply bad a priori pixel interpolation
+switch upper(apbprmvl)
+    case 'HIGHORD'
+        [ DN14d,BP ] = apriori_badpixel_removal( DN14c,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
+    case 'NONE'
+        DN14d = DN14c;
 end
 
 %-------------------------------------------------------------------------%

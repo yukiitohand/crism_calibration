@@ -86,11 +86,12 @@ HKdata = CDRBKdata.readCDR('HK');
 GHdata = CDRBKdata.readCDR('GH');
 LCdata = CDRBKdata.readCDR('LC');
 DMdata = CDRBKdata.readCDR('DM');
+VLdata = CDRBKdata.readCDR('VL');
 
 %-------------------------------------------------------------------------%
 [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_yuki(...
     DFdata,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,CDRBIdata,DMdata,CDRBPdata,...
-    GHdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',bprmvl,...
+    GHdata,VLdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',bprmvl,...
     'MEAN_ROBUST',mean_robust,'MEAN_DN14',mean_DN14);
 
 

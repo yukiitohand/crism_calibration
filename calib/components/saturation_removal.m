@@ -73,7 +73,7 @@ IR_NOISE_LIMIT = rateQuadrantTABformatter(rate_id,VLdata.tab,'IR_NOISE_LIMIT','B
 IR_SENSITIVITY_LIMIT = rateQuadrantTABformatter(rate_id,VLdata.tab,'IR_SENSITIVITY_LIMIT','BINX',binx);
 
 % Next "analogue saturation" is removed.
-flg_asat = DN14>=(IR_14_BIT_LIMIT.*IR_LINEARITY_LIMIT);
+flg_asat = DN14b >=(IR_14_BIT_LIMIT.*IR_LINEARITY_LIMIT);
 DN14c(flg_asat) = nan;
 
 % next detect dead pixels

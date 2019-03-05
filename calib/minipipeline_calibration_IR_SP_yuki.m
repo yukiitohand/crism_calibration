@@ -58,6 +58,7 @@ bk_mean_robust = 1;
 bk_bprmvl = false;
 bk_mean_DN14 = true;
 SPdata_ref = [];
+mean_DN14 = true;
 
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
@@ -71,6 +72,8 @@ else
                 if ~any(strcmpi(apbprmvl,{'HighOrd','None'}))
                     error('apbprmvl (%s) should be either {"HighOrd","None"}',apbprmvl);
                 end
+            case 'MEAN_DN14'
+                mean_DN14 = varargin{i+1};
             case 'BK_DN4095_RMVL'
                 bk_dn4095_rmvl = varargin{i+1};
             case 'BK_BPRMVL'
@@ -107,6 +110,7 @@ rownum_table = EDRSPdata.read_ROWNUM_TABLE();
 %-------------------------------------------------------------------------%
 % first step (DN12 --> DN14)
 [ DN14 ] = DN12toDN14( DN,PPdata,rownum_table );
+
 if save_mem
     clear DN;
 end
@@ -140,7 +144,7 @@ if bk_dn4095_rmvl
 %     DN14d = DN14c;
 %     DN14d(flg_saturation) = nan;
     [DN14c,mask_saturation,mask_dead] = saturation_removal(DN14b,VLdata,flg_dsat,...
-        'binx',binx,'rate',rate_id,'is_sphere',true);
+        'binx',binx,'rate_id',rate_id,'is_sphere',true);
     %DN14c_woc = DN14b;
     %DN14d_woc(flg_saturation) = nan;
 end
@@ -157,21 +161,26 @@ end
 %-------------------------------------------------------------------------%
 % step 3.5 (take a mean over the obtained DN14 data)
 % This step is specific for SP processing pipeline
-switch bk_mean_robust
-    case 0
-        DN14e_woc = nanmean(DN14d_woc(:,:,:),1);
-        DN14e = nanmean(DN14d(:,:,:),1);
-    case 1
-        DN14e_woc = robust_v2('mean',DN14d_woc,1,'NOutliers',4);
-        DN14e = robust_v2('mean',DN14d,1,'NOutliers',4);
-    otherwise
-        error('Undefined mean_robust=%d',bk_mean_robust);
+if mean_DN14
+    switch bk_mean_robust
+        case 0
+            DN14e_woc = nanmean(DN14c(:,:,:),1);
+            DN14e = nanmean(DN14d(:,:,:),1);
+        case 1
+            DN14e_woc = robust_v2('mean',DN14c,1,'NOutliers',10);
+            DN14e = robust_v2('mean',DN14d,1,'NOutliers',10);
+        otherwise
+            error('Undefined mean_robust=%d',bk_mean_robust);
+    end
+else
+    DN14e_woc = DN14c;
+    DN14e = DN14d;
 end
 
 %-------------------------------------------------------------------------%
 % fourth step (nonlinearity correction)
 [ DN14g ] = nonlinearity_correction( DN14e,LCdata,hkt,'BINX',binx );
-[ DN14g_woc ] = nonlinearity_correction( DN14e,LCdata,hkt,'BINX',binx );
+[ DN14g_woc ] = nonlinearity_correction( DN14e_woc,LCdata,hkt,'BINX',binx );
 if save_mem
     clear DN14c DN14b;
 end
@@ -192,11 +201,11 @@ end
 % process darks from scratch
 [RT14g_df1_1,BKdata1_o,RT14g_df1] = minipipeline_calibration_IR_BK_yuki(...
     DFdata1,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
-    BPdata1,GHdata,LCdata,'DN4095_RMVL',bk_dn4095_rmvl,'BPRMVL',bk_bprmvl,...
+    BPdata1,GHdata,VLdata,LCdata,'DN4095_RMVL',bk_dn4095_rmvl,'BPRMVL',bk_bprmvl,...
     'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14);
 [RT14g_df1_2,BKdata2_o,RT14g_df2] = minipipeline_calibration_IR_BK_yuki(...
     DFdata2,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
-    BPdata2,GHdata,LCdata,'DN4095_RMVL',bk_dn4095_rmvl,'BPRMVL',bk_bprmvl,...
+    BPdata2,GHdata,VLdata,LCdata,'DN4095_RMVL',bk_dn4095_rmvl,'BPRMVL',bk_bprmvl,...
     'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14);
 hkt_df1 = DFdata1.readHKT();
 hkt_df1c = correctHKTwithHD(hkt_df1,HDdata);
@@ -243,7 +252,26 @@ if save_mem
     clear RT14h2 RT14h2_woc;
 end
 
+%-------------------------------------------------------------------------%
+% mean if 
+if ~mean_DN14
+    switch bk_mean_robust
+        case 0
+            RT14j_SP_woc = nanmean(RT14j_woc(:,:,:),1);
+            RT14j_SP= nanmean(RT14j(:,:,:),1);
+        case 1
+            RT14j_SP_woc = robust_v2('mean',RT14j_woc,1,'NOutliers',10);
+            RT14j_SP = robust_v2('mean',RT14j,1,'NOutliers',10);
+        otherwise
+            error('Undefined mean_robust=%d',bk_mean_robust);
+    end
+else
+    RT14j_SP_woc = RT14j_woc;
+    RT14j_SP = RT14j;
+end
+
+
 SPdata_o = CRISMdata(EDRSPdata.basename,'');
-SPdata_o.img = RT14j_woc;
+SPdata_o.img = RT14j_SP_woc;
 
 end

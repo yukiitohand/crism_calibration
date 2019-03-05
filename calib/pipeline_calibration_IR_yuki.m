@@ -59,11 +59,12 @@ else
     end
 end
 frame_rate = TRRIFdata.lbl.MRO_FRAME_RATE{1};
+rate_id = get_frame_rate_id(frame_rate);
 binx = TRRIFdata.lbl.PIXEL_AVERAGING_WIDTH;
 
 DN = EDRdata.readimg();
 if dn4095_rmvl
-    flg_saturation = (DN==4095); % added by Yuki Feb.18, 2019 
+    flg_dsat = (DN==4095); % added by Yuki Feb.18, 2019 
 end
 
 % it was expected that saturated pixels are taken as nan after the
@@ -74,6 +75,14 @@ rownum_table = EDRdata.read_ROWNUM_TABLE();
 % first step (DN12 --> DN14)
 PPdata = TRRIFdata.readCDR('PP');
 [ DN14 ] = DN12toDN14( DN,PPdata,rownum_table );
+
+if dn4095_rmvl
+    VLdata = TRRIFdata.readCDR('VL');
+    [~,mask_saturation,mask_dead] = saturation_removal(DN14,VLdata,flg_dsat,...
+    'binx',binx,'rate_id',rate_id,'is_sphere',false);
+end
+
+
 if save_mem
     clear DN;
 end
@@ -107,6 +116,21 @@ GHdata = TRRIFdata.readCDR('GH');
 [ DN14b,sumGhost ] = remove_quadrantGhost( DN14a,GHdata,hkt,'BINX',binx );
 if save_mem
     clear DN14a;
+end
+
+%-------------------------------------------------------------------------%
+% flag saturated pixels
+
+% added by Yuki Itoh.
+% saturation removal is performed after detector quadrant ghost removal.
+% this way is manually defined by Yuki. Doesn't follow the direction in the
+% crism_dpsis.pdf
+
+if dn4095_rmvl
+    VLdata = TRRIFdata.readCDR('VL');
+    [DN14c,mask_saturation,mask_dead] = saturation_removal(DN14b,VLdata,flg_dsat,...
+    'binx',binx,'rate_id',rate_id,'is_sphere',false);
+    % DN14b(flg_dsat) = nan;
 end
 
 %-------------------------------------------------------------------------%
@@ -147,26 +171,16 @@ DMdata = TRRIFdata.readCDR('DM');
 
 switch upper(apbprmvl)
     case 'HIGHORD'
-        [ DN14c,BP ] = apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
+        [ DN14d,BP ] = apriori_badpixel_removal( DN14c,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
     case 'NONE'
-        DN14c = DN14b;
-end
-%-------------------------------------------------------------------------%
-% flag saturated pixels
-% VLdata = TRRIFdata.readCDR('VL');
-% added by Yuki Itoh.
-% saturation removal is performed after detector quadrant ghost removal.
-% this way is manually defined by Yuki. Doesn't follow the direction in the
-% crism_dpsis.pdf
-if dn4095_rmvl
-    DN14b(flg_saturation) = nan;
+        DN14d = DN14c;
 end
 
 %-------------------------------------------------------------------------%
 % fourth step (nonlinearity correction)
 LCdata = TRRIFdata.readCDR('LC');
-[ DN14g ] = nonlinearity_correction( DN14c,LCdata,hkt,'BINX',binx );
-[ DN14g_woc ] = nonlinearity_correction( DN14b,LCdata,hkt,'BINX',binx );
+[ DN14g ] = nonlinearity_correction( DN14d,LCdata,hkt,'BINX',binx );
+[ DN14g_woc ] = nonlinearity_correction( DN14c,LCdata,hkt,'BINX',binx );
 if save_mem
     clear DN14c DN14b;
 end
@@ -188,11 +202,11 @@ end
 % [~,BKdata2_o] = calcluate_Bkgd_BK(BKdata2,bkgd_robust);
 [~,BKdata1_o,RT14g_df1] = minipipeline_calibration_IR_BK_yuki(...
     DFdata1,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
-    BPdata1,GHdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',0,...
+    BPdata1,GHdata,VLdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',0,...
     'MEAN_ROBUST',bkgd_robust,'MEAN_DN14',bk_meanDN14);
 [~,BKdata2_o,RT14g_df2] = minipipeline_calibration_IR_BK_yuki(...
     DFdata2,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
-    BPdata2,GHdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',0,...
+    BPdata2,GHdata,VLdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',0,...
     'MEAN_ROBUST',bkgd_robust,'MEAN_DN14',bk_meanDN14);
 hkt_df1 = DFdata1.readHKT();
 hkt_df1c = correctHKTwithHD(hkt_df1,HDdata);

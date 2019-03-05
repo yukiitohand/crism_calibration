@@ -143,8 +143,8 @@ end
 if bk_dn4095_rmvl
 %     DN14d = DN14c;
 %     DN14d(flg_saturation) = nan;
-    [DN14c,mask_saturation,mask_dead] = saturation_removal(DN14b,VLdata,flg_dsat,...
-        'binx',binx,'rate_id',rate_id,'is_sphere',true);
+    [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,flg_dsat,...
+        'binx',binx,'rate_id',rate_id);
     %DN14c_woc = DN14b;
     %DN14d_woc(flg_saturation) = nan;
 end
@@ -253,15 +253,20 @@ if save_mem
 end
 
 %-------------------------------------------------------------------------%
+% dead pixel removal
+[RT14jj,mask_dead] = deadpixel_removal(RT14j,VLdata,DMdata,'binx',binx,'rate_id',rate_id);
+[RT14jj_woc,mask_dead] = deadpixel_removal(RT14j_woc,VLdata,DMdata,'binx',binx,'rate_id',rate_id);
+
+%-------------------------------------------------------------------------%
 % mean if 
 if ~mean_DN14
     switch bk_mean_robust
         case 0
-            RT14j_SP_woc = nanmean(RT14j_woc(:,:,:),1);
-            RT14j_SP= nanmean(RT14j(:,:,:),1);
+            RT14j_SP_woc = nanmean(RT14jj_woc(:,:,:),1);
+            RT14j_SP= nanmean(RT14jj(:,:,:),1);
         case 1
-            RT14j_SP_woc = robust_v2('mean',RT14j_woc,1,'NOutliers',10);
-            RT14j_SP = robust_v2('mean',RT14j,1,'NOutliers',10);
+            RT14j_SP_woc = robust_v2('mean',RT14jj_woc,1,'NOutliers',10);
+            RT14j_SP = robust_v2('mean',RT14jj,1,'NOutliers',10);
         otherwise
             error('Undefined mean_robust=%d',bk_mean_robust);
     end

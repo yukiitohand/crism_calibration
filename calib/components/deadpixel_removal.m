@@ -1,10 +1,11 @@
-function [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,mask4095,varargin)
-% [DN14c] = saturation_removal(DN14b,VLdata,mask4095,varargin)
-%   mask and replace "digital" and "analogue" saturated pixels with nans
+function [RT14jj,mask_dead] = deadpixel_removal(RT14j,VLdata,DMdata,varargin)
+% [RT14jj,mask_dead] = deadpixel_removal(RT14j,VLdata,DMdata,varargin)
+%   Mask and replace dead pixels with nans. Sphere measurement only. Only
+%   scene pixels are evaluated.
 %  INPUTS
-%    DN14b: DN14b image [LxSxB]
+%    RT14j: RT14j image [LxSxB]
 %    VLdata: CRISMdata obj, CDR VL data
-%    mask4095: boolean image [LxSxB] of "digital" saturated pixels
+%    DMdata: CDR DM data
 %  Optional Parameters
 %    'RATE' (default) 1, frame rate id
 %   rate  rateHz[Hz]
@@ -25,9 +26,8 @@ function [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,mask4095,vara
 %              3     10
 %    Please specify only one of 'BINNING', and 'BINX'
 %  OUTPUTS
-%    DN14c: image processed, saturated pixels are replaced with nans.
-%    mask_saturation: [LxSxB] boolean image indicating the saturated pixels
-%                     with 1s.
+%    RT14jj: image processed, dead pixels are replaced with nans.
+%    mask_dead: [LxSxB] boolean image indicating dead pixels. 
 
 if isempty(VLdata.tab), VLdata.readTAB(); end
 
@@ -52,27 +52,20 @@ else
     end
 end
 
-[L,S,B] = size(DN14b);
-DN14c = DN14b;
+[L,S,B] = size(RT14j);
+RT14jj = RT14j;
 
-% first "digital saturation" is removed.
-if ~isempty(mask4095)
-    DN14c(mask4095) = nan;
-end
-
-IR_14_BIT_LIMIT = rateQuadrantTABformatter(rate_id,VLdata.tab,'IR_14_BIT_LIMIT','BINX',binx);
-IR_LINEARITY_LIMIT = rateQuadrantTABformatter(rate_id,VLdata.tab,'IR_LINEARITY_LIMIT','BINX',binx);
 % IR_NOISE_LIMIT = rateQuadrantTABformatter(rate_id,VLdata.tab,'IR_NOISE_LIMIT','BINX',binx);
-% IR_SENSITIVITY_LIMIT = rateQuadrantTABformatter(rate_id,VLdata.tab,'IR_SENSITIVITY_LIMIT','BINX',binx);
+IR_SENSITIVITY_LIMIT = rateQuadrantTABformatter(rate_id,VLdata.tab,'IR_SENSITIVITY_LIMIT','BINX',binx);
 
-% Next "analogue saturation" is removed.
-flg_asat = DN14b >=(IR_14_BIT_LIMIT.*IR_LINEARITY_LIMIT);
-DN14c(flg_asat) = nan;
 
-if ~isempty(mask4095)
-    mask_saturation = or(mask4095,flg_asat);
-else
-    mask_saturation = flg_asat;
-end
+% next detect dead pixels
+[RT14j_dm] = apply_DM(RT14j,DMdata,varargin);
+RT14j_dm_ext = reshape(RT14j_dm,[L*S,B]);
+RT14j_dm_med = reshape(nanmedian(RT14j_dm_ext,1),[1,1,B]);
+mask_dead = RT14jj < (IR_SENSITIVITY_LIMIT.*RT14j_dm_med);
+RT14jj(mask_dead) = nan;
+
+
 
 end

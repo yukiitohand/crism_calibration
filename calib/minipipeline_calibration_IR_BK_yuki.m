@@ -96,8 +96,8 @@ hkt_dfcc = correctHKTwithHK(hkt_dfc,HKdata);
 % replace saturated pixel
 % now uses VLdata
 if dn4095_rmvl
-    [DN14c_df,mask_saturation,mask_dead] = saturation_removal(DN14b_df,VLdata,DFmask4095,...
-    'binx',binx,'rate_id',rate_id,'is_sphere',false);
+    [DN14c_df,mask_saturation] = saturation_removal(DN14b_df,VLdata,DFmask4095,...
+    'binx',binx,'rate_id',rate_id);
     % DN14b_df(DFmask4095) = nan;
 end
 

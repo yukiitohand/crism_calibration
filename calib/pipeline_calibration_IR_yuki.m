@@ -128,8 +128,8 @@ end
 
 if dn4095_rmvl
     VLdata = TRRIFdata.readCDR('VL');
-    [DN14c,mask_saturation,mask_dead] = saturation_removal(DN14b,VLdata,flg_dsat,...
-    'binx',binx,'rate_id',rate_id,'is_sphere',false);
+    [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,flg_dsat,...
+    'binx',binx,'rate_id',rate_id);
     % DN14b(flg_dsat) = nan;
 end
 

@@ -63,6 +63,7 @@ dwld = 0;
 force = false;
 outfile = '';
 BIdata = [];
+mean_DN14 = false;
 
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
@@ -76,6 +77,8 @@ else
                 if ~any(strcmpi(apbprmvl,{'HighOrd','None'}))
                     error('apbprmvl (%s) should be either {"HighOrd","None"}',apbprmvl);
                 end
+            case 'MEAN_DN14'
+                mean_DN14 = varargin{i+1};
             case 'BK_DN4095_RMVL'
                 bk_dn4095_rmvl = varargin{i+1};
             case 'BK_BPRMVL'
@@ -276,8 +279,10 @@ VLdata = SPdata.readCDR('VL');
 [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_calibration_IR_SP_yuki(...
     EDRSPdata,DFdata1,DFdata2,BKdata1,BKdata2,BPdata1,BPdata2,BIdata,...
     PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,GHdata,VLdata,DMdata,LCdata,LLdata,...
-    bkoption,'SAVE_MEMORY',save_mem,'APBPRMVL',apbprmvl,...
+    bkoption,'SAVE_MEMORY',save_mem,'APBPRMVL',apbprmvl,'MEAN_DN14',mean_DN14,...
     'BK_DN4095_RMVL',bk_dn4095_rmvl,'BK_BPRMVL',bk_bprmvl,...
     'BK_MEAN_ROBUST',bk_mean_robust,'BK_MEAN_DN14',bk_mean_DN14,'SPdata_ref',SPdata);
 
+[BP1nan] = formatBP1nan(BPdata1);
+BPpri1nan = formatBPpri1nan(BPdata1,BPdata2);
 end

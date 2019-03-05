@@ -97,7 +97,7 @@ hkt_dfcc = correctHKTwithHK(hkt_dfc,HKdata);
 % now uses VLdata
 if dn4095_rmvl
     [DN14c_df,mask_saturation,mask_dead] = saturation_removal(DN14b_df,VLdata,DFmask4095,...
-    'binx',binx,'rate',rate_id,'is_sphere',false);
+    'binx',binx,'rate_id',rate_id,'is_sphere',false);
     % DN14b_df(DFmask4095) = nan;
 end
 
@@ -141,7 +141,7 @@ if ~mean_DN14
         case 0
             RT14g_bkgd = nanmean(RT14g_df(:,:,:),1);
         case 1
-            RT14g_bkgd = robust_v2('mean',RT14g_df,1,'NOutliers',2);
+            RT14g_bkgd = robust_v2('mean',RT14g_df,1,'NOutliers',4);
         otherwise
             error('Undefined bkgd_robust=%d',bkgd_robust);
     end

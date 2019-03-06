@@ -283,6 +283,7 @@ VLdata = SPdata.readCDR('VL');
     'BK_DN4095_RMVL',bk_dn4095_rmvl,'BK_BPRMVL',bk_bprmvl,...
     'BK_MEAN_ROBUST',bk_mean_robust,'BK_MEAN_DN14',bk_mean_DN14,'SPdata_ref',SPdata);
 
-[BP1nan] = formatBP1nan(BPdata1);
-BPpri1nan = formatBPpri1nan(BPdata1,BPdata2);
+% [BP1nan] = formatBP1nan(BPdata1);
+% BPpri1nan = formatBPpri1nan(BPdata1,BPdata2);
+%[BIdata_o,imgBI] = minipipeline_calibration_IR_BI_wCDRBI_yuki(BIdata,'DN4095_RMVL',0,'BPRMVL',0,'MEAN_ROBUST',1);
 end

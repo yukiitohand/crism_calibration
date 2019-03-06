@@ -76,13 +76,6 @@ rownum_table = EDRdata.read_ROWNUM_TABLE();
 PPdata = TRRIFdata.readCDR('PP');
 [ DN14 ] = DN12toDN14( DN,PPdata,rownum_table );
 
-if dn4095_rmvl
-    VLdata = TRRIFdata.readCDR('VL');
-    [~,mask_saturation,mask_dead] = saturation_removal(DN14,VLdata,flg_dsat,...
-    'binx',binx,'rate_id',rate_id,'is_sphere',false);
-end
-
-
 if save_mem
     clear DN;
 end

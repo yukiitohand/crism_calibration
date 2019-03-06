@@ -116,7 +116,7 @@ if mean_DN14
         case 0
             DN14e_df = nanmean(DN14d_df(:,:,:),1);
         case 1
-            DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
+            DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',4);
         otherwise
             error('Undefined bkgd_robust=%d',bkgd_robust);
     end

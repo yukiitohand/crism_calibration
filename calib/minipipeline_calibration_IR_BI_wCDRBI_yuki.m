@@ -1,9 +1,11 @@
-function [imgBI] = minipipeline_calibration_IR_BI_wCDRBI_yuki(CDRBIdata,varargin)
-% [imgBI] = minipipeline_calibration_IR_BI_wCDRBI_yuki(CDRBIdata,varargin)
+function [BIdata_o,imgBI] = minipipeline_calibration_IR_BI_wCDRBI_yuki(CDRBIdata,varargin)
+% [BIdata_o,imgBI] = minipipeline_calibration_IR_BI_wCDRBI_yuki(CDRBIdata,varargin)
 %  re-calculate CDR BI data without performing bad pixel interpolation
 %  INPUTS
 %    CDRBIdata: CRISMdata obj, reference CDR BI data.
 %  OUTPUTS
+%    BIdata_o : CRISMdata obj, basname is pointed to the original CDRBIdata
+%               storing imgBI at the attribute img.
 %    imgBI    : bias image [1 x S x B] (S: samples and B: bands)
 %  Optional Parameters
 %   'DN4095_RMVL': binary, whether or not to perform replacement of saturated
@@ -131,6 +133,8 @@ end
 [imgBI] = minipipeline_calibration_IR_BI_yuki(...
     EDRBIdataList_s,PPdata,BSdata,HDdata,HKdata,DMdata,BPdata,...
     'DN4095_RMVL',dn4095_rmvl,'BPRMVL',bprmvl,'MEAN_ROBUST',mean_robust);
+BIdata_o = CRISMdata(CDRBIdata.basename,'');
+BIdata_o.img = imgBI;
 
 % % get exposuretime
 % expo_timeList = zeros(length(EDRBIdataList_s),1);
@@ -180,5 +184,7 @@ end
 % end
 % 
 % imgBI = c0;
+
+
 
 end

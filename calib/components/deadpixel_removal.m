@@ -60,7 +60,7 @@ IR_SENSITIVITY_LIMIT = rateQuadrantTABformatter(rate_id,VLdata.tab,'IR_SENSITIVI
 
 
 % next detect dead pixels
-[RT14j_dm] = apply_DM(RT14j,DMdata,varargin);
+[RT14j_dm] = apply_DM(RT14j,DMdata);
 RT14j_dm_ext = reshape(RT14j_dm,[L*S,B]);
 RT14j_dm_med = reshape(nanmedian(RT14j_dm_ext,1),[1,1,B]);
 mask_dead = RT14jj < (IR_SENSITIVITY_LIMIT.*RT14j_dm_med);

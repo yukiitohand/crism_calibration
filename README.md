@@ -5,10 +5,8 @@ This toolbox serves as an MATLAB interface for handling MRO CRISM database([http
 
 ## Requirement
 Some of my tooboxes are necessary.
-
-[https://github.com/yukiitohand/base](https://github.com/yukiitohand/base)
-
-[https://github.com/yukiitohand/envi](https://github.com/yukiitohand/envi)
+* [https://github.com/yukiitohand/base](https://github.com/yukiitohand/base)
+* [https://github.com/yukiitohand/envi](https://github.com/yukiitohand/envi)
 
 ## Installation
 First you need to customize your setting/crismToolbox_default.json:
@@ -69,5 +67,16 @@ or if you reverse the band
 If you haven't downloaded, you can download the image to the local database by 
 ```MATLAB
 > TRRIFdata.download(2);
+```
+## Tips
+Maybe you want to start with a given observation ID, then start with
+```matlab
+> crism_obs = CRISMObservation(obs_id,'sensor_id','L');
+```
+Then following code allows you to get scene image.
+```matlab
+> crism_obs.load_default();
+> TRRIFdata = crism_obs.data.if;
+> TRRIFdata.readimg();
 ```
 

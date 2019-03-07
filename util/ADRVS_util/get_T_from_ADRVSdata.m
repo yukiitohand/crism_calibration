@@ -16,6 +16,7 @@ function [ T ] = get_T_from_ADRVSdata( adrvsdata_obj,varargin )
 
 mode_artifact = 'subtraction';
 is_band_inverse = true;
+artifact_idx = 2;
 
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');

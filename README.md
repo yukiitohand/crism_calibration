@@ -40,7 +40,8 @@ Second, rename setting/crismToolbox_default.json to setting/crismToolbox.json. a
 ## Downloading images
 If you want to download a set of images of the given observation ID, 
 ```
-> crism_obs = CRISMObservation(obs_id,'sensor_id','L','DOWNLOAD_TER',2,'DOWNLOAD_MTRDR',2,'DOWNLOAD_TRRIF',2,'DOWNLOAD_TRRRA',2,'DOWNLOAD_EDRSCDF',2,'DOWNLOAD_DDR',2,'DOWNLOAD_EPF',2);
+> crism_obs = CRISMObservation(obs_id,'sensor_id','L','DOWNLOAD_TER',2,'DOWNLOAD_MTRDR',2,'DOWNLOAD_TRRIF',2,...
+'DOWNLOAD_TRRRA',2,'DOWNLOAD_EDRSCDF',2,'DOWNLOAD_DDR',2,'DOWNLOAD_EPF',2);
 ```
 `obs_id` can be non-zero padded string. `CRISMObservation` internally resolve all the filenames and directory path of the images in the scene. Of course you do not need to set all the download options. Setting any download option to 2 actually download the image. if 1 is set, remote access is performed, but download is not performed. If set to 0, then no remote access is performed.
 

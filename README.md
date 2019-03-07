@@ -33,13 +33,13 @@ Some more information for the setup file.
 * `LUT_OBSID2YYYY`       : the name of the mat file for which yyyy_doy look up table is stored. The table comes with the toolbox, so you do not need to change.
 
 Second, rename setting/crismToolbox_default.json to setting/crismToolbox.json. and run 
-```
+```MATLAB
 > crism_setup
 ```
 
 ## Downloading images
 If you want to download a set of images of the given observation ID, 
-```
+```matlab
 > crism_obs = CRISMObservation(obs_id,'sensor_id','L','DOWNLOAD_TER',2,'DOWNLOAD_MTRDR',2,'DOWNLOAD_TRRIF',2,...
 'DOWNLOAD_TRRRA',2,'DOWNLOAD_EDRSCDF',2,'DOWNLOAD_DDR',2,'DOWNLOAD_EPF',2);
 ```
@@ -48,19 +48,19 @@ If you want to download a set of images of the given observation ID,
 
 ## Basic Operations
 Reading the image can be performed as simply as
-```
+```matlab
 > TRRIFdata = CRISMdata('HRL000040FF_07_IF183L_TRR3','');
 ```
 The second input variable is actually supposed to be a directory path to the image file. If it's set empty, then it is estimated. Reading the image can be performed by
-```
+```MATLAB
 > TRRIFdata.readimg();
 ```
 or if you reverse the band
-```
+```MATLAB
 > TRRIFdata.readimgi();
 ```
 If you haven't downloaded, you can download the image to the local database by 
-```
+```MATLAB
 > TRRIFdata.download(2);
 ```
 

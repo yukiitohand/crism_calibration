@@ -303,7 +303,7 @@ if any(strcmpi(obs_classType,{'FRT','ATO','FRS','HRL','HRS'}))
     
 else
     dir_mtrdr = ''; basenameMTRIF = ''; basenameMTRIN = ''; basenameMTRSR = '';
-    basenameMTRSU = ''; basenameMTRWV = '';
+    basenameMTRSU = ''; basenameMTRWV = ''; basenameMTRDE = '';
 end
 %-------------------------------------------------------------------------%
 % TRR

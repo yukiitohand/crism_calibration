@@ -36,3 +36,14 @@ Second, rename setting/crismToolbox_default.json to setting/crismToolbox.json. a
 ```
 > crism_setup
 ```
+
+## Basic Operations
+Reading the image can be performed as simply as
+```
+> TRRIFdata = CRISMdata('HRL000040FF_07_IF183L_TRR3','');
+```
+If you haven't downloaded, you can download to the local database by 
+```
+> TRRIFdata.download(2);
+```
+

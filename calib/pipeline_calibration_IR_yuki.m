@@ -25,10 +25,11 @@ function [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_yuki(TRRIFd
 %       (default) 'HighOrd'
 save_mem = false;
 apbprmvl = 'HighOrd';
-dn4095_rmvl = false;
+saturation_rmvl = 0;
 bkgd_robust = false;
 SPdata_o = [];
 bk_meanDN14 = false;
+bk_saturation_rmvl = 1;
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
 else
@@ -43,8 +44,10 @@ else
                 if ~any(strcmpi(apbprmvl,{'HighOrd','None'}))
                     error('apbprmvl (%s) should be either {"HighOrd","None"}',apbprmvl);
                 end
-            case 'DN4095_RMVL'
-                dn4095_rmvl = varargin{i+1};
+            case 'SATURATION_RMVL'
+                saturation_rmvl = varargin{i+1};
+            case 'BK_SATURATION_RMVL'
+                bk_saturation_rmvl = varargin{i+1};
             case {'BKGD_ROBUST','BK_MEAN_ROBUST'}
                 bkgd_robust = varargin{i+1};
                 if bkoption==1
@@ -63,7 +66,7 @@ rate_id = get_frame_rate_id(frame_rate);
 binx = TRRIFdata.lbl.PIXEL_AVERAGING_WIDTH;
 
 DN = EDRdata.readimg();
-if dn4095_rmvl
+if saturation_rmvl
     flg_dsat = (DN==4095); % added by Yuki Feb.18, 2019 
 end
 
@@ -119,12 +122,29 @@ end
 % this way is manually defined by Yuki. Doesn't follow the direction in the
 % crism_dpsis.pdf
 
-if dn4095_rmvl
-    VLdata = TRRIFdata.readCDR('VL');
-    [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,flg_dsat,...
-    'binx',binx,'rate_id',rate_id);
-    % DN14b(flg_dsat) = nan;
+VLdata = TRRIFdata.readCDR('VL');
+switch saturation_rmvl
+    case 0
+        % no saturation removal
+        DN14c = DN14b;
+    case 1
+        % only digital saturation is dealt with
+        DN14c = DN14b;
+        DN14c(flg_dsat) = nan;
+    case 2
+        % analogue saturation is also dealt with
+        [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,flg_dsat,...
+        'binx',binx,'rate_id',rate_id);
+    otherwise
+        error('Saturation option %d is not defined',saturation_rmvl);
 end
+% if saturation_rmvl
+%     [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,flg_dsat,...
+%     'binx',binx,'rate_id',rate_id);
+%     % DN14b(flg_dsat) = nan;
+% else
+%     DN14c = DN14b;
+% end
 
 %-------------------------------------------------------------------------%
 % apply bad a priori pixel interpolation
@@ -195,11 +215,11 @@ end
 % [~,BKdata2_o] = calcluate_Bkgd_BK(BKdata2,bkgd_robust);
 [~,BKdata1_o,RT14g_df1] = minipipeline_calibration_IR_BK_yuki(...
     DFdata1,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
-    BPdata1,GHdata,VLdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',0,...
+    BPdata1,GHdata,VLdata,LCdata,'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',0,...
     'MEAN_ROBUST',bkgd_robust,'MEAN_DN14',bk_meanDN14);
 [~,BKdata2_o,RT14g_df2] = minipipeline_calibration_IR_BK_yuki(...
     DFdata2,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
-    BPdata2,GHdata,VLdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',0,...
+    BPdata2,GHdata,VLdata,LCdata,'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',0,...
     'MEAN_ROBUST',bkgd_robust,'MEAN_DN14',bk_meanDN14);
 hkt_df1 = DFdata1.readHKT();
 hkt_df1c = correctHKTwithHD(hkt_df1,HDdata);

@@ -1,4 +1,4 @@
-function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_calibration_IR_SP_wCDRSP_yuki(...
+function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o,BPdata1,BPdata2] = minipipeline_calibration_IR_SP_wCDRSP_yuki(...
     SPdata,bkoption,varargin)
 % [RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_calibration_IR_SP_wCDRSP_yuki(...
 %     SPdata,bkoption,varargin)
@@ -32,6 +32,12 @@ function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_cal
 %                  is used for the estimation of the higher order leaked 
 %                  light
 %       (default) 'HighOrd'
+%     'SATURATiON_RMVL': integer, how to perform replacement of saturated
+%           pixles {0,1,2}
+%           0: no removal
+%           1: digital saturation is removed
+%           2: analogue saturation is also removed
+%           (default) 2
 %   'DWLD','DOWNLOAD' : if download the data or not, 2: download, 1:
 %                       access an only show the path, 0: nothing
 %                       (default) 0
@@ -40,9 +46,12 @@ function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_cal
 %   'Force'          : binary, whether or not to force performing
 %                      pds_downloader. (default) false
 %   ****** Parameters for manual BK production ****************************
-%   'BK_DN4095_RMVL': binary, whether or not to perform replacement of saturated
-%                  pixels or not.
-%                  (default) true
+%   'BK_SATURATiON_RMVL': integer, how to perform replacement of saturated
+%           pixles {0,1,2}
+%           0: no removal
+%           1: digital saturation is removed
+%           2: analogue saturation is also removed
+%           (default) 2
 %   'BK_MEAN_ROBUST': integer {0,1}, mode for how mean operation is performed.
 %        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
 %        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
@@ -55,7 +64,8 @@ function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_cal
 %                  (default) 1
 save_mem = false;
 apbprmvl = 'HighOrd';
-bk_dn4095_rmvl = true;
+saturation_rmvl = 2;
+bk_saturation_rmvl = 2;
 bk_mean_robust = 1;
 bk_bprmvl = false;
 bk_mean_DN14 = true;
@@ -79,8 +89,10 @@ else
                 end
             case 'MEAN_DN14'
                 mean_DN14 = varargin{i+1};
-            case 'BK_DN4095_RMVL'
-                bk_dn4095_rmvl = varargin{i+1};
+            case 'SATURATION_RMVL'
+                saturation_rmvl = varargin{i+1};
+            case 'BK_SATURATION_RMVL'
+                bk_saturation_rmvl = varargin{i+1};
             case 'BK_BPRMVL'
                 bk_bprmvl = varargin{i+1};
             case 'BK_MEAN_ROBUST'
@@ -102,12 +114,12 @@ else
     end
 end
 
-if isempty(SPdata.basenamesCDR)
+% if isempty(SPdata.basenamesCDR)
     SPdata.load_basenamesCDR('Download',dwld,'Force',force,'OUT_file',outfile); 
-end
-if isempty(SPdata.basenames_SOURCE_OBS)
+% end
+% if isempty(SPdata.basenames_SOURCE_OBS)
     SPdata.load_basenames_SOURCE_OBS('Download',dwld,'Force',force,'OUT_file',outfile); 
-end
+% end
 
 %-------------------------------------------------------------------------%
 % get EDRSPdata from SPdata
@@ -280,7 +292,8 @@ VLdata = SPdata.readCDR('VL');
     EDRSPdata,DFdata1,DFdata2,BKdata1,BKdata2,BPdata1,BPdata2,BIdata,...
     PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,GHdata,VLdata,DMdata,LCdata,LLdata,...
     bkoption,'SAVE_MEMORY',save_mem,'APBPRMVL',apbprmvl,'MEAN_DN14',mean_DN14,...
-    'BK_DN4095_RMVL',bk_dn4095_rmvl,'BK_BPRMVL',bk_bprmvl,...
+    'SATURATION_RMVL',saturation_rmvl,...
+    'BK_SATURATION_RMVL',bk_saturation_rmvl,'BK_BPRMVL',bk_bprmvl,...
     'BK_MEAN_ROBUST',bk_mean_robust,'BK_MEAN_DN14',bk_mean_DN14,'SPdata_ref',SPdata);
 
 % [BP1nan] = formatBP1nan(BPdata1);

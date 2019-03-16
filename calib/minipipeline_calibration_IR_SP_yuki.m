@@ -36,11 +36,19 @@ function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_cal
 %                  is used for the estimation of the higher order leaked 
 %                  light
 %       (default) 'HighOrd'
-%
+%       'SATURATiON_RMVL': integer, how to perform replacement of saturated
+%           pixles {0,1,2}
+%           0: no removal
+%           1: digital saturation is removed
+%           2: analogue saturation is also removed
+%           (default) 2
 %   ****** Parameters for manual BK production ****************************
-%   'BK_DN4095_RMVL': binary, whether or not to perform replacement of saturated
-%                  pixels or not.
-%                  (default) true
+%   'BK_SATURATiON_RMVL': integer, how to perform replacement of saturated
+%           pixles {0,1,2}
+%           0: no removal
+%           1: digital saturation is removed
+%           2: analogue saturation is also removed
+%           (default) 2
 %   'BK_MEAN_ROBUST': integer {0,1}, mode for how mean operation is performed.
 %        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
 %        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
@@ -53,7 +61,8 @@ function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_cal
 %                  (default) 1
 save_mem = false;
 apbprmvl = 'HighOrd';
-bk_dn4095_rmvl = true;
+saturation_rmvl = 2;
+bk_saturation_rmvl = 2;
 bk_mean_robust = 1;
 bk_bprmvl = false;
 bk_mean_DN14 = true;
@@ -74,8 +83,10 @@ else
                 end
             case 'MEAN_DN14'
                 mean_DN14 = varargin{i+1};
-            case 'BK_DN4095_RMVL'
-                bk_dn4095_rmvl = varargin{i+1};
+            case 'SATURATION_RMVL'
+                saturation_rmvl = varargin{i+1};
+            case 'BK_SATURATION_RMVL'
+                bk_saturation_rmvl = varargin{i+1};
             case 'BK_BPRMVL'
                 bk_bprmvl = varargin{i+1};
             case 'BK_MEAN_ROBUST'
@@ -99,7 +110,7 @@ rate_id = get_frame_rate_id(frame_rate);
 binx = EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH;
 
 DN = EDRSPdata.readimg();
-if bk_dn4095_rmvl
+if saturation_rmvl
     flg_dsat = (DN==4095); % added by Yuki Feb.18, 2019 
 end
 
@@ -140,14 +151,29 @@ end
 % this way is manually defined by Yuki. Doesn't follow the direction in the
 % crism_dpsis.pdf
 % Updated Mar.05 2019 by using VLdata
-if bk_dn4095_rmvl
-%     DN14d = DN14c;
-%     DN14d(flg_saturation) = nan;
-    [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,flg_dsat,...
+switch saturation_rmvl
+    case 0
+        % no saturation removal
+        DN14c = DN14b;
+    case 1
+        % only digital saturation is dealt with
+        DN14c = DN14b;
+        DN14c(flg_dsat) = nan;
+    case 2
+        % analogue saturation is also dealt with
+        [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,flg_dsat,...
         'binx',binx,'rate_id',rate_id);
-    %DN14c_woc = DN14b;
-    %DN14d_woc(flg_saturation) = nan;
+    otherwise
+        error('Saturation option %d is not defined',saturation_rmvl);
 end
+% if bk_saturation_rmvl
+% %     DN14d = DN14c;
+% %     DN14d(flg_saturation) = nan;
+%     [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,flg_dsat,...
+%         'binx',binx,'rate_id',rate_id);
+%     %DN14c_woc = DN14b;
+%     %DN14d_woc(flg_saturation) = nan;
+% end
 
 %-------------------------------------------------------------------------%
 % apply bad a priori pixel interpolation
@@ -201,11 +227,11 @@ end
 % process darks from scratch
 [RT14g_df1_1,BKdata1_o,RT14g_df1] = minipipeline_calibration_IR_BK_yuki(...
     DFdata1,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
-    BPdata1,GHdata,VLdata,LCdata,'DN4095_RMVL',bk_dn4095_rmvl,'BPRMVL',bk_bprmvl,...
+    BPdata1,GHdata,VLdata,LCdata,'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',bk_bprmvl,...
     'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14);
 [RT14g_df1_2,BKdata2_o,RT14g_df2] = minipipeline_calibration_IR_BK_yuki(...
     DFdata2,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
-    BPdata2,GHdata,VLdata,LCdata,'DN4095_RMVL',bk_dn4095_rmvl,'BPRMVL',bk_bprmvl,...
+    BPdata2,GHdata,VLdata,LCdata,'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',bk_bprmvl,...
     'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14);
 hkt_df1 = DFdata1.readHKT();
 hkt_df1c = correctHKTwithHD(hkt_df1,HDdata);

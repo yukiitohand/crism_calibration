@@ -23,9 +23,12 @@ function [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_yuk
 %               not performed.
 %    RT14g_df_all: produced background image [L,S,B] non averaged
 %   OPTIONAL PARAMETERS
-%   'DN4095_RMVL': binary, whether or not to perform replacement of saturated
-%                  pixels or not.
-%                  (default) false
+%   'SATURATiON_RMVL': integer, how to perform replacement of saturated
+%           pixles {0,1,2}
+%           0: no removal
+%           1: digital saturation is removed
+%           2: analogue saturation is also removed
+%           (default) 1
 %   'MEAN_ROBUST': integer {0,1}, mode for how mean operation is performed.
 %        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
 %        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
@@ -37,7 +40,7 @@ function [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_yuk
 %                  0: last (after divided by integration time
 %                  (default) 1
 
-dn4095_rmvl = false;
+saturation_rmvl = 1;
 mean_robust = 1;
 bprmvl = false;
 mean_DN14 = true;
@@ -46,8 +49,8 @@ if (rem(length(varargin),2)==1)
 else
     for i=1:2:(length(varargin)-1)
         switch upper(varargin{i})
-            case 'DN4095_RMVL'
-                dn4095_rmvl = varargin{i+1};
+            case 'SATURATION_RMVL'
+                saturation_rmvl = varargin{i+1};
             case 'BPRMVL'
                 bprmvl = varargin{i+1};
             case 'MEAN_ROBUST'
@@ -71,7 +74,7 @@ binx = DFdata.lbl.PIXEL_AVERAGING_WIDTH;
 
 %-------------------------------------------------------------------------%
 % flag saturated pixels
-if dn4095_rmvl
+if saturation_rmvl
     DFmask4095 = (DN12_df==4095);
 end
 
@@ -95,10 +98,20 @@ hkt_dfcc = correctHKTwithHK(hkt_dfc,HKdata);
 %-------------------------------------------------------------------------%
 % replace saturated pixel
 % now uses VLdata
-if dn4095_rmvl
-    [DN14c_df,mask_saturation] = saturation_removal(DN14b_df,VLdata,DFmask4095,...
-    'binx',binx,'rate_id',rate_id);
-    % DN14b_df(DFmask4095) = nan;
+switch saturation_rmvl
+    case 0
+        % no saturation removal
+        DN14c_df = DN14b_df;
+    case 1
+        % only digital saturation is dealt with
+        DN14c_df = DN14b_df;
+        DN14c_df(DFmask4095) = nan;
+    case 2
+        % analogue saturation is also dealt with
+        [DN14c_df,mask_saturation] = saturation_removal(DN14b_df,VLdata,DFmask4095,...
+        'binx',binx,'rate_id',rate_id);
+    otherwise
+        error('Saturation option %d is not defined',saturation_rmvl);
 end
 
 %-------------------------------------------------------------------------%

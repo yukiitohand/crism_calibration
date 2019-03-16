@@ -15,13 +15,15 @@ function [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_wCD
 %               not performed.
 %    RT14g_df_all: produced background image [L,S,B] non averaged
 %   OPTIONAL PARAMETERS
-%   'DN4095_RMVL': binary, whether or not to perform replacement of saturated
-%                  pixels or not.
-%                  (default) true
+%   'SATURATiON_RMVL': integer, how to perform replacement of saturated
+%           pixles {0,1,2}
+%           0: no removal
+%           1: digital saturation is removed
+%           2: analogue saturation is also removed
 %   'MEAN_ROBUST': integer {0,1}, mode for how mean operation is performed.
-%        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
-%        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
-%      (default) 1
+%           0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
+%           1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
+%           (default) 1
 %   'BPRMVL'     : binary, whether or not to perform bad pixel removal. 
 %                  (default) false     
 %   'MEAN_DN14'  : binary,when mean operation is performed
@@ -35,7 +37,7 @@ function [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_wCD
 %                       (default) ''
 %   'Force'          : binary, whether or not to force performing
 %                      pds_downloader. (default) false
-dn4095_rmvl = true;
+saturation_rmvl = 1;
 mean_robust = 1;
 bprmvl = false;
 mean_DN14 = true;
@@ -47,8 +49,8 @@ if (rem(length(varargin),2)==1)
 else
     for i=1:2:(length(varargin)-1)
         switch upper(varargin{i})
-            case 'DN4095_RMVL'
-                dn4095_rmvl = varargin{i+1};
+            case 'SATURATION_RMVL'
+                saturation_rmvl = varargin{i+1};
             case 'BPRMVL'
                 bprmvl = varargin{i+1};
             case 'MEAN_ROBUST'
@@ -91,7 +93,7 @@ VLdata = CDRBKdata.readCDR('VL');
 %-------------------------------------------------------------------------%
 [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_yuki(...
     DFdata,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,CDRBIdata,DMdata,CDRBPdata,...
-    GHdata,VLdata,LCdata,'DN4095_RMVL',dn4095_rmvl,'BPRMVL',bprmvl,...
+    GHdata,VLdata,LCdata,'SATURATiON_RMVL',saturation_rmvl,'BPRMVL',bprmvl,...
     'MEAN_ROBUST',mean_robust,'MEAN_DN14',mean_DN14);
 
 

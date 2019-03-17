@@ -287,19 +287,19 @@ end
 % MTRDR
 %-------------------------------------------------------------------------%
 if any(strcmpi(obs_classType,{'FRT','ATO','FRS','HRL','HRS'}))
-    get_basenameOBS_dirpath_MTR = @(x_ai) get_dirpath_observation_fromProp(...
+    get_basenameOBS_dirpath_MTR = @(x_ai,y_si) get_dirpath_observation_fromProp(...
          create_propOBSbasename('OBS_CLASS_TYPE',obs_classType,...
         'OBS_ID',obs_id,'ACTIVITY_ID',x_ai,'OBS_COUNTER',obs_counter,...
-        'SENSOR_ID','J','product_type','MTR'),...
+        'SENSOR_ID',y_si,'product_type','MTR'),...
         'Dwld',dwld_mtrdr,'Match_Exact',true,'Force',force_dwld,'OUT_FILE',outfile);
     
     % [dirfullpath_local,subdir_local,subdir_remote,yyyy_doy,dirname,basenameOBS]
-    [dir_mtrdr,~,~,~,~,basenameMTRIF] = get_basenameOBS_dirpath_MTR('IF');
-    [~,~,~,~,~,basenameMTRIN] = get_basenameOBS_dirpath_MTR('IN');
-    [~,~,~,~,~,basenameMTRSR] = get_basenameOBS_dirpath_MTR('SR');
-    [~,~,~,~,~,basenameMTRSU] = get_basenameOBS_dirpath_MTR('SU');
-    [~,~,~,~,~,basenameMTRWV] = get_basenameOBS_dirpath_MTR('WV');
-    [~,~,~,~,~,basenameMTRDE] = get_basenameOBS_dirpath_MTR('DE');
+    [dir_mtrdr,~,~,~,~,basenameMTRIF] = get_basenameOBS_dirpath_MTR('IF','J');
+    [~,~,~,~,~,basenameMTRIN] = get_basenameOBS_dirpath_MTR('IN','J');
+    [~,~,~,~,~,basenameMTRSR] = get_basenameOBS_dirpath_MTR('SR','J');
+    [~,~,~,~,~,basenameMTRSU] = get_basenameOBS_dirpath_MTR('SU','J');
+    [~,~,~,~,~,basenameMTRWV] = get_basenameOBS_dirpath_MTR('WV','J');
+    [~,~,~,~,~,basenameMTRDE] = get_basenameOBS_dirpath_MTR('DE','L');
     
 else
     dir_mtrdr = ''; basenameMTRIF = ''; basenameMTRIN = ''; basenameMTRSR = '';

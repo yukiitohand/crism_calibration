@@ -68,6 +68,7 @@ bk_bprmvl = false;
 bk_mean_DN14 = true;
 SPdata_ref = [];
 mean_DN14 = true;
+mean_robust = true;
 
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
@@ -83,6 +84,8 @@ else
                 end
             case 'MEAN_DN14'
                 mean_DN14 = varargin{i+1};
+            case 'MEAN_ROBUST'
+                mean_robust = varargin{i+1};
             case 'SATURATION_RMVL'
                 saturation_rmvl = varargin{i+1};
             case 'BK_SATURATION_RMVL'
@@ -188,7 +191,7 @@ end
 % step 3.5 (take a mean over the obtained DN14 data)
 % This step is specific for SP processing pipeline
 if mean_DN14
-    switch bk_mean_robust
+    switch mean_robust
         case 0
             DN14e_woc = nanmean(DN14c(:,:,:),1);
             DN14e = nanmean(DN14d(:,:,:),1);
@@ -196,7 +199,7 @@ if mean_DN14
             DN14e_woc = robust_v2('mean',DN14c,1,'NOutliers',10);
             DN14e = robust_v2('mean',DN14d,1,'NOutliers',10);
         otherwise
-            error('Undefined mean_robust=%d',bk_mean_robust);
+            error('Undefined mean_robust=%d',mean_robust);
     end
 else
     DN14e_woc = DN14c;
@@ -286,7 +289,7 @@ end
 %-------------------------------------------------------------------------%
 % mean if 
 if ~mean_DN14
-    switch bk_mean_robust
+    switch mean_robust
         case 0
             RT14j_SP_woc = nanmean(RT14jj_woc(:,:,:),1);
             RT14j_SP= nanmean(RT14jj(:,:,:),1);
@@ -294,7 +297,7 @@ if ~mean_DN14
             RT14j_SP_woc = robust_v2('mean',RT14jj_woc,1,'NOutliers',10);
             RT14j_SP = robust_v2('mean',RT14jj,1,'NOutliers',10);
         otherwise
-            error('Undefined mean_robust=%d',bk_mean_robust);
+            error('Undefined mean_robust=%d',mean_robust);
     end
 else
     RT14j_SP_woc = RT14j_woc;

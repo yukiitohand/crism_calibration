@@ -156,7 +156,7 @@ if ~mean_DN14
         case 1
             RT14g_bkgd = robust_v2('mean',RT14g_df,1,'NOutliers',4);
         otherwise
-            error('Undefined bkgd_robust=%d',bkgd_robust);
+            error('Undefined bkgd_robust=%d',mean_robust);
     end
 else
     RT14g_bkgd = RT14g_df;

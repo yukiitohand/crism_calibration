@@ -43,7 +43,7 @@ nu1 = FL;
 nu1mean = nanmean(nu1,2); % level adjustement
 FF = ones(size(RTj));
 for l=1:L
-     FF(l,:,blt563) = FL(:,:,blt563).*nu1mean(:,:,blt563) + EP(:,:,blt563) .* log(RTj(l,:,blt563) ./ RSPl(:,:,blt563)) ;
+     FF(l,:,blt563) = FL(:,:,blt563) + EP(:,:,blt563) .* log(RTj(l,:,blt563) ./ RSPl(:,:,blt563)) ;
 end
 
 % the flat fielding introduces additional stripes...

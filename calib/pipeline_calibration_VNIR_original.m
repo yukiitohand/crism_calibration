@@ -271,6 +271,13 @@ end
 if isempty(SPdata_o), SPdata_o = SPdata; end
 SSdata = TRRIFdata.readCDR('SS');
 SHdata = TRRIFdata.readCDR('SH');
+
+% propSS8 = SSdata.prop;
+% propSS8.version = 8;
+% basenameSS8 = get_basenameCDR4_fromProp(propSS8);
+% SSdata8 = CRISMdata(basenameSS8,'');
+% SSdata8.readimg();
+
 [MP] = calculate_MP(SPdata_o,SSdata,SHdata);
 rowNumTableRSPj = SPdata_o.read_ROWNUM_TABLE();
 TDdata = TRRIFdata.readCDR('TD');
@@ -292,6 +299,15 @@ NUdata = TRRIFdata.readCDR('NU');
 % NUdata7 = CRISMdata(basenameNU7,'');
 [RDm,FF] = calculate_RD_VNIR(RT14j,RSPl,SPdata,SSdata,NUdata,rowNumTableRSPj);
 [RDm_woc,FF_woc] = calculate_RD_VNIR(RT14j,RSPl,SPdata,SSdata,NUdata,rowNumTableRSPj);
+
+% [RDm,FF] = calculate_RD(RT14j,RSPl,NUdata);
+% [RDm_woc,FF] = calculate_RD(RT14j_woc,RSPl,NUdata);
+
+%-------------------------------------------------------------------------%
+% additional destriping step is added.
+% [RDmm,coeff] = additional_stripe_removal_VNIR(RDm,DMdata,rownum_table);
+% [RDmm_woc,coeff] = additional_stripe_removal_VNIR(RDm_woc,DMdata,rownum_table);
+
 %[RDm_bk1_o,FF_bk1] = calculate_RD(RT14h2_bk1_o,RSPl,NUdata);
 %[RDm_bk2_o,FF_bk2] = calculate_RD(RT14h2_bk2_o,RSPl,NUdata);
 if save_mem

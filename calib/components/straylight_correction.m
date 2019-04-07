@@ -53,17 +53,17 @@ SL = nan(L,S,B);
 [~,lam0] = ismember([187],rownum_table);
 if any(lam0==0), error('detector 187 is not used'); end
 
-s_w = zeros(1,S);
+% s_w = zeros(1,S);
 % assuming scattered mask is same for all the wavelength bands
 scatMask = (DMdata.img(:,:,lam0(1)) == 4);
-s_w(squeeze(scatMask)) = 5;
+% s_w(squeeze(scatMask)) = 3;
 % scene mask
 sceneMask = DMdata.img(:,:,lam0(1))==1;
-s_w(squeeze(sceneMask)) = 5;
+% s_w(squeeze(sceneMask)) = 3;
 
-imlam0_mean = nanmean(RT14h(:,:,lam0),1);
-[imlam0_mean_smooth] = movemean_robust1d_batchsort(imlam0_mean,'Window_Size',s_w);
-coeff = imlam0_mean ./ imlam0_mean_smooth;
+% imlam0_mean = nanmean(RT14h(:,:,lam0),1);
+% [imlam0_mean_smooth] = movemean_robust1d_batchsort(imlam0_mean,'Window_Size',s_w);
+% coeff = imlam0_mean ./ imlam0_mean_smooth;
 % RT14h(:,:,lam0) = RT14h(:,:,lam0) ./ coeff;
 
 

@@ -150,7 +150,7 @@ end
 % apply bad a priori pixel interpolation
 TRRIFdata.readCDR('BP');
 switch EDRdata.lbl.OBSERVATION_TYPE
-    case {'FRT','HRL','HRS','MSP','HSP'}
+    case {'FRT','HRL','HRS','MSP','HSP','FFC'}
         for i=1:length(TRRIFdata.cdr.BP)
             bpdata = TRRIFdata.cdr.BP(i);
             if ~any(strcmpi(EDRdata.basename,bpdata.lbl.SOURCE_PRODUCT_ID))

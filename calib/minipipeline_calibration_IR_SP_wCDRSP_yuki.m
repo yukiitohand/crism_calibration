@@ -23,7 +23,14 @@ function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o,BPdata1,BPdata2] = 
 %    'SAVE_MEMORY'
 %       saving memory or not. true or false
 %       (default) true
-%     'APBPRMVL'
+%    'DWLD','DOWNLOAD' : if download the data or not, 2: download, 1:
+%                       access an only show the path, 0: nothing
+%                       (default) 0
+%    'OUT_FILE'       : path to the output file
+%                       (default) ''
+%    'Force'          : binary, whether or not to force performing
+%                      pds_downloader. (default) false
+%    'APBPRMVL'
 %       option for a priori bad pixel removal {'HighOrd', 'None'}
 %       'HighOrd': the image where a priori bad pixel removal is performed
 %                  is used for the estimation of the higher order leaked 
@@ -32,19 +39,20 @@ function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o,BPdata1,BPdata2] = 
 %                  is used for the estimation of the higher order leaked 
 %                  light
 %       (default) 'HighOrd'
-%     'SATURATiON_RMVL': integer, how to perform replacement of saturated
+%    'MEAN_ROBUST' : integer {0,1}, mode for how mean operation is performed.
+%        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
+%        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
+%      (default) 1
+%    'SATURATiON_RMVL': integer, how to perform replacement of saturated
 %           pixles {0,1,2}
 %           0: no removal
 %           1: digital saturation is removed
 %           2: analogue saturation is also removed
 %           (default) 2
-%   'DWLD','DOWNLOAD' : if download the data or not, 2: download, 1:
-%                       access an only show the path, 0: nothing
-%                       (default) 0
-%   'OUT_FILE'       : path to the output file
-%                       (default) ''
-%   'Force'          : binary, whether or not to force performing
-%                      pds_downloader. (default) false
+%    'MEAN_DN14'  : binary,when mean operation is performed
+%                  1: before non-linearity correction
+%                  0: last (after divided by integration time
+%                  (default) 1
 %   ****** Parameters for manual BK production ****************************
 %   'BK_SATURATiON_RMVL': integer, how to perform replacement of saturated
 %           pixles {0,1,2}
@@ -65,6 +73,8 @@ function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o,BPdata1,BPdata2] = 
 save_mem = false;
 apbprmvl = 'HighOrd';
 saturation_rmvl = 2;
+mean_DN14 = true;
+mean_robust = true;
 bk_saturation_rmvl = 2;
 bk_mean_robust = 1;
 bk_bprmvl = false;
@@ -73,7 +83,6 @@ dwld = 0;
 force = false;
 outfile = '';
 BIdata = [];
-mean_DN14 = false;
 
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
@@ -89,6 +98,8 @@ else
                 end
             case 'MEAN_DN14'
                 mean_DN14 = varargin{i+1};
+            case 'MEAN_ROBUST'
+                mean_robust = varargin{i+1};
             case 'SATURATION_RMVL'
                 saturation_rmvl = varargin{i+1};
             case 'BK_SATURATION_RMVL'
@@ -292,7 +303,7 @@ VLdata = SPdata.readCDR('VL');
     EDRSPdata,DFdata1,DFdata2,BKdata1,BKdata2,BPdata1,BPdata2,BIdata,...
     PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,GHdata,VLdata,DMdata,LCdata,LLdata,...
     bkoption,'SAVE_MEMORY',save_mem,'APBPRMVL',apbprmvl,'MEAN_DN14',mean_DN14,...
-    'SATURATION_RMVL',saturation_rmvl,...
+    'SATURATION_RMVL',saturation_rmvl,'Mean_Robust',mean_robust,...
     'BK_SATURATION_RMVL',bk_saturation_rmvl,'BK_BPRMVL',bk_bprmvl,...
     'BK_MEAN_ROBUST',bk_mean_robust,'BK_MEAN_DN14',bk_mean_DN14,'SPdata_ref',SPdata);
 

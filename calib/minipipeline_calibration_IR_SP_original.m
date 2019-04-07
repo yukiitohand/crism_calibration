@@ -3,8 +3,7 @@ function [SPdata_o,RT14j_woc_mod,RT14j_mod,RT14h2_bk1_o_mod,RT14h2_bk2_o_mod] = 
 % [RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_calibration_IR_SP_original(...
 %     SPdata,bkoption,varargin)
 %   Mini pipeline for the calibration of the CRISM images using SP CDR
-%   data. This is a wrapper function for 
-%    "minipipeline_calibration_IR_SP_yuki"
+%   data, and applying a shutter mirror parameter.
 %
 %  Input Parameters
 %   SPdata: CDR SPdata, CRISMdata obj
@@ -32,12 +31,20 @@ function [SPdata_o,RT14j_woc_mod,RT14j_mod,RT14h2_bk1_o_mod,RT14h2_bk2_o_mod] = 
 %                  is used for the estimation of the higher order leaked 
 %                  light
 %       (default) 'HighOrd'
-%     'SATURATiON_RMVL': integer, how to perform replacement of saturated
+%    'MEAN_ROBUST' : integer {0,1}, mode for how mean operation is performed.
+%        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
+%        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
+%      (default) 1
+%    'SATURATiON_RMVL': integer, how to perform replacement of saturated
 %           pixles {0,1,2}
 %           0: no removal
 %           1: digital saturation is removed
 %           2: analogue saturation is also removed
 %           (default) 2
+%    'MEAN_DN14'  : binary,when mean operation is performed
+%                  1: before non-linearity correction
+%                  0: last (after divided by integration time
+%                  (default) 1
 %   'DWLD','DOWNLOAD' : if download the data or not, 2: download, 1:
 %                       access an only show the path, 0: nothing
 %                       (default) 0
@@ -73,7 +80,8 @@ dwld = 0;
 force = false;
 outfile = '';
 BIdata = [];
-mean_DN14 = false;
+mean_DN14 = true;
+mean_robust = true;
 
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
@@ -91,6 +99,8 @@ else
                 mean_DN14 = varargin{i+1};
             case 'SATURATION_RMVL'
                 saturation_rmvl = varargin{i+1};
+            case 'MEAN_ROBUST'
+                mean_robust = varargin{i+1};
             case 'BK_SATURATION_RMVL'
                 bk_saturation_rmvl = varargin{i+1};
             case 'BK_BPRMVL'
@@ -125,7 +135,7 @@ end
 [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o,BPdata1,BPdata2]...
           = minipipeline_calibration_IR_SP_wCDRSP_yuki(...
             SPdata,bkoption,'DWLD',dwld,'SAVE_MEMORY',save_mem,'APBPRMVL',apbprmvl,...
-            'MEAN_DN14',mean_DN14,'SATURATION_RMVL',saturation_rmvl,...
+            'MEAN_DN14',mean_DN14,'SATURATION_RMVL',saturation_rmvl,'MEAN_ROBUST',mean_robust,...
             'BK_SATURATION_RMVL',bk_saturation_rmvl,'BK_BPRMVL',bk_bprmvl,...
             'BK_MEAN_ROBUST',bk_mean_robust,'BK_MEAN_DN14',bk_mean_DN14);
 %

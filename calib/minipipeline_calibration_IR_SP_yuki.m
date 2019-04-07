@@ -42,6 +42,20 @@ function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_cal
 %           1: digital saturation is removed
 %           2: analogue saturation is also removed
 %           (default) 2
+%   'MEAN_ROBUST' : integer {0,1}, mode for how mean operation is performed.
+%        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
+%        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
+%      (default) 1
+%   'SATURATiON_RMVL': integer, how to perform replacement of saturated
+%           pixles {0,1,2}
+%           0: no removal
+%           1: digital saturation is removed
+%           2: analogue saturation is also removed
+%           (default) 2
+%   'MEAN_DN14'  : binary,when mean operation is performed
+%                  1: before non-linearity correction
+%                  0: last (after divided by integration time
+%                  (default) 1
 %   ****** Parameters for manual BK production ****************************
 %   'BK_SATURATiON_RMVL': integer, how to perform replacement of saturated
 %           pixles {0,1,2}

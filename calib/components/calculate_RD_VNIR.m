@@ -1,11 +1,14 @@
 function [RDm,FF] = calculate_RD_VNIR(RTj,RSPl,SPdata,SSdata,NUdata,rowNumTableRSPj)
 % [RD] = calculate_RD_VNIR(RTj,RSPl,NUdata)
 %  calculate scene radiance at the instrument aperture and divide by flat
-%  field
+%  field for VNIR.
 %   Input Parameters
 %     RTj: scene image [counts/ms]
 %     RSPl : binned spectral radiometric responsitivity
+%     SPdata: CRISMdata obj, CDR SP data
+%     SSdata: CRISMdata obj, CDR SS data
 %     NUdata: CRISMdata obj, CDR NU data
+%     rowNumTableRSPj: rownumtable for RSP
 %   Output Parameters
 %     RDm  : calculated scene radiance
 %     FF   : flat fielding component

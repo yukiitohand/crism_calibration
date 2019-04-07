@@ -9,6 +9,7 @@ function [RSPj] = calculate_RSP_VNIR(SPdata,SSdata,SHdata,TDdata,MP,rowNumTableR
 %     SHdata: CRISMdata obj, CDR SH data
 %     TDdata: CRISMdata obj, CDR TD data, not applied so far.
 %     MP: scalar, parameter for shutter mirror non-repeatability correction
+%     rowNumTableRSPj: rownumtable for RSP
 %   Output Parameters
 %     RSP: spectral radiometric responsitivity
 

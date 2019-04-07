@@ -56,79 +56,105 @@ mode_calib = 'yuki';
 % apbprmvl = 'HighOrd';
 
 crism_obs = CRISMObservation(obs_id,'SENSOR_ID','L');
-if ~isempty(crism_obs.info.basenameIF)
-    crism_obs.load_data(crism_obs.info.basenameIF,crism_obs.info.dir_trdr,'if');
-    TRRIFdata = crism_obs.data.if;
-    TRRIF_is_empty = false;
-else
-    TRRIFdata = '';
-    TRRIF_is_empty = true;
-end
-if ~isempty(crism_obs.info.basenameRA)
-    crism_obs.load_data(crism_obs.info.basenameRA,crism_obs.info.dir_trdr,'ra');
-    TRRRAdata = crism_obs.data.ra;
-else
-    TRRRAdata = '';
-end
+switch crism_obs.info.obs_classType
+    case {'FRT','HRL','HRS','FRS','ATO','MSP','HSP'}
+        if ~isempty(crism_obs.info.basenameIF)
+            crism_obs.load_data(crism_obs.info.basenameIF,crism_obs.info.dir_trdr,'if');
+            TRRIFdata = crism_obs.data.if;
+            TRRIF_is_empty = false;
+        else
+            TRRIFdata = '';
+            TRRIF_is_empty = true;
+        end
+        if ~isempty(crism_obs.info.basenameRA)
+            crism_obs.load_data(crism_obs.info.basenameRA,crism_obs.info.dir_trdr,'ra');
+            TRRRAdata = crism_obs.data.ra;
+        else
+            TRRRAdata = '';
+        end
 
-if ~isempty(crism_obs.info.basenameSC)
-    crism_obs.load_data(crism_obs.info.basenameSC,crism_obs.info.dir_edr,'sc');
-    EDRdata = crism_obs.data.sc;
-else
-    EDRdata = '';
-end
+        if ~isempty(crism_obs.info.basenameSC)
+            crism_obs.load_data(crism_obs.info.basenameSC,crism_obs.info.dir_edr,'sc');
+            EDRdata = crism_obs.data.sc;
+        else
+            EDRdata = '';
+        end
 
-if ~isempty(crism_obs.info.basenameDDR)
-    crism_obs.load_ddr(crism_obs.info.basenameDDR,crism_obs.info.dir_ddr,'ddr');
-    DDRdata = crism_obs.data.ddr;
-else
-    DDRdata = '';
-end
+        if ~isempty(crism_obs.info.basenameDDR)
+            crism_obs.load_ddr(crism_obs.info.basenameDDR,crism_obs.info.dir_ddr,'ddr');
+            DDRdata = crism_obs.data.ddr;
+        else
+            DDRdata = '';
+        end
 
-if TRRIF_is_empty
-    TRRIFdata = TRRRAdata;
-end
+        if TRRIF_is_empty
+            TRRIFdata = TRRRAdata;
+        end
 
-obs_id_scene = TRRIFdata.get_obsid();
-TRRIFdata.load_basenamesCDR();
-TRRIFdata.readCDR('BK');
-switch EDRdata.lbl.OBSERVATION_TYPE
-    case {'FRT','HRL','HRS'}
-        crism_obs.load_data(crism_obs.info.basenameDF{1},crism_obs.info.dir_edr,'df1');
-        DFdata1 = crism_obs.data.df1;
-        crism_obs.load_data(crism_obs.info.basenameDF{2},crism_obs.info.dir_edr,'df2');
-        DFdata2 = crism_obs.data.df2;      
-        for j=1:length(TRRIFdata.cdr.BK)
-            bkdata = TRRIFdata.cdr.BK(j);
-            if strcmpi(bkdata.get_obsid, obs_id_scene)
-                if strcmpi(bkdata.get_obs_number,'06')
-                    BKdata1 = bkdata;
-                elseif strcmpi(bkdata.get_obs_number,'08')
-                    BKdata2 = bkdata;
+        obs_id_scene = TRRIFdata.get_obsid();
+        TRRIFdata.load_basenamesCDR();
+        TRRIFdata.readCDR('BK');
+        switch EDRdata.lbl.OBSERVATION_TYPE
+            case {'FRT','HRL','HRS'}
+                crism_obs.load_data(crism_obs.info.basenameDF{1},crism_obs.info.dir_edr,'df1');
+                DFdata1 = crism_obs.data.df1;
+                crism_obs.load_data(crism_obs.info.basenameDF{2},crism_obs.info.dir_edr,'df2');
+                DFdata2 = crism_obs.data.df2;      
+                for j=1:length(TRRIFdata.cdr.BK)
+                    bkdata = TRRIFdata.cdr.BK(j);
+                    if strcmpi(bkdata.get_obsid, obs_id_scene)
+                        if strcmpi(bkdata.get_obs_number,'06')
+                            BKdata1 = bkdata;
+                        elseif strcmpi(bkdata.get_obs_number,'08')
+                            BKdata2 = bkdata;
+                        end
+                    end
                 end
-            end
-        end
-    case {'FRS','ATO'}
-        if ischar(crism_obs.info.basenameDF)
-            crism_obs.load_data(crism_obs.info.basenameDF,crism_obs.info.dir_edr,'df1');
-        elseif iscell(crism_obs.info.basenameDF)
-            crism_obs.load_data(crism_obs.info.basenameDF{1},crism_obs.info.dir_edr,'df1');
-        end
-        DFdata1 = crism_obs.data.df1;
-        DFdata2 = crism_obs.data.df1;
-        for j=1:length(TRRIFdata.cdr.BK)
-            bkdata = TRRIFdata.cdr.BK(j);
-            if strcmpi(bkdata.get_obsid, obs_id_scene)
-                if strcmpi(bkdata.get_obs_number,'00')
-                    BKdata1 = bkdata; BKdata2 = bkdata;
+            case {'FRS','ATO'}
+                if ischar(crism_obs.info.basenameDF)
+                    crism_obs.load_data(crism_obs.info.basenameDF,crism_obs.info.dir_edr,'df1');
+                elseif iscell(crism_obs.info.basenameDF)
+                    crism_obs.load_data(crism_obs.info.basenameDF{1},crism_obs.info.dir_edr,'df1');
                 end
-            end
+                DFdata1 = crism_obs.data.df1;
+                DFdata2 = crism_obs.data.df1;
+                for j=1:length(TRRIFdata.cdr.BK)
+                    bkdata = TRRIFdata.cdr.BK(j);
+                    if strcmpi(bkdata.get_obsid, obs_id_scene)
+                        if strcmpi(bkdata.get_obs_number,'00')
+                            BKdata1 = bkdata; BKdata2 = bkdata;
+                        end
+                    end
+                end
+            case {'MSP','HSP'}
+                crism_obs.load_data(crism_obs.info.basenameDF{1},crism_obs.info.dir_edr,'df1');
+                DFdata1 = crism_obs.data.df1;
+                crism_obs.load_data(crism_obs.info.basenameDF{2},crism_obs.info.dir_edr,'df2');
+                DFdata2 = crism_obs.data.df2;      
+                for j=1:length(TRRIFdata.cdr.BK)
+                    bkdata = TRRIFdata.cdr.BK(j);
+                    if strcmpi(bkdata.get_obsid, obs_id_scene)
+                        if strcmpi(bkdata.get_obs_number,'00')
+                            BKdata1 = bkdata;
+                        elseif strcmpi(bkdata.get_obs_number,'02')
+                            BKdata2 = bkdata;
+                        end
+                    end
+                end
+            otherwise
+                error('Please define for other cases')
         end
-    case {'MSP','HSP'}
-        crism_obs.load_data(crism_obs.info.basenameDF{1},crism_obs.info.dir_edr,'df1');
-        DFdata1 = crism_obs.data.df1;
-        crism_obs.load_data(crism_obs.info.basenameDF{2},crism_obs.info.dir_edr,'df2');
-        DFdata2 = crism_obs.data.df2;      
+    case {'FFC'}
+        TRRIFdata = CRISMdata(crism_obs.info.basenameIF{1},crism_obs.info.dir_trdr);
+        TRRIF_is_empty = false;
+        TRRRAdata = CRISMdata(crism_obs.info.basenameRA{1},crism_obs.info.dir_trdr);
+        EDRdata = CRISMdata(crism_obs.info.basenameSC{1},crism_obs.info.dir_edr);
+        DDRdata = CRISMDDRdata(crism_obs.info.basenameDDR{1},crism_obs.info.dir_ddr);
+        obs_id_scene = TRRIFdata.get_obsid();
+        TRRIFdata.load_basenamesCDR();
+        TRRIFdata.readCDR('BK');
+        DFdata1 = CRISMdata(crism_obs.info.basenameDF{1},crism_obs.info.dir_edr);
+        DFdata2 = CRISMdata(crism_obs.info.basenameDF{2},crism_obs.info.dir_edr);
         for j=1:length(TRRIFdata.cdr.BK)
             bkdata = TRRIFdata.cdr.BK(j);
             if strcmpi(bkdata.get_obsid, obs_id_scene)
@@ -140,7 +166,7 @@ switch EDRdata.lbl.OBSERVATION_TYPE
             end
         end
     otherwise
-        error('Please define for other cases')
+        error('Undefined observation class type %s',crism_obs.info.obs_classType);
 end
 vr = '';
 product_type = 'TRR';
@@ -297,7 +323,6 @@ switch lower(mode_calib)
             'APBPRMVL','HighOrd','SAVE_MEMORY',save_mem,'SATURATION_RMVL',0,...
             'BK_SATURATION_RMVL',1,'BK_MEAN_ROBUST',0,'BK_MEAN_DN14',0);
     case 'yukiz'
-            case 'yuki'
         [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_yuki(...
             TRRIFdata,EDRdata,DFdata1,DFdata2,BKdata1,BKdata2,2,...
             'APBPRMVL','none','SAVE_MEMORY',save_mem,'SATURATION_RMVL',0,...
@@ -305,8 +330,8 @@ switch lower(mode_calib)
     case 'yuki2'
         [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_yuki(...
             TRRIFdata,EDRdata,DFdata1,DFdata2,BKdata1,BKdata2,2,...
-            'APBPRMVL','HighOrd','SAVE_MEMORY',save_mem,'SATURATION_RMVL',1,...
-            'BK_SATURATION_RMVL',1,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',0);
+            'APBPRMVL','HighOrd','SAVE_MEMORY',save_mem,'SATURATION_RMVL',2,...
+            'BK_SATURATION_RMVL',2,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',0);
     case 'yuki3'
         %custom SPdata
         TRRIFdata.load_basenamesCDR();
@@ -345,7 +370,7 @@ switch lower(mode_calib)
 end
 
 % raidance to if
-d_km = crism_obs.data.ddr.lbl.SOLAR_DISTANCE{1};
+d_km = DDRdata.lbl.SOLAR_DISTANCE{1};
 [ d_au ] = km2au( d_km );
 SFdata = TRRIFdata.readCDR('SF');
 [IoF] = rd2if(RDn,SFdata,d_au);

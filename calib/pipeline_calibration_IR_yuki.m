@@ -26,10 +26,11 @@ function [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_yuki(TRRIFd
 save_mem = false;
 apbprmvl = 'HighOrd';
 saturation_rmvl = 0;
-bkgd_robust = false;
+bk_mean_robust = false;
 SPdata_o = [];
 bk_meanDN14 = false;
 bk_saturation_rmvl = 1;
+bk_bprmvl = 0;
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
 else
@@ -49,12 +50,14 @@ else
             case 'BK_SATURATION_RMVL'
                 bk_saturation_rmvl = varargin{i+1};
             case {'BKGD_ROBUST','BK_MEAN_ROBUST'}
-                bkgd_robust = varargin{i+1};
+                bk_mean_robust = varargin{i+1};
                 if bkoption==1
                     error('no effect of "Bkgd_robust" when bkoption=%d',bkoption);
                 end
             case 'BK_MEAN_DN14'
                 bk_meanDN14 = varargin{i+1};
+            case 'BK_BPRMVL'
+                bk_bprmvl = varargin{i+1};
             otherwise
                 % Hmmm, something wrong with the parameter string
                 error(['Unrecognized option: ''' varargin{i} '''']);
@@ -215,12 +218,12 @@ end
 % [~,BKdata2_o] = calcluate_Bkgd_BK(BKdata2,bkgd_robust);
 [~,BKdata1_o,RT14g_df1] = minipipeline_calibration_IR_BK_yuki(...
     DFdata1,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
-    BPdata1,GHdata,VLdata,LCdata,'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',0,...
-    'MEAN_ROBUST',bkgd_robust,'MEAN_DN14',bk_meanDN14);
+    BPdata1,GHdata,VLdata,LCdata,'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',bk_bprmvl,...
+    'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_meanDN14);
 [~,BKdata2_o,RT14g_df2] = minipipeline_calibration_IR_BK_yuki(...
     DFdata2,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
-    BPdata2,GHdata,VLdata,LCdata,'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',0,...
-    'MEAN_ROBUST',bkgd_robust,'MEAN_DN14',bk_meanDN14);
+    BPdata2,GHdata,VLdata,LCdata,'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',bk_bprmvl,...
+    'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_meanDN14);
 hkt_df1 = DFdata1.readHKT();
 hkt_df1c = correctHKTwithHD(hkt_df1,HDdata);
 hkt_df1cc = correctHKTwithHK(hkt_df1c,HKdata);

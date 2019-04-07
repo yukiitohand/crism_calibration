@@ -45,12 +45,12 @@ idx_b = max((1:L)-sh_b,1); idx_a = min((1:L)+sh_a,L);
 s_actual = abs(idx_a-idx_b)+1;
 
 for i=1:L
-   % if i==426
-   %     fprintf('%d\n',i);
-   % end
+%    if i==26
+%        fprintf('%d\n',i);
+%    end
    % define the number of outliers on one side; normally 2, but reduced
    % around the edge region.
-   if s_actual(i) < 2
+   if s_actual(i) < 3
        n_outlier_one_side = 0;
    elseif s_actual(i) < 10
        n_outlier_one_side = 1;

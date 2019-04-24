@@ -1,17 +1,58 @@
-function [SPdata_o,RT14j_woc,RT14j] = minipipeline_calibration_VNIR_SP_yuki( EDRSPdata,DFdata1,DFdata2,...
+function [SPdata_o,RT14j_woc,RT14j] = minipipeline_calibration_VNIR_SP_yuki(...
+    EDRSPdata,DFdata1,DFdata2,...
     PPdata,DBdata,EBdata,HDdata,HKdata,GHdata,VLdata,DMdata,LCdata,varargin)
-%   Pipeline for the calibration of the CRISM images for producing SPdata
-%  Input Parameters
-
-%   Optional Parameters
+%   Pipeline for the calibration of the CRISM VNIR images for producing 
+%   SPdata
+%  INPUTS
+%   EDRSPdata: EDR SP data
+%   DFdata1:  prior Dark measurement
+%   DFdata2:  post Dark measurement
+%   PPdata,DBdata,EBdata,HDdata,HKdata,GHdata,VLdata,DMdata,LCdata
+%  OUTPUTS
+%   SPdata_o
+%   RT14j_woc
+%   RT14j
+%  OPTIONAL PARAMETERS
+%   'SAVE_MEMORY'
+%      saving memory or not. (default) false
+%   'MEAN_ROBUST': integer {0,1}, mode for how mean operation is performed.
+%        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
+%        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
+%      (default) 1  
+%   'SATURATION_RMVL': integer, how to perform replacement of saturated
+%           pixles {0,1,2}
+%           0: no removal
+%           1: digital saturation is removed
+%           2: analogue saturation is also removed
+%           (default) 2
+%   'BK_MEAN_ROBUST': integer {0,1}, mode for how mean operation is performed.
+%        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
+%        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
+%      (default) 1  
+%
+%
+% for future release
+%     'APBPRMVL'
+%       option for a priori bad pixel removal {'HighOrd', 'None'}
+%       'HighOrd': the image where a priori bad pixel removal is performed
+%                  is used for the estimation of the higher order leaked 
+%                  light
+%       'None'   : the image where a priori bad pixel removal is NOT performed
+%                  is used for the estimation of the higher order leaked 
+%                  light
+%       (default) 'None'
+%   'MEAN_DN14'  : binary,when mean operation is performed
+%                  1: before non-linearity correction
+%                  0: last (after divided by integration time
+%      (default) 1
 
 save_mem = false;
 apbprmvl = 'None';
-saturation_rmvl = 0;
+saturation_rmvl = 2;
 mean_robust = 1;
 bk_mean_robust = 1;
-bk_meanDN14 = false;
-bk_saturation_rmvl = 1;
+% mean_DN14 = true;
+
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
 else
@@ -19,25 +60,21 @@ else
         switch upper(varargin{i})
             case 'SAVE_MEMORY'
                 save_mem = varargin{i+1};
-            case 'APBPRMVL'
-                apbprmvl = varargin{i+1};
-                if ~any(strcmpi(apbprmvl,{'HighOrd','None'}))
-                    error('apbprmvl (%s) should be either {"HighOrd","None"}',apbprmvl);
-                end
+            %case 'APBPRMVL'
+            %    apbprmvl = varargin{i+1};
+            %    if ~any(strcmpi(apbprmvl,{'HighOrd','None'}))
+            %        error('apbprmvl (%s) should be either {"HighOrd","None"}',apbprmvl);
+            %    end
+            % case 'MEAN_DN14'
+            %    mean_DN14 = varargin{i+1};
             case 'SATURATION_RMVL'
                 saturation_rmvl = varargin{i+1};
-            case 'BK_SATURATION_RMVL'
-                bk_saturation_rmvl = varargin{i+1};
-            case {'ROBUST','MEAN_ROBUST'}
+            case 'MEAN_ROBUST'
                 mean_robust = varargin{i+1};
-                if bkoption==1
-                    error('no effect of "Bkgd_robust" when bkoption=%d',bkoption);
-                end
-            case 'BK_MEAN_DN14'
-                bk_meanDN14 = varargin{i+1};
+            case 'BK_MEAN_ROBUST'
+                mean_robust = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);
+                error('Unrecognized keyword: %s',varargin{i});
         end
     end
 end
@@ -47,7 +84,7 @@ binx = EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH;
 
 DN = EDRSPdata.readimg();
 if saturation_rmvl
-    flg_dsat = (DN==4095); % added by Yuki Feb.18, 2019 
+    flg_dsat = (DN==4095);
 end
 
 % it was expected that saturated pixels are taken as nan after the
@@ -66,9 +103,16 @@ end
 %-------------------------------------------------------------------------%
 % process darks
 DFdata1.readimg();
+% BI is before the ghost correction, so I think saturation removal is not
+% necessary.
+% if saturation_rmvl
+%     flg_dsat_df1 = (DFdata1.img==4095);
+%     flg_dsat_df2 = (DFdata2.img==4095);
+% end
 DFdata2.readimg();
 [ DN14_df1 ] = DN12toDN14_VNIR( DFdata1.img,PPdata,rownum_table );
 [ DN14_df2 ] = DN12toDN14_VNIR( DFdata2.img,PPdata,rownum_table );
+
 switch bk_mean_robust
     case 0
         DN14a_df1 = nanmean(DN14_df1(:,:,:),1);
@@ -77,7 +121,7 @@ switch bk_mean_robust
         DN14a_df1 = robust_v2('mean',DN14_df1,1,'NOutliers',4);
         DN14a_df2 = robust_v2('mean',DN14_df2,1,'NOutliers',4);
     otherwise
-        error('Undefined bkgd_robust=%d',bkgd_robust);
+        error('Undefined bkgd_robust=%d',bk_mean_robust);
 end
 
 BIdata1_o = DFdata1;
@@ -97,8 +141,6 @@ hkt_df2 = correctHKTwithHK(hkt_df2,HKdata);
 BIdata2_o.hkt = hkt_df2;
 BIdata2_o.lbl.MRO_DETECTOR_TEMPERATURE = nanmean(cat(1,BIdata2_o.hkt.data.VNIR_DETECTOR_TEMP1));
 BIdata2_o.lbl.MRO_FPE_TEMPERATURE = nanmean(cat(1,BIdata2_o.hkt.data.VNIR_FPU_BOARD_TEMP));
-
-
 
 %-------------------------------------------------------------------------%
 % second step (subtract bias/dark)
@@ -160,59 +202,30 @@ switch saturation_rmvl
         DN14c(flg_dsat) = nan;
     case 2
         % analogue saturation is also dealt with
-        [DN14c,mask_saturation] = saturation_removal(DN14bb,VLdata,flg_dsat,...
+        [DN14c,mask_saturation] = saturation_removal_VNIR(DN14bb,VLdata,flg_dsat,...
         'binx',binx,'rate_id',rate_id);
     otherwise
         error('Saturation option %d is not defined',saturation_rmvl);
 end
 
+% dead pixel removal
+[DN14cc,mask_dead] = deadpixel_removal_VNIR(DN14c,VLdata,DMdata,'binx',binx,'rate_id',rate_id);
+
 %-------------------------------------------------------------------------%
-% apply bad a priori pixel interpolation
-% TRRIFdata.readCDR('BP');
-% switch EDRdata.lbl.OBSERVATION_TYPE
-%     case {'FRT','HRL','HRS','MSP','HSP'}
-%         for i=1:length(TRRIFdata.cdr.BP)
-%             bpdata = TRRIFdata.cdr.BP(i);
-%             if ~any(strcmpi(EDRdata.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
-%                 if any(strcmpi(DFdata1.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
-%                     BPdata1 = bpdata;
-%                 elseif any(strcmpi(DFdata2.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
-%                     BPdata2 = bpdata;
-%                 end
-%             else
-%                 BPdata_post = bpdata;
-%             end
-%         end
-%     case {'FRS','ATO'}
-%         % in case of FRS, DFdata1 and DFdata2 are same.
-%         for i=1:length(TRRIFdata.cdr.BP)
-%             bpdata = TRRIFdata.cdr.BP(i);
-%             if ~any(strcmpi(EDRdata.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
-%                 if any(strcmpi(DFdata1.basename,bpdata.lbl.SOURCE_PRODUCT_ID))
-%                     BPdata1 = bpdata; BPdata2 = bpdata;
-%                 end
-%             else
-%                 BPdata_post = bpdata;
-%             end
-%         end
-%     otherwise
-%         error('Undefined observation type %s.',EDRdata.lbl.OBSERVATION_TYPE);
-% end
-
-% DMdata = TRRIFdata.readCDR('DM');
-% [ DN14c,BP ] = apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
-
+% bad pixel removal
 switch upper(apbprmvl)
     case 'HIGHORD'
         if length(TRRIFdata.cdr.BP)==2
-            [ DN14d,BP ] = apriori_badpixel_removal( DN14c,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
+            [ DN14d,BP ] = apriori_badpixel_removal( DN14cc,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
         else
             error('Please implement for a priori bad pixel removal for BP more than 2');
         end
     case 'NONE'
-        DN14d = DN14c;
+        DN14d = DN14cc;
 end
 
+%-------------------------------------------------------------------------%
+% taking mean
 switch mean_robust
     case 0
         DN14e_woc = nanmean(DN14c(:,:,:),1);

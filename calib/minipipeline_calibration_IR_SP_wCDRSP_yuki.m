@@ -143,20 +143,6 @@ EDRSPdata.download(dwld);
 
 %-------------------------------------------------------------------------%
 % get DFdata from SPdata
-    function [DFdata] = get_DFdata(EDRSPdata,obs_counter,dwld)
-        propEDRDF = create_propOBSbasename();
-        propEDRDF.obs_counter = obs_counter;
-        propEDRDF.obs_class_type = EDRSPdata.prop.obs_class_type;
-        propEDRDF.obs_id = EDRSPdata.prop.obs_id;
-        propEDRDF.product_type = EDRSPdata.prop.product_type;
-        propEDRDF.sensor_id = EDRSPdata.prop.sensor_id;
-        propEDRDF.activity_id = 'DF';
-
-        [~,~,~,~,~,basenameEDRDF] = get_dirpath_observation_fromProp(propEDRDF,'dwld',dwld);
-
-        DFdata = CRISMdata(basenameEDRDF,'');
-        DFdata.download(2);
-    end
 DFdata1 = get_DFdata(EDRSPdata,sprintf('%02s',dec2hex(hex2dec(EDRSPdata.prop.obs_counter)-1)),dwld);
 DFdata1.download(dwld);
 DFdata2 = get_DFdata(EDRSPdata,sprintf('%02s',dec2hex(hex2dec(EDRSPdata.prop.obs_counter)+1)),dwld);
@@ -164,32 +150,6 @@ DFdata2.download(dwld);
 
 %-------------------------------------------------------------------------%
 % get BPdata using sclk of the DFdata
-    function [BPdata] = get_BPdata_fromDF(DFdata,dwld)
-        propBP_search = create_propCDR4basename;
-        propBP_search.acro_calibration_type = 'BP';
-        propBP_search.binning = get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
-        propBP_search.wavelength_filter = DFdata.lbl.MRO_WAVELENGTH_FILTER;
-        propBP_search.frame_rate = get_frame_rate_id(DFdata.lbl.MRO_FRAME_RATE{1});
-        % for the BP products, exposure is almost always 0. Do not set it.
-        % propBP_search.exposure = DFdata.lbl.MRO_EXPOSURE_PARAMETER;
-        propBP_search.sensor_id = DFdata.lbl.MRO_SENSOR_ID;
-        [sclk_df_stop,p_df_stop] = DFdata.get_sclk_stop();
-        propBP_search.sclk = floor(sclk_df_stop);
-        propBP_search.partition = p_df_stop;
-        [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1);
-        get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
-        BPdata = CRISMdata(basenameBPmrb,'');
-        if isempty(extractMatchedBasename_v2(DFdata.basename,BPdata.lbl.SOURCE_PRODUCT_ID))
-            fprintf('It seems no BKdata associated with %s.\n in local database',DFdata.basename);
-            fprintf('Connect to remote server...\n');
-            [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1,'force',1);
-            get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
-            BPdata = CRISMdata(basenameBPmrb,'');
-            if isempty(extractMatchedBasename_v2(DFdata.basename,BPdata.lbl.SOURCE_PRODUCT_ID))
-                error('It seems no BKdata associated with %s.',DFdata.basename);
-            end
-        end
-    end
 BPdata1 = get_BPdata_fromDF(DFdata1,dwld);
 BPdata2 = get_BPdata_fromDF(DFdata2,dwld);
 
@@ -206,82 +166,12 @@ for i=1:length(EDRBIdataList)
     end
 end
 
-    function [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,dwld)
-        % get sclk
-        sclk_EDRBI_list = zeros(1,length(EDRBIdataList_s));
-        for ii=1:length(EDRBIdataList_s)
-            [sclk_stop_i] = EDRBIdataList_s(ii).get_sclk_stop();
-            sclk_EDRBI_list(ii) = sclk_stop_i;
-        end
-
-        sclk_stop = max(sclk_EDRBI_list);
-
-        propBI_search = create_propCDR4basename;
-        propBI_search.acro_calibration_type = 'BI';
-        propBI_search.binning = get_binning_id(EDRBIdataList_s(1).lbl.PIXEL_AVERAGING_WIDTH);
-        propBI_search.wavelength_filter = EDRBIdataList_s(1).lbl.MRO_WAVELENGTH_FILTER;
-        propBI_search.frame_rate = get_frame_rate_id(EDRBIdataList_s(1).lbl.MRO_FRAME_RATE{1});
-        propBI_search.sensor_id = EDRBIdataList_s(1).lbl.MRO_SENSOR_ID;
-        propBI_search.sclk = floor(sclk_stop);
-        [basenameBImrb,propBImrb] = crism_searchCDRmrb(propBI_search,'dwld',1);
-        get_dirpath_cdr(basenameBImrb,'dwld',dwld);
-        BIdata = CRISMdata(basenameBImrb,'');
-        
-        is_in_local_database = 1;
-        for ii=1:length(EDRBIdataList_s)
-            basenameEDRBI_i = EDRBIdataList_s(ii).basename;
-            if isempty(extractMatchedBasename_v2(basenameEDRBI_i,BIdata.lbl.SOURCE_PRODUCT_ID))
-                fprintf('It seems no BIdata associated with %s.\n',basenameEDRBI_i);
-                is_in_local_database = 0;
-            end
-        end
-        if ~is_in_local_database
-            [basenameBImrb,propBImrb] = crism_searchCDRmrb(propBI_search,'dwld',1,'force',1);
-            get_dirpath_cdr(basenameBImrb,'dwld',dwld);
-            BIdata = CRISMdata(basenameBImrb,'');
-            for ii=1:length(EDRBIdataList_s)
-                basenameEDRBI_i = EDRBIdataList_s(ii).basename;
-                if isempty(extractMatchedBasename_v2(basenameEDRBI_i,BIdata.lbl.SOURCE_PRODUCT_ID))
-                    error('It seems no BIdata associated with %s.',basenameEDRBI_i);
-                end
-            end
-        end
-            
-    end
 if isempty(BIdata)
     [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,dwld);
 end
 
 %-------------------------------------------------------------------------%
 % get BKdata using sclk of the DFdata
-    function [BKdata] = get_BKdata_fromDF(DFdata,dwld)
-        propBK_search = create_propCDR4basename;
-        propBK_search.acro_calibration_type = 'BK';
-        propBK_search.binning = get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
-        propBK_search.wavelength_filter = DFdata.lbl.MRO_WAVELENGTH_FILTER;
-        propBK_search.frame_rate = get_frame_rate_id(DFdata.lbl.MRO_FRAME_RATE{1});
-        propBK_search.exposure = DFdata.lbl.MRO_EXPOSURE_PARAMETER;
-        propBK_search.sensor_id = DFdata.lbl.MRO_SENSOR_ID;
-        [sclk_df_stop,p_df_stop] = DFdata.get_sclk_stop();
-        propBK_search.sclk = floor(sclk_df_stop);
-        propBK_search.partition = p_df_stop;
-        [basenameBKmrb,propBKmrb] = crism_searchCDRmrb(propBK_search,'dwld',1);
-        get_dirpath_cdr(basenameBKmrb,'dwld',dwld);
-        BKdata = CRISMdata(basenameBKmrb,'');
-        % check if the most recent before product is actually the one we are
-        % looking for.
-        if isempty(extractMatchedBasename_v2(DFdata.basename,BKdata.lbl.SOURCE_PRODUCT_ID))
-            fprintf('It seems no BKdata associated with %s.\n in local database',DFdata.basename);
-            fprintf('Connect to remote server...\n');
-            [basenameBKmrb,propBKmrb] = crism_searchCDRmrb(propBK_search,'dwld',1,'force',1);
-            get_dirpath_cdr(basenameBKmrb,'dwld',dwld);
-            BKdata = CRISMdata(basenameBKmrb,'');
-            if isempty(extractMatchedBasename_v2(DFdata.basename,BKdata.lbl.SOURCE_PRODUCT_ID))
-                error('It seems no BKdata associated with %s.',DFdata.basename);
-            end
-        end
-        
-    end
 BKdata1 = get_BKdata_fromDF(DFdata1,dwld);
 BKdata2 = get_BKdata_fromDF(DFdata2,dwld);
 
@@ -310,4 +200,118 @@ VLdata = SPdata.readCDR('VL');
 % [BP1nan] = formatBP1nan(BPdata1);
 % BPpri1nan = formatBPpri1nan(BPdata1,BPdata2);
 %[BIdata_o,imgBI] = minipipeline_calibration_IR_BI_wCDRBI_yuki(BIdata,'DN4095_RMVL',0,'BPRMVL',0,'MEAN_ROBUST',1);
+end
+
+function [DFdata] = get_DFdata(EDRSPdata,obs_counter,dwld)
+    propEDRDF = create_propOBSbasename();
+    propEDRDF.obs_counter = obs_counter;
+    propEDRDF.obs_class_type = EDRSPdata.prop.obs_class_type;
+    propEDRDF.obs_id = EDRSPdata.prop.obs_id;
+    propEDRDF.product_type = EDRSPdata.prop.product_type;
+    propEDRDF.sensor_id = EDRSPdata.prop.sensor_id;
+    propEDRDF.activity_id = 'DF';
+
+    [~,~,~,~,~,basenameEDRDF] = get_dirpath_observation_fromProp(propEDRDF,'dwld',dwld);
+
+    DFdata = CRISMdata(basenameEDRDF,'');
+    DFdata.download(2);
+end
+
+function [BPdata] = get_BPdata_fromDF(DFdata,dwld)
+    propBP_search = create_propCDR4basename;
+    propBP_search.acro_calibration_type = 'BP';
+    propBP_search.binning = get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
+    propBP_search.wavelength_filter = DFdata.lbl.MRO_WAVELENGTH_FILTER;
+    propBP_search.frame_rate = get_frame_rate_id(DFdata.lbl.MRO_FRAME_RATE{1});
+    % for the BP products, exposure is almost always 0. Do not set it.
+    % propBP_search.exposure = DFdata.lbl.MRO_EXPOSURE_PARAMETER;
+    propBP_search.sensor_id = DFdata.lbl.MRO_SENSOR_ID;
+    [sclk_df_stop,p_df_stop] = DFdata.get_sclk_stop();
+    propBP_search.sclk = floor(sclk_df_stop);
+    propBP_search.partition = p_df_stop;
+    [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1);
+    get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
+    BPdata = CRISMdata(basenameBPmrb,'');
+    if isempty(extractMatchedBasename_v2(DFdata.basename,BPdata.lbl.SOURCE_PRODUCT_ID))
+        fprintf('It seems no BKdata associated with %s.\n in local database',DFdata.basename);
+        fprintf('Connect to remote server...\n');
+        [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1,'force',1);
+        get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
+        BPdata = CRISMdata(basenameBPmrb,'');
+        if isempty(extractMatchedBasename_v2(DFdata.basename,BPdata.lbl.SOURCE_PRODUCT_ID))
+            error('It seems no BKdata associated with %s.',DFdata.basename);
+        end
+    end
+end
+
+function [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,dwld)
+    % get sclk
+    sclk_EDRBI_list = zeros(1,length(EDRBIdataList_s));
+    for ii=1:length(EDRBIdataList_s)
+        [sclk_stop_i] = EDRBIdataList_s(ii).get_sclk_stop();
+        sclk_EDRBI_list(ii) = sclk_stop_i;
+    end
+
+    sclk_stop = max(sclk_EDRBI_list);
+
+    propBI_search = create_propCDR4basename;
+    propBI_search.acro_calibration_type = 'BI';
+    propBI_search.binning = get_binning_id(EDRBIdataList_s(1).lbl.PIXEL_AVERAGING_WIDTH);
+    propBI_search.wavelength_filter = EDRBIdataList_s(1).lbl.MRO_WAVELENGTH_FILTER;
+    propBI_search.frame_rate = get_frame_rate_id(EDRBIdataList_s(1).lbl.MRO_FRAME_RATE{1});
+    propBI_search.sensor_id = EDRBIdataList_s(1).lbl.MRO_SENSOR_ID;
+    propBI_search.sclk = floor(sclk_stop);
+    [basenameBImrb,propBImrb] = crism_searchCDRmrb(propBI_search,'dwld',1);
+    get_dirpath_cdr(basenameBImrb,'dwld',dwld);
+    BIdata = CRISMdata(basenameBImrb,'');
+
+    is_in_local_database = 1;
+    for ii=1:length(EDRBIdataList_s)
+        basenameEDRBI_i = EDRBIdataList_s(ii).basename;
+        if isempty(extractMatchedBasename_v2(basenameEDRBI_i,BIdata.lbl.SOURCE_PRODUCT_ID))
+            fprintf('It seems no BIdata associated with %s.\n',basenameEDRBI_i);
+            is_in_local_database = 0;
+        end
+    end
+    if ~is_in_local_database
+        [basenameBImrb,propBImrb] = crism_searchCDRmrb(propBI_search,'dwld',1,'force',1);
+        get_dirpath_cdr(basenameBImrb,'dwld',dwld);
+        BIdata = CRISMdata(basenameBImrb,'');
+        for ii=1:length(EDRBIdataList_s)
+            basenameEDRBI_i = EDRBIdataList_s(ii).basename;
+            if isempty(extractMatchedBasename_v2(basenameEDRBI_i,BIdata.lbl.SOURCE_PRODUCT_ID))
+                error('It seems no BIdata associated with %s.',basenameEDRBI_i);
+            end
+        end
+    end
+
+end
+
+function [BKdata] = get_BKdata_fromDF(DFdata,dwld)
+    propBK_search = create_propCDR4basename;
+    propBK_search.acro_calibration_type = 'BK';
+    propBK_search.binning = get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
+    propBK_search.wavelength_filter = DFdata.lbl.MRO_WAVELENGTH_FILTER;
+    propBK_search.frame_rate = get_frame_rate_id(DFdata.lbl.MRO_FRAME_RATE{1});
+    propBK_search.exposure = DFdata.lbl.MRO_EXPOSURE_PARAMETER;
+    propBK_search.sensor_id = DFdata.lbl.MRO_SENSOR_ID;
+    [sclk_df_stop,p_df_stop] = DFdata.get_sclk_stop();
+    propBK_search.sclk = floor(sclk_df_stop);
+    propBK_search.partition = p_df_stop;
+    [basenameBKmrb,propBKmrb] = crism_searchCDRmrb(propBK_search,'dwld',1);
+    get_dirpath_cdr(basenameBKmrb,'dwld',dwld);
+    BKdata = CRISMdata(basenameBKmrb,'');
+    % check if the most recent before product is actually the one we are
+    % looking for.
+    if isempty(extractMatchedBasename_v2(DFdata.basename,BKdata.lbl.SOURCE_PRODUCT_ID))
+        fprintf('It seems no BKdata associated with %s.\n in local database',DFdata.basename);
+        fprintf('Connect to remote server...\n');
+        [basenameBKmrb,propBKmrb] = crism_searchCDRmrb(propBK_search,'dwld',1,'force',1);
+        get_dirpath_cdr(basenameBKmrb,'dwld',dwld);
+        BKdata = CRISMdata(basenameBKmrb,'');
+        if isempty(extractMatchedBasename_v2(DFdata.basename,BKdata.lbl.SOURCE_PRODUCT_ID))
+            error('It seems no BKdata associated with %s.',DFdata.basename);
+        end
+    end
+
 end

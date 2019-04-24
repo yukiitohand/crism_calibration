@@ -46,7 +46,7 @@ function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_cal
 %        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
 %        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
 %      (default) 1
-%   'SATURATiON_RMVL': integer, how to perform replacement of saturated
+%   'SATURATION_RMVL': integer, how to perform replacement of saturated
 %           pixles {0,1,2}
 %           0: no removal
 %           1: digital saturation is removed

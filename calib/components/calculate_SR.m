@@ -11,9 +11,9 @@ function [SR] = calculate_SR(SSdata,SPdata,SHdata,MP)
 %   Output Parameters
 %     SR: spectral radiance
 
-if isempty(SSdata.img), SSdata.readimg(); end;
-if isempty(SPdata.img), SPdata.readimg(); end;
-if isempty(SHdata.img), SHdata.readimg(); end;
+if isempty(SSdata.img), SSdata.readimg(); end
+if isempty(SPdata.img), SPdata.readimg(); end
+if isempty(SHdata.img), SHdata.readimg(); end
 
 
 SC = SHdata.img(2,:,:);
@@ -24,9 +24,9 @@ theta = SSdata.img(1,:,:);
 sigma = SSdata.img(2,:,:);
 tau = SSdata.img(3,:,:);
 
-SR_Tc3 = theta + sigma * Tc3 + tau + tau * Tc3.^2;
+SR_Tc3 = theta + sigma * Tc3 + tau * Tc3.^2;
 
-SR = SR_Tc3 ./ (1 + MP.* SC);
+SR = SR_Tc3 .* (1 + MP.* SC);
 
 end
     

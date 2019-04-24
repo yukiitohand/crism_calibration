@@ -40,7 +40,7 @@ function [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_yuk
 %                  0: last (after divided by integration time
 %                  (default) 1
 
-saturation_rmvl = 1;
+saturation_rmvl = 2;
 mean_robust = 1;
 bprmvl = false;
 mean_DN14 = true;

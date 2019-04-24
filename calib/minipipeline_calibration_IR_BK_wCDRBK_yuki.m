@@ -37,18 +37,22 @@ function [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_wCD
 %                       (default) ''
 %   'Force'          : binary, whether or not to force performing
 %                      pds_downloader. (default) false
-saturation_rmvl = 1;
+saturation_rmvl = 2;
 mean_robust = 1;
 bprmvl = false;
 mean_DN14 = true;
 dwld = 0;
 force = false;
 outfile = '';
+save_mem = false;
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
 else
     for i=1:2:(length(varargin)-1)
         switch upper(varargin{i})
+            case 'SAVE_MEMORY'
+                save_mem = varargin{i+1};
+                fprintf('Message: save_memory is not implemented for "%s" yet.\n',mfilename);
             case 'SATURATION_RMVL'
                 saturation_rmvl = varargin{i+1};
             case 'BPRMVL'

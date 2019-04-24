@@ -26,7 +26,8 @@ function [RT14jj,mask_dead] = deadpixel_removal(RT14j,VLdata,DMdata,varargin)
 %              3     10
 %    Please specify only one of 'BINNING', and 'BINX'
 %  OUTPUTS
-%    RT14jj: image processed, dead pixels are replaced with nans.
+%    RT14jj: image processed, dead pixels are replaced with nans. non-scene
+%    pixels are untouched.
 %    mask_dead: [LxSxB] boolean image indicating dead pixels. 
 
 if isempty(VLdata.tab), VLdata.readTAB(); end
@@ -63,7 +64,7 @@ IR_SENSITIVITY_LIMIT = rateQuadrantTABformatter(rate_id,VLdata.tab,'IR_SENSITIVI
 [RT14j_dm] = apply_DM(RT14j,DMdata);
 RT14j_dm_ext = reshape(RT14j_dm,[L*S,B]);
 RT14j_dm_med = reshape(nanmedian(RT14j_dm_ext,1),[1,1,B]);
-mask_dead = RT14jj < (IR_SENSITIVITY_LIMIT.*RT14j_dm_med);
+mask_dead = RT14j_dm < (IR_SENSITIVITY_LIMIT.*RT14j_dm_med);
 RT14jj(mask_dead) = nan;
 
 

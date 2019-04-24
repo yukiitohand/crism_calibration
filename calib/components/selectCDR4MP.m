@@ -34,14 +34,18 @@ else
 end
 
 %VNIR SS data (as of 2018.01.15, 8 is the latest version.)
+% 2 is the right one.
 propSS = create_propCDR4basename('Acro','SS','Binning',propSP.binning,...
     'Wavelength_filter',propSP.wavelength_filter,'Side',propSP.side,...
-    'SENSOR_ID',propSP.sensor_id,'Version',8);
+    'SENSOR_ID',propSP.sensor_id,'Version',2);
 % basenameSS = get_basenameCDR4_fromProp(propSS);
 [dirpathSS,~,~,basenameSS] = get_dirpath_cdr_fromProp(propSS,varargin{:});
 % basenameSSPtrn = get_basenameCDR4_fromProp(propSS);
 % basenameSS = readDownloadBasename_v3(basenameSSPtrn,dirpathSS,remote_subdirSS);
 if ~isempty(dirpathSS)
+    % This will throw an error.
+    basenameSS
+    error('Please fix this');
     SSdata = CRISMdata(basenameSS,dirpathSS);
 else
     error('%s cannot be found',basenameSS);

@@ -166,7 +166,7 @@ switch saturation_rmvl
         DN14c(flg_dsat) = nan;
     case 2
         % analogue saturation is also dealt with
-        [DN14c,mask_saturation] = saturation_removal(DN14bb,VLdata,flg_dsat,...
+        [DN14c,mask_saturation] = saturation_removal_VNIR(DN14bb,VLdata,flg_dsat,...
         'binx',binx,'rate_id',rate_id);
     otherwise
         error('Saturation option %d is not defined',saturation_rmvl);

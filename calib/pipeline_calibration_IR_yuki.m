@@ -333,12 +333,12 @@ for i=1:length(TRRIFdata.cdr.SP)
     end
 end
 
-[SPdataMP,SSdataMP,SHdataMP] = selectCDR4MP(SPdataVNIR);
-[MP] = calculate_MP(SPdataMP,SSdataMP,SHdataMP);
+% [SPdataMP,SSdataMP,SHdataMP] = selectCDR4MP(SPdataVNIR);
+% [MP] = calculate_MP(SPdataMP,SSdataMP,SHdataMP);
 SSdata = TRRIFdata.readCDR('SS');
 SHdata = TRRIFdata.readCDR('SH');
 
-[SR] = calculate_SR(SSdata,SPdata,SHdata,MP);
+[SR] = calculate_SR(SSdata,SPdata,SHdata,0);
 
 %-------------------------------------------------------------------------%
 % calculate spectroradiometric responsitivity

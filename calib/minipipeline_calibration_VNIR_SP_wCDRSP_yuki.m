@@ -1,17 +1,79 @@
-function [SPdata_o,RT14j_woc_mod,RT14j_mod] = minipipeline_calibration_VNIR_SP_wCDRSP_yuki(...
+function [SPdata_o,RT14j_woc_mod,RT14j,RT14j_mod,MP] = minipipeline_calibration_VNIR_SP_wCDRSP_yuki(...
     SPdata,TRRIFdata,varargin)
+%   Main pipeline for the calibration of the CRISM images using CDR SPdata,
+%   VNIR. This is a wrapper function for 
+%    "minipipeline_calibration_VNIR_SP_yuki"
+%
+%  Input Parameters
+%   SPdata: CDR SPdata, CRISMdata obj
+%   TRRIFdata: TRRIF VNIR data corresponding to SPdata
+%   bkoption: option for the use of background image. {1,2}
+%             1: linear background estimation using prior and post dark
+%                measurements.
+%             2: flat background estimation using only prior dark
+%                measurements.
+%   OUTPUTS
+%    SPdata_o: SPdata that stores processed image at img. RT14j_woc is stored.
+%    RT14j_woc_mod: non interpolated version of the image of SPdata applied
+%                  MP parameters
+%    RT14j: interpolated version of SPdata (image)
+%    RT14j_mod: MP corrected RT14j
+%    MP: scalar, shutter mirror parameter
+%   Optional Parameters
+%    'SAVE_MEMORY'
+%       saving memory or not. true or false
+%       (default) true
+%    'DWLD','DOWNLOAD' : if download the data or not, 2: download, 1:
+%                       access an only show the path, 0: nothing
+%                       (default) 0
+%    'OUT_FILE'       : path to the output file
+%                       (default) ''
+%    'Force'          : binary, whether or not to force performing
+%                      pds_downloader. (default) false
+%   'MEAN_ROBUST': integer {0,1}, mode for how mean operation is performed.
+%        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
+%        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
+%      (default) 1  
+%   'SATURATION_RMVL': integer, how to perform replacement of saturated
+%           pixles {0,1,2}
+%           0: no removal
+%           1: digital saturation is removed
+%           2: analogue saturation is also removed
+%           (default) 2
+%   'BK_MEAN_ROBUST': integer {0,1}, mode for how mean operation is performed.
+%        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
+%        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
+%      (default) 1  
+%   ****** Parameters for manual BK production ****************************
+%   'BK_MEAN_ROBUST': integer {0,1}, mode for how mean operation is performed.
+%        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
+%        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
+%      (default) 1  
+%
+% for future release
+%     'APBPRMVL'
+%       option for a priori bad pixel removal {'HighOrd', 'None'}
+%       'HighOrd': the image where a priori bad pixel removal is performed
+%                  is used for the estimation of the higher order leaked 
+%                  light
+%       'None'   : the image where a priori bad pixel removal is NOT performed
+%                  is used for the estimation of the higher order leaked 
+%                  light
+%       (default) 'None'
+%   'MEAN_DN14'  : binary,when mean operation is performed
+%                  1: before non-linearity correction
+%                  0: last (after divided by integration time
+%      (default) 1
 save_mem = false;
-apbprmvl = 'HighOrd';
+% apbprmvl = 'None';
 saturation_rmvl = 2;
-bk_saturation_rmvl = 2;
+mean_robust = 1;
 bk_mean_robust = 1;
-bk_bprmvl = false;
-bk_mean_DN14 = true;
 dwld = 0;
 force = false;
 outfile = '';
-BIdata = [];
-mean_DN14 = false;
+% BIdata = [];
+% mean_DN14 = true;
 
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
@@ -20,31 +82,25 @@ else
         switch upper(varargin{i})
             case 'SAVE_MEMORY'
                 save_mem = varargin{i+1};
-            case 'APBPRMVL'
-                apbprmvl = varargin{i+1};
-                if ~any(strcmpi(apbprmvl,{'HighOrd','None'}))
-                    error('apbprmvl (%s) should be either {"HighOrd","None"}',apbprmvl);
-                end
-            case 'MEAN_DN14'
-                mean_DN14 = varargin{i+1};
+            % case 'APBPRMVL'
+            %     apbprmvl = varargin{i+1};
+            %     if ~any(strcmpi(apbprmvl,{'HighOrd','None'}))
+            %         error('apbprmvl (%s) should be either {"HighOrd","None"}',apbprmvl);
+            %     end
+            % case 'MEAN_DN14'
+            %    mean_DN14 = varargin{i+1};
             case 'SATURATION_RMVL'
                 saturation_rmvl = varargin{i+1};
-            case 'BK_SATURATION_RMVL'
-                bk_saturation_rmvl = varargin{i+1};
-            case 'BK_BPRMVL'
-                bk_bprmvl = varargin{i+1};
             case 'BK_MEAN_ROBUST'
                 bk_mean_robust = varargin{i+1};
-            case 'BK_MEAN_DN14'
-                bk_mean_DN14 = varargin{i+1};
             case {'DWLD','DOWNLOAD'}
                 dwld = varargin{i+1};
             case 'FORCE'
                 force = varargin{i+1};
             case 'OUT_FILE'
                 outfile = varargin{i+1};
-            case 'BIDATA'
-                BIdata = varargin{i+1};
+            % case 'BIDATA'
+            %    BIdata = varargin{i+1};
             otherwise
                 % Hmmm, something wrong with the parameter string
                 error(['Unrecognized option: ''' varargin{i} '''']);
@@ -88,27 +144,48 @@ DFdata2.download(dwld);
 
 %-------------------------------------------------------------------------%
 % Read other CDRs
-PPdata = TRRIFdata.readCDR('PP');
-DBdata = TRRIFdata.readCDR('DB');
-EBdata = TRRIFdata.readCDR('EB');
-HDdata = TRRIFdata.readCDR('HD');
-HKdata = TRRIFdata.readCDR('HK');
-GHdata = TRRIFdata.readCDR('GH');
-LCdata = TRRIFdata.readCDR('LC');
-DMdata = TRRIFdata.readCDR('DM');
-VLdata = TRRIFdata.readCDR('VL');
+% PPdata = TRRIFdata.readCDR('PP');
+% DBdata = TRRIFdata.readCDR('DB');
+% EBdata = TRRIFdata.readCDR('EB');
+% HDdata = TRRIFdata.readCDR('HD');
+% HKdata = TRRIFdata.readCDR('HK');
+% GHdata = TRRIFdata.readCDR('GH');
+% LCdata = TRRIFdata.readCDR('LC');
+% DMdata = TRRIFdata.readCDR('DM');
+% VLdata = TRRIFdata.readCDR('VL');
+PPdata = crism_searchCDR6mrb('PP',SPdata.prop.sclk,'sensor_id','S');
+DBdata = crism_searchCDR6mrb('DB',SPdata.prop.sclk,'sensor_id','S');
+EBdata = crism_searchCDR6mrb('EB',SPdata.prop.sclk,'sensor_id','S');
+HDdata = crism_searchCDR6mrb('HD',SPdata.prop.sclk,'sensor_id','J');
+HKdata = crism_searchCDR6mrb('HK',SPdata.prop.sclk,'sensor_id','J');
+GHdata = crism_searchCDR6mrb('GH',SPdata.prop.sclk,'sensor_id','S');
+LCdata = crism_searchCDR6mrb('LC',SPdata.prop.sclk,'sensor_id','S');
+VLdata = crism_searchCDR6mrb('VL',SPdata.prop.sclk,'sensor_id','S');
+
+DMdata = crism_searchCDR4mrb('DM',SPdata.prop.sclk,'sensor_id','S',...
+    'wavelength_filter',SPdata.prop.wavelength_filter,'binning',SPdata.prop.binning);
 
 %-------------------------------------------------------------------------%
 % main pipeline
-[SPdata_o,RT14j_woc,RT14j] = minipipeline_calibration_VNIR_SP_yuki( EDRSPdata,DFdata1,DFdata2,...
-    PPdata,DBdata,EBdata,HDdata,HKdata,GHdata,VLdata,DMdata,LCdata);
+[~,RT14j_woc,RT14j] = minipipeline_calibration_VNIR_SP_yuki( EDRSPdata,DFdata1,DFdata2,...
+    PPdata,DBdata,EBdata,HDdata,HKdata,GHdata,VLdata,DMdata,LCdata,...
+    'save_memory',save_mem,'saturation_rmvl',saturation_rmvl,...
+    'bk_mean_robust',bk_mean_robust,'mean_robust',mean_robust);
 
 % [BP1nan] = formatBP1nan(BPdata1);
 % BPpri1nan = formatBPpri1nan(BPdata1,BPdata2);
 %[BIdata_o,imgBI] = minipipeline_calibration_IR_BI_wCDRBI_yuki(BIdata,'DN4095_RMVL',0,'BPRMVL',0,'MEAN_ROBUST',1);
 
-SSdata = TRRIFdata.readCDR('SS');
-SHdata = TRRIFdata.readCDR('SH');
+
+%-------------------------------------------------------------------------%
+% post processing
+SSdata = crism_searchCDR4mrb('SS',SPdata.prop.sclk,'sensor_id','S',...
+    'wavelength_filter',SPdata.prop.wavelength_filter,'binning',SPdata.prop.binning,...
+    'version',2);
+SHdata = crism_searchCDR4mrb('SH',SPdata.prop.sclk,'sensor_id','S',...
+    'wavelength_filter',SPdata.prop.wavelength_filter,'binning',SPdata.prop.binning);
+% SSdata = TRRIFdata.readCDR('SS');
+% SHdata = TRRIFdata.readCDR('SH');
 SPdata_o = CRISMdata(SPdata.basename,'');
 SPdata_o.img = RT14j_woc;
 [MP] = calculate_MP(SPdata_o,SSdata,SHdata);
@@ -122,3 +199,4 @@ RT14j_woc_mod = RT14j_woc ./ (1 + MP.* SC);
 SPdata_o.img = RT14j_woc;
 
 end
+

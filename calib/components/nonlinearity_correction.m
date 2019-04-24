@@ -71,6 +71,9 @@ DN14e_1(DN14e<0) = nan;
 
 % currently only
 if all(e(:)==0)
+    % small value correction is implemented.
+    DN14e_1_lt100  = DN14e_1 < 100;
+    DN14e_1(DN14e_1_lt100) = 5*log(exp(4)+exp(DN14e_1(DN14e_1_lt100)/5));
     F = repmat(a,[1,1,Bands]) .* log(DN14e_1) + repmat(b,[1,1,Bands]);
 else
     error('The complex case is not implemented yet, only F=a*log(DN)+b is implemented');

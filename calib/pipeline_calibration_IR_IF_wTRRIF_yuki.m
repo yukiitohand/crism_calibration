@@ -189,10 +189,12 @@ TRRIFdata.readCDR('BI'); BIdata = [];
 for i=1:length(TRRIFdata.cdr.BI)
     bidata = TRRIFdata.cdr.BI(i);
     if bidata.lbl.MRO_FRAME_RATE{1} == TRRIFdata.lbl.MRO_FRAME_RATE{1}
-        BIdata = [BIdata bidata];
+        if bidata.lbl.PIXEL_AVERAGING_WIDTH == TRRIFdata.lbl.PIXEL_AVERAGING_WIDTH
+            BIdata = [BIdata bidata];
+        end
     end
 end
-if length(BIdata)>2
+if length(BIdata)>1
     error('BIdata detected twice');
 end
 

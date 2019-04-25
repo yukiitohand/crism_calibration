@@ -99,18 +99,18 @@ end
 
 %%
 crism_obs = CRISMObservation(obs_id,'SENSOR_ID','L');
-crism_obsS = CRISMObservation(obs_id,'SENSOR_ID','S');
+% crism_obsS = CRISMObservation(obs_id,'SENSOR_ID','S');
 switch upper(crism_obs.info.obs_classType)
     case {'FRT','HRL','HRS','FRS','ATO','MSP','HSP'}
         if ~isempty(crism_obs.info.basenameIF)
             TRRIF_is_empty = false;
             TRRIFdata = CRISMdata(crism_obs.info.basenameIF,'');
-            TRRIFdataS = CRISMdata(crism_obsS.info.basenameIF,'');
+            % TRRIFdataS = CRISMdata(crism_obsS.info.basenameIF,'');
             TRRRAdata = CRISMdata(crism_obs.info.basenameRA,'');
         elseif ~isempty(crism_obs.info.basenameRA)
             TRRIF_is_empty = true;
             TRRIFdata = CRISMdata(crism_obs.info.basenameRA,'');
-            TRRIFdataS = CRISMdata(crism_obsS.info.basenameRA,'');
+            % TRRIFdataS = CRISMdata(crism_obsS.info.basenameRA,'');
             TRRRAdata = CRISMdata(crism_obs.info.basenameRA,'');
         else
             error('Check data');
@@ -122,12 +122,12 @@ switch upper(crism_obs.info.obs_classType)
                 if ~isempty(crism_obs.info.basenameIF)
                     TRRIF_is_empty = false;
                     TRRIFdata = CRISMdata(crism_obs.info.basenameIF{1},'');
-                    TRRIFdataS = CRISMdata(crism_obsS.info.basenameIF{1},'');
+                    % TRRIFdataS = CRISMdata(crism_obsS.info.basenameIF{1},'');
                     TRRRAdata = CRISMdata(crism_obs.info.basenameRA{1},'');
                 elseif ~isempty(crism_obs.info.basenameRA)
                     TRRIF_is_empty = true;
                     TRRIFdata = CRISMdata(crism_obs.info.basenameRA{1},'');
-                    TRRIFdataS = CRISMdata(crism_obsS.info.basenameRA{1},'');
+                    % TRRIFdataS = CRISMdata(crism_obsS.info.basenameRA{1},'');
                     TRRRAdata = CRISMdata(crism_obs.info.basenameRA{1},'');
                 else
                     error('Check data');
@@ -137,12 +137,12 @@ switch upper(crism_obs.info.obs_classType)
                 if ~isempty(crism_obs.info.basenameIF)
                     TRRIF_is_empty = false;
                     TRRIFdata = CRISMdata(crism_obs.info.basenameIF{2},'');
-                    TRRIFdataS = CRISMdata(crism_obsS.info.basenameIF{2},'');
+                    % TRRIFdataS = CRISMdata(crism_obsS.info.basenameIF{2},'');
                     TRRRAdata = CRISMdata(crism_obs.info.basenameRA{2},'');
                 elseif ~isempty(crism_obs.info.basenameRA)
                     TRRIF_is_empty = true;
                     TRRIFdata = CRISMdata(crism_obs.info.basenameRA{2},'');
-                    TRRIFdataS = CRISMdata(crism_obsS.info.basenameRA{2},'');
+                    % TRRIFdataS = CRISMdata(crism_obsS.info.basenameRA{2},'');
                     TRRRAdata = CRISMdata(crism_obs.info.basenameRA{2},'');
                 else
                     error('Check data');
@@ -260,7 +260,7 @@ switch lower(mode_calib)
     case 'yuki2'
         bkoption = 2;
         [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_IF_wTRRIF_yuki(...
-        TRRIFdata,TRRIFdataS,crism_obs,bkoption,...
+        TRRIFdata,[],crism_obs,bkoption,...
         'SAVE_MEMORY',save_mem,'dwld',2,'MODE_SP','SOC',...
         'APBPRMVL','HighOrd','SATURATION_RMVL',2,...
         'BK_SATURATION_RMVL',2,'BK_BPRMVL',false,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',0);

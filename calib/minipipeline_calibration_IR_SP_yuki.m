@@ -83,12 +83,20 @@ bk_mean_DN14 = true;
 SPdata_ref = [];
 mean_DN14 = true;
 mean_robust = true;
+binning_sp = 0;
+binx_sp = 1;
 
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
 else
     for i=1:2:(length(varargin)-1)
         switch upper(varargin{i})
+            case 'BINNING_SP'
+                binning_sp = varargin{i+1};
+                binx_sp = get_binning(binning_sp);
+            case 'BINX_SP'
+                binx_sp = varargin{i+1};
+                binning_sp = get_binning_id(binx_sp);
             case 'SAVE_MEMORY'
                 save_mem = varargin{i+1};
             case 'APBPRMVL'
@@ -124,9 +132,14 @@ end
 %-------------------------------------------------------------------------%
 frame_rate = EDRSPdata.lbl.MRO_FRAME_RATE{1};
 rate_id = get_frame_rate_id(frame_rate);
-binx = EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH;
+% binx_sp = binx_sp;
+% binx = EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH;
 
 DN = EDRSPdata.readimg();
+
+% apply binning this early
+DN = bin_image_frames(DN,'binning',binning_sp);
+
 if saturation_rmvl
     flg_dsat = (DN==4095); % added by Yuki Feb.18, 2019 
 end
@@ -149,13 +162,13 @@ hkt = correctHKTwithHD(hkt,HDdata);
 hkt = correctHKTwithHK(hkt,HKdata);
 % using Temperature recorded in the label in TRR I/F data 
 %[ DN14a,BI_m ] = subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,[],'BINX',binx);
-[ DN14a,BI_m ] = subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,'BINX',binx);
+[ DN14a,BI_m ] = subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,'BINX',binx_sp);
 if save_mem
     clear DN14;
 end
 %-------------------------------------------------------------------------%
 % the third step (remove detector quadrant electronics ghost)
-[ DN14b,sumGhost ] = remove_quadrantGhost( DN14a,GHdata,hkt,'BINX',binx );
+[ DN14b,sumGhost ] = remove_quadrantGhost( DN14a,GHdata,hkt,'BINX',binx_sp );
 if save_mem
     clear DN14a;
 end
@@ -179,7 +192,7 @@ switch saturation_rmvl
     case 2
         % analogue saturation is also dealt with
         [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,flg_dsat,...
-        'binx',binx,'rate_id',rate_id);
+        'binx',binx_sp,'rate_id',rate_id);
     otherwise
         error('Saturation option %d is not defined',saturation_rmvl);
 end
@@ -222,8 +235,8 @@ end
 
 %-------------------------------------------------------------------------%
 % fourth step (nonlinearity correction)
-[ DN14g ] = nonlinearity_correction( DN14e,LCdata,hkt,'BINX',binx );
-[ DN14g_woc ] = nonlinearity_correction( DN14e_woc,LCdata,hkt,'BINX',binx );
+[ DN14g ] = nonlinearity_correction( DN14e,LCdata,hkt,'BINX',binx_sp );
+[ DN14g_woc ] = nonlinearity_correction( DN14e_woc,LCdata,hkt,'BINX',binx_sp );
 if save_mem
     clear DN14c DN14b;
 end
@@ -245,11 +258,13 @@ end
 [RT14g_df1_1,BKdata1_o,RT14g_df1] = minipipeline_calibration_IR_BK_yuki(...
     DFdata1,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
     BPdata1,GHdata,VLdata,LCdata,'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',bk_bprmvl,...
-    'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14);
+    'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14,...
+    'binning_bk',binning_sp);
 [RT14g_df1_2,BKdata2_o,RT14g_df2] = minipipeline_calibration_IR_BK_yuki(...
     DFdata2,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
     BPdata2,GHdata,VLdata,LCdata,'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',bk_bprmvl,...
-    'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14);
+    'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14,...
+    'binning_bk',binning_sp);
 hkt_df1 = DFdata1.readHKT();
 hkt_df1c = correctHKTwithHD(hkt_df1,HDdata);
 hkt_df1cc = correctHKTwithHK(hkt_df1c,HKdata);
@@ -297,8 +312,8 @@ end
 
 %-------------------------------------------------------------------------%
 % dead pixel removal
-[RT14jj,mask_dead] = deadpixel_removal(RT14j,VLdata,DMdata,'binx',binx,'rate_id',rate_id);
-[RT14jj_woc,mask_dead] = deadpixel_removal(RT14j_woc,VLdata,DMdata,'binx',binx,'rate_id',rate_id);
+[RT14jj,mask_dead] = deadpixel_removal(RT14j,VLdata,DMdata,'binx',binx_sp,'rate_id',rate_id);
+[RT14jj_woc,mask_dead] = deadpixel_removal(RT14j_woc,VLdata,DMdata,'binx',binx_sp,'rate_id',rate_id);
 
 %-------------------------------------------------------------------------%
 % mean if 

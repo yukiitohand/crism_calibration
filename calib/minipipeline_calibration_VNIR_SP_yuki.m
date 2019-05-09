@@ -53,11 +53,20 @@ mean_robust = 1;
 bk_mean_robust = 1;
 % mean_DN14 = true;
 
+binning_sp = 0;
+binx_sp = 1;
+
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
 else
     for i=1:2:(length(varargin)-1)
         switch upper(varargin{i})
+            case 'BINNING_SP'
+                binning_sp = varargin{i+1};
+                binx_sp = get_binning(binning_sp);
+            case 'BINX_SP'
+                binx_sp = varargin{i+1};
+                binning_sp = get_binning_id(binx_sp);
             case 'SAVE_MEMORY'
                 save_mem = varargin{i+1};
             %case 'APBPRMVL'
@@ -80,9 +89,13 @@ else
 end
 frame_rate = EDRSPdata.lbl.MRO_FRAME_RATE{1};
 rate_id = get_frame_rate_id(frame_rate);
-binx = EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH;
+% binx_sp = EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH;
 
 DN = EDRSPdata.readimg();
+
+% apply binning this early
+DN = bin_image_frames(DN,'binning',binning_sp);
+
 if saturation_rmvl
     flg_dsat = (DN==4095);
 end
@@ -103,6 +116,7 @@ end
 %-------------------------------------------------------------------------%
 % process darks
 DFdata1.readimg();
+DN12_df1 = bin_image_frames(DFdata1.img,'binning',binning_sp);
 % BI is before the ghost correction, so I think saturation removal is not
 % necessary.
 % if saturation_rmvl
@@ -110,8 +124,9 @@ DFdata1.readimg();
 %     flg_dsat_df2 = (DFdata2.img==4095);
 % end
 DFdata2.readimg();
-[ DN14_df1 ] = DN12toDN14_VNIR( DFdata1.img,PPdata,rownum_table );
-[ DN14_df2 ] = DN12toDN14_VNIR( DFdata2.img,PPdata,rownum_table );
+DN12_df2 = bin_image_frames(DFdata2.img,'binning',binning_sp);
+[ DN14_df1 ] = DN12toDN14_VNIR( DN12_df1,PPdata,rownum_table );
+[ DN14_df2 ] = DN12toDN14_VNIR( DN12_df2,PPdata,rownum_table );
 
 switch bk_mean_robust
     case 0
@@ -162,7 +177,7 @@ hkt = correctHKTwithHD(hkt,HDdata);
 hkt = correctHKTwithHK(hkt,HKdata);
 % using Temperature recorded in the label in TRR I/F data 
 % [ DN14a,BI_m ] = subtract_bias_VNIR_1( DN14,BIdata1,BIdata2,DBdata,EBdata,hkt,rownum_table,TRRIFdata.lbl );
-[ DN14a,BI_m ] = subtract_bias_VNIR_1( DN14,BIdata1_o,BIdata2_o,DBdata,EBdata,hkt,rownum_table,EDRSPdata.lbl );
+[ DN14a,BI_m ] = subtract_bias_VNIR_1( DN14,BIdata1_o,BIdata2_o,DBdata,EBdata,hkt,rownum_table,EDRSPdata.lbl,'binx',binx_sp);
 % [ DN14a,BI_m ] = subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,'BINX',binx);
 % if save_mem
 %     clear DN14;
@@ -171,7 +186,7 @@ hkt = correctHKTwithHK(hkt,HKdata);
 %-------------------------------------------------------------------------%
 % the third step (remove detector quadrant electronics ghost)
 % GHdata = TRRIFdata.readCDR('GH');
-[ DN14b,sumGhost ] = remove_quadrantGhost_VNIR( DN14a,GHdata,hkt,'BINX',binx );
+[ DN14b,sumGhost ] = remove_quadrantGhost_VNIR( DN14a,GHdata,hkt,'BINX',binx_sp );
 if save_mem
     clear DN14a;
 end
@@ -203,13 +218,13 @@ switch saturation_rmvl
     case 2
         % analogue saturation is also dealt with
         [DN14c,mask_saturation] = saturation_removal_VNIR(DN14bb,VLdata,flg_dsat,...
-        'binx',binx,'rate_id',rate_id);
+        'binx',binx_sp,'rate_id',rate_id);
     otherwise
         error('Saturation option %d is not defined',saturation_rmvl);
 end
 
 % dead pixel removal
-[DN14cc,mask_dead] = deadpixel_removal_VNIR(DN14c,VLdata,DMdata,'binx',binx,'rate_id',rate_id);
+[DN14cc,mask_dead] = deadpixel_removal_VNIR(DN14c,VLdata,DMdata,'binx',binx_sp,'rate_id',rate_id);
 
 %-------------------------------------------------------------------------%
 % bad pixel removal
@@ -240,8 +255,8 @@ end
 %-------------------------------------------------------------------------%
 % fifth step (nonlinearity correction)
 % LCdata = TRRIFdata.readCDR('LC');
-[ DN14g ] = nonlinearity_correction( DN14e,LCdata,hkt,'BINX',binx );
-[ DN14g_woc ] = nonlinearity_correction( DN14e_woc,LCdata,hkt,'BINX',binx );
+[ DN14g ] = nonlinearity_correction( DN14e,LCdata,hkt,'BINX',binx_sp );
+[ DN14g_woc ] = nonlinearity_correction( DN14e_woc,LCdata,hkt,'BINX',binx_sp );
 if save_mem
     clear DN14c DN14b;
 end
@@ -257,7 +272,7 @@ end
 
 %-------------------------------------------------------------------------%
 % stray light correction
-[ RT14j,SL ] = straylight_correction( RT14g,DMdata,rownum_table );
+[ RT14j,SL ] = straylight_correction( RT14g,DMdata,rownum_table,'BINX',binx_sp );
 RT14j_woc = RT14g_woc - SL;
 
 SPdata_o = CRISMdata(EDRSPdata.basename,'');

@@ -125,6 +125,9 @@ else
     end
 end
 
+binx_sp = SPdata.lbl.PIXEL_AVERAGING_WIDTH;
+binning_id_sp = get_binning_id(binx_sp);
+
 % if isempty(SPdata.basenamesCDR)
     SPdata.load_basenamesCDR('Download',dwld,'Force',force,'OUT_file',outfile); 
 % end
@@ -150,8 +153,8 @@ DFdata2.download(dwld);
 
 %-------------------------------------------------------------------------%
 % get BPdata using sclk of the DFdata
-BPdata1 = get_BPdata_fromDF(DFdata1,dwld);
-BPdata2 = get_BPdata_fromDF(DFdata2,dwld);
+BPdata1 = get_BPdata_fromDF(DFdata1,binning_id_sp,dwld);
+BPdata2 = get_BPdata_fromDF(DFdata2,binning_id_sp,dwld);
 
 %-------------------------------------------------------------------------%
 % get BIdata using source_obs of SPdata
@@ -167,13 +170,13 @@ for i=1:length(EDRBIdataList)
 end
 
 if isempty(BIdata)
-    [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,dwld);
+    [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,binning_id_sp,dwld);
 end
 
 %-------------------------------------------------------------------------%
 % get BKdata using sclk of the DFdata
-BKdata1 = get_BKdata_fromDF(DFdata1,dwld);
-BKdata2 = get_BKdata_fromDF(DFdata2,dwld);
+BKdata1 = get_BKdata_fromDF(DFdata1,binning_id_sp,dwld);
+BKdata2 = get_BKdata_fromDF(DFdata2,binning_id_sp,dwld);
 
 %-------------------------------------------------------------------------%
 % Read othe CDRs
@@ -195,7 +198,8 @@ VLdata = SPdata.readCDR('VL');
     bkoption,'SAVE_MEMORY',save_mem,'APBPRMVL',apbprmvl,'MEAN_DN14',mean_DN14,...
     'SATURATION_RMVL',saturation_rmvl,'Mean_Robust',mean_robust,...
     'BK_SATURATION_RMVL',bk_saturation_rmvl,'BK_BPRMVL',bk_bprmvl,...
-    'BK_MEAN_ROBUST',bk_mean_robust,'BK_MEAN_DN14',bk_mean_DN14,'SPdata_ref',SPdata);
+    'BK_MEAN_ROBUST',bk_mean_robust,'BK_MEAN_DN14',bk_mean_DN14,'SPdata_ref',SPdata,...
+    'BINNING_SP',binning_id_sp);
 
 % [BP1nan] = formatBP1nan(BPdata1);
 % BPpri1nan = formatBPpri1nan(BPdata1,BPdata2);
@@ -217,7 +221,7 @@ function [DFdata] = get_DFdata(EDRSPdata,obs_counter,dwld)
     DFdata.download(2);
 end
 
-function [BPdata] = get_BPdata_fromDF(DFdata,dwld)
+function [BPdata] = get_BPdata_fromDF(DFdata,binning_id_sp,dwld)
     propBP_search = create_propCDR4basename;
     propBP_search.acro_calibration_type = 'BP';
     propBP_search.binning = get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
@@ -229,22 +233,23 @@ function [BPdata] = get_BPdata_fromDF(DFdata,dwld)
     [sclk_df_stop,p_df_stop] = DFdata.get_sclk_stop();
     propBP_search.sclk = floor(sclk_df_stop);
     propBP_search.partition = p_df_stop;
+    propBP_search.binning = binning_id_sp;
     [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1);
     get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
     BPdata = CRISMdata(basenameBPmrb,'');
     if isempty(extractMatchedBasename_v2(DFdata.basename,BPdata.lbl.SOURCE_PRODUCT_ID))
-        fprintf('It seems no BKdata associated with %s.\n in local database',DFdata.basename);
+        fprintf('It seems no BPdata associated with %s.\n in local database',DFdata.basename);
         fprintf('Connect to remote server...\n');
         [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1,'force',1);
         get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
         BPdata = CRISMdata(basenameBPmrb,'');
         if isempty(extractMatchedBasename_v2(DFdata.basename,BPdata.lbl.SOURCE_PRODUCT_ID))
-            error('It seems no BKdata associated with %s.',DFdata.basename);
+            error('It seems no BPdata associated with %s.',DFdata.basename);
         end
     end
 end
 
-function [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,dwld)
+function [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,binning_id_sp,dwld)
     % get sclk
     sclk_EDRBI_list = zeros(1,length(EDRBIdataList_s));
     for ii=1:length(EDRBIdataList_s)
@@ -261,6 +266,7 @@ function [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,dwld)
     propBI_search.frame_rate = get_frame_rate_id(EDRBIdataList_s(1).lbl.MRO_FRAME_RATE{1});
     propBI_search.sensor_id = EDRBIdataList_s(1).lbl.MRO_SENSOR_ID;
     propBI_search.sclk = floor(sclk_stop);
+    propBI_search.binning = binning_id_sp;
     [basenameBImrb,propBImrb] = crism_searchCDRmrb(propBI_search,'dwld',1);
     get_dirpath_cdr(basenameBImrb,'dwld',dwld);
     BIdata = CRISMdata(basenameBImrb,'');
@@ -287,7 +293,7 @@ function [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,dwld)
 
 end
 
-function [BKdata] = get_BKdata_fromDF(DFdata,dwld)
+function [BKdata] = get_BKdata_fromDF(DFdata,binning_id_sp,dwld)
     propBK_search = create_propCDR4basename;
     propBK_search.acro_calibration_type = 'BK';
     propBK_search.binning = get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
@@ -298,6 +304,7 @@ function [BKdata] = get_BKdata_fromDF(DFdata,dwld)
     [sclk_df_stop,p_df_stop] = DFdata.get_sclk_stop();
     propBK_search.sclk = floor(sclk_df_stop);
     propBK_search.partition = p_df_stop;
+    propBK_search.binning = binning_id_sp;
     [basenameBKmrb,propBKmrb] = crism_searchCDRmrb(propBK_search,'dwld',1);
     get_dirpath_cdr(basenameBKmrb,'dwld',dwld);
     BKdata = CRISMdata(basenameBKmrb,'');

@@ -44,11 +44,24 @@ saturation_rmvl = 2;
 mean_robust = 1;
 bprmvl = false;
 mean_DN14 = true;
+
+frame_rate = DFdata.lbl.MRO_FRAME_RATE{1};
+rate_id = get_frame_rate_id(frame_rate);
+binx = DFdata.lbl.PIXEL_AVERAGING_WIDTH;
+binx_bk = binx;
+binning_bk = get_binning_id(binx_bk);
+
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
 else
     for i=1:2:(length(varargin)-1)
         switch upper(varargin{i})
+            case 'BINNING_BK'
+                binning_bk = varargin{i+1};
+                binx_bk = get_binning(binning_bk);
+            case 'BINX_BK'
+                binx_bk = varargin{i+1};
+                binning_bk = get_binning_id(binx_bk);
             case 'SATURATION_RMVL'
                 saturation_rmvl = varargin{i+1};
             case 'BPRMVL'
@@ -68,9 +81,11 @@ end
 % Read associated EDR DF image
 DN12_df = DFdata.readimg();
 
-frame_rate = DFdata.lbl.MRO_FRAME_RATE{1};
-rate_id = get_frame_rate_id(frame_rate);
-binx = DFdata.lbl.PIXEL_AVERAGING_WIDTH;
+% bin the image
+if binx>1 && binx_bk>binx
+    error('Do you want to bin an already binned image?');
+end
+DN12_df = bin_image_frames(DN12_df,'binning',binning_bk);
 
 %-------------------------------------------------------------------------%
 % flag saturated pixels
@@ -89,11 +104,11 @@ hkt_df = DFdata.readHKT();
 hkt_dfc = correctHKTwithHD(hkt_df,HDdata);
 hkt_dfcc = correctHKTwithHK(hkt_dfc,HKdata);
 [ DN14a_df,BI_m_df ] = subtract_bias( DN14_df,BIdata,BSdata,DBdata,EBdata,...
-    hkt_dfcc,rownum_table_df,'BINX',binx );
+    hkt_dfcc,rownum_table_df,'BINX',binx_bk );
 
 %-------------------------------------------------------------------------%
 % the third step (remove detector quadrant electronics ghost)
-[ DN14b_df ] = remove_quadrantGhost( DN14a_df,GHdata,hkt_df,'BINX',binx );
+[ DN14b_df ] = remove_quadrantGhost( DN14a_df,GHdata,hkt_df,'BINX',binx_bk );
 
 %-------------------------------------------------------------------------%
 % replace saturated pixel
@@ -109,7 +124,7 @@ switch saturation_rmvl
     case 2
         % analogue saturation is also dealt with
         [DN14c_df,mask_saturation] = saturation_removal(DN14b_df,VLdata,DFmask4095,...
-        'binx',binx,'rate_id',rate_id);
+        'binx',binx_bk,'rate_id',rate_id);
     otherwise
         error('Saturation option %d is not defined',saturation_rmvl);
 end
@@ -139,8 +154,8 @@ end
 
 %-------------------------------------------------------------------------%
 % fourth step (nonlinearity correction)
-[ DN14g_df ] = nonlinearity_correction( DN14e_df,LCdata,hkt_dfcc,'BINX',binx );
-[ DN14g_df_all ] = nonlinearity_correction( DN14d_df,LCdata,hkt_dfcc,'BINX',binx );
+[ DN14g_df ] = nonlinearity_correction( DN14e_df,LCdata,hkt_dfcc,'BINX',binx_bk );
+[ DN14g_df_all ] = nonlinearity_correction( DN14d_df,LCdata,hkt_dfcc,'BINX',binx_bk );
 
 %-------------------------------------------------------------------------%
 % fifth step (division by exposure time)

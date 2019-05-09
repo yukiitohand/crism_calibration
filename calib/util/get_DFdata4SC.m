@@ -27,10 +27,10 @@ switch upper(EDRdata.lbl.OBSERVATION_TYPE)
     case {'FFC'}
         ffc_counter = EDRdata.prop.obs_counter;
         switch ffc_counter
-            case '01'
+            case {'01',1}
                 DFdata1 = CRISMdata(crism_obs.info.basenameDF{1},crism_obs.info.dir_edr);
                 DFdata2 = CRISMdata(crism_obs.info.basenameDF{2},crism_obs.info.dir_edr);
-            case '03'
+            case {'03',3}
                 DFdata1 = CRISMdata(crism_obs.info.basenameDF{2},crism_obs.info.dir_edr);
                 DFdata2 = CRISMdata(crism_obs.info.basenameDF{3},crism_obs.info.dir_edr);
         end

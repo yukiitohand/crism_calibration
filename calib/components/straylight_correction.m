@@ -31,7 +31,7 @@ switch binx
     case 1
         c2d = 541:620;
     case 2
-        c2d = 271:210;
+        c2d = 271:310;
     case 5
         c2d = 109:124;
     case 10

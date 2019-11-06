@@ -5,10 +5,12 @@ function [ DN14c,BP ] = apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,v
 %    DN14b   : 14bit DN image (L,S,B) processed until quadratic ghost
 %    BPdata1 : CRISMdata obj, CDR BP data, using DF before the measurement
 %    BPdata2 : CRISMdata obj, CDR BP data, using DF after the measurement
+%              can be empty
 %  Output parameters
 %    DN14c    : processed 14bit DN data
 %    BP       : bad pixels
 %
+%  2019/11/06: YUKI ITOH: empty BPdata2 is supported.
 %  *Detail*
 
 interpOpt = 1;
@@ -27,12 +29,18 @@ else
 end
 
 if isempty(BPdata1.img),BPdata1.readimg(); end
-if isempty(BPdata2.img),BPdata2.readimg(); end
+if ~isempty(BPdata2)
+    if isempty(BPdata2.img),BPdata2.readimg(); end
+end
 if isempty(DMdata.img),DMdata.readimg(); end
 
 [L,S,B] = size(DN14b);
 
-BP = or(BPdata1.img,BPdata2.img);
+if ~isempty(BPdata2)
+    BP = or(BPdata1.img,BPdata2.img);
+else
+    BP = logical(BPdata1.img);
+end
 
 DN14c = DN14b;
 % for l=1:L

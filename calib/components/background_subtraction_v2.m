@@ -11,6 +11,8 @@ function [ RT14h,Bkgd ] = background_subtraction_v2( RT14g,BKdata1,BKdata2,hkt )
 %    RT14h    : processed data [L,S,B]
 %    Bkgd     : processed Bkgd [L,S,B]
 %
+%  2019/11/06: YUKI ITOH: empty BKdata2 is supported.
+
 if isempty(BKdata1.img), BKdata1.readimg(); end
 if ~isempty(BKdata2)
     if isempty(BKdata2.img),BKdata2.readimg(); end

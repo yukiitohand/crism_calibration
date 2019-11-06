@@ -90,6 +90,8 @@ if isempty(vr) % vr is hard coded if not set.
             vr = 'B';
         case 'yuki3'
             vr = 'C';
+        case 'yuki4'
+            vr = 'D';
         case 'original'
             vr = 'O';
         otherwise
@@ -150,7 +152,7 @@ if ~any(strcmpi(TRRIFdata.lbl.OBSERVATION_TYPE,{'FRS','ATO'}))
     bnameDF2_IF = get_basenameOBS_fromProp(propDF2_IF);
 
 else
-   bnameDF2_IF = '';
+    bnameDF2_IF = '';
 end
 
 fpath_TRRYIF_img = joinPath(save_dir,[bnameIF,'.IMG']);
@@ -160,6 +162,8 @@ fpath_TRRYRA_lbl = joinPath(save_dir,[bnameRA,'.LBL']);
 fpath_TRRYIFDF1 = joinPath(save_dir,[bnameDF1_IF,'.mat']);
 if ~isempty(bnameDF2_IF)
     fpath_TRRYIFDF2 = joinPath(save_dir,[bnameDF2_IF,'.mat']);
+else
+    fpath_TRRYIFDF2 = './';
 end
 % fpath_TRRYIF_mat = joinPath(save_dir,[bnameIF,'.mat']);
 
@@ -239,6 +243,15 @@ switch lower(mode_calib)
         'APBPRMVL','HighOrd','SATURATION_RMVL',2,...
         'SP_SATURATION_RMVL',2,'SP_APBPRMVL','HighOrd','SP_MEAN_ROBUST',1,'SP_MEAN_DN14',1,...
         'BK_SATURATION_RMVL',2,'BK_BPRMVL',false,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',1);
+    case 'yuki4'
+        %custom SPdata
+        bkoption = 2;
+        [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_IF_wTRRIF_yuki(...
+        TRRIFdata,[],crism_obs,bkoption,...
+        'SAVE_MEMORY',save_mem,'dwld',2,'MODE_SP','MAN',...
+        'APBPRMVL','HighOrd','SATURATION_RMVL',2,'FLAT_FIELD',false,...
+        'SP_SATURATION_RMVL',2,'SP_APBPRMVL','HighOrd','SP_MEAN_ROBUST',1,'SP_MEAN_DN14',1,...
+        'BK_SATURATION_RMVL',2,'BK_BPRMVL',false,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',1);
     case 'original'
         error('original mode is not supported yet');
         %[RDn,RDn_woc] = pipeline_calibration_IR_original(TRRIFdata,EDRdata,...
@@ -279,7 +292,7 @@ fprintf('Done\n');
 %%
 % conversion for 
 switch lower(mode_calib)
-    case {'yuki','yuki2','yuki3'}
+    case {'yuki','yuki2','yuki3','yuki4'}
         [IoF_bk1_o] = rd2if(RDn_bk1_o,SFdata,d_au);
         [IoF_bk2_o] = rd2if(RDn_bk2_o,SFdata,d_au);
         fprintf('Saving %s ...\n',fpath_TRRYIFDF1);

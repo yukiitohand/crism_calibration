@@ -20,7 +20,7 @@ switch upper(EDRdata.lbl.OBSERVATION_TYPE)
         DFdata2 = CRISMdata(crism_obs.info.basenameDF{2},crism_obs.info.dir_edr);
     case {'FRS','ATO'}
         DFdata1 = CRISMdata(crism_obs.info.basenameDF{1},crism_obs.info.dir_edr);
-        DFdata2 = [];
+        DFdata2 = []; %CRISMdata(crism_obs.info.basenameDF{1},crism_obs.info.dir_edr);
     case {'MSP','HSP'}
         DFdata1 = CRISMdata(crism_obs.info.basenameDF{1},crism_obs.info.dir_edr);
         DFdata2 = CRISMdata(crism_obs.info.basenameDF{2},crism_obs.info.dir_edr); 

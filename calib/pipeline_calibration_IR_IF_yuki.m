@@ -45,9 +45,14 @@ function [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_IF_yuki(...
 %                  is used for the estimation of the higher order leaked 
 %                  light
 %       (default) 'HighOrd'
+%     'FLAT_FIELD' : 
+%      boolean, whether or not to perform flat field correction using 
+%      NUdata or not.
+%      (default) true
 save_mem = false;
 apbprmvl = 'HighOrd';
 saturation_rmvl = 2;
+flat_field = true;
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
 else
@@ -62,6 +67,8 @@ else
                 end
             case 'SATURATION_RMVL'
                 saturation_rmvl = varargin{i+1};
+            case 'FLAT_FIELD'
+                flat_field = varargin{i+1};
             otherwise
                 % Hmmm, something wrong with the parameter string
                 error(['Unrecognized option: ''' varargin{i} '''']);
@@ -293,10 +300,10 @@ rowNumTableRSPj = SPdata.read_ROWNUM_TABLE();
 %-------------------------------------------------------------------------%
 % correct to radiance with the binned responsitivity and flat fielding
 % NUdata = TRRIFdata.readCDR('NU');
-[RDm,FF] = calculate_RD(RT14j,RSPl,NUdata);
-[RDm_woc,FF_woc] = calculate_RD(RT14j_woc,RSPl,NUdata);
-[RDm_bk1_o,FF_bk1] = calculate_RD(RT14h2_bk1_o,RSPl,NUdata);
-[RDm_bk2_o,FF_bk2] = calculate_RD(RT14h2_bk2_o,RSPl,NUdata);
+[RDm,FF] = calculate_RD(RT14j,RSPl,NUdata,'FLAT_FIELD',flat_field);
+[RDm_woc,FF_woc] = calculate_RD(RT14j_woc,RSPl,NUdata,'FLAT_FIELD',flat_field);
+[RDm_bk1_o,FF_bk1] = calculate_RD(RT14h2_bk1_o,RSPl,NUdata,'FLAT_FIELD',flat_field);
+[RDm_bk2_o,FF_bk2] = calculate_RD(RT14h2_bk2_o,RSPl,NUdata,'FLAT_FIELD',flat_field);
 if save_mem
     clear RT14j RT14j_woc;
 end

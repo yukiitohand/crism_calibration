@@ -55,6 +55,10 @@ function [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_IF_wTRRIF_y
 %           1: digital saturation is removed
 %           2: analogue saturation is also removed
 %           (default) 2
+%    'FLAT_FIELD' : 
+%      boolean, whether or not to perform flat field correction using 
+%      NUdata or not.
+%      (default) true
 %    'MEAN_DN14'  : binary,when mean operation is performed
 %                  1: before non-linearity correction
 %                  0: last (after divided by integration time
@@ -93,6 +97,7 @@ mode_SP = 'MAN';
 %
 apbprmvl = 'HighOrd';
 saturation_rmvl = 2;
+flat_field = true;
 %
 sp_apbprmvl = 'HighOrd';
 sp_saturation_rmvl = 2;
@@ -135,6 +140,8 @@ else
                 end
             case 'SATURATION_RMVL'
                 saturation_rmvl = varargin{i+1};
+            case 'FLAT_FIELD'
+                flat_field = varargin{i+1};
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % for SP processing 
             case 'SP_APBPRMVL'
@@ -302,7 +309,7 @@ switch upper(mode_SP)
             PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,GHdata,VLdata,DMdata,LCdata,...
             LLdata,SPdata,SSdata,SHdata,NUdata,...
             SPdata_o,BKdata1_o,BKdata2_o,RT14g_df1,RT14g_df2,bkoption,MP,...
-            'Saturation_rmvl',saturation_rmvl,'apbprmvl',apbprmvl,'SAVE_MEMORY',save_mem);
+            'Saturation_rmvl',saturation_rmvl,'apbprmvl',apbprmvl,'SAVE_MEMORY',save_mem,'FLAT_FIELD',flat_field);
     case 'SOC'
         MP = 0;
         SPdata_o = [];

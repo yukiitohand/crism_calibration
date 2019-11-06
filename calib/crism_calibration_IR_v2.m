@@ -294,7 +294,11 @@ fprintf('Done\n');
 switch lower(mode_calib)
     case {'yuki','yuki2','yuki3','yuki4'}
         [IoF_bk1_o] = rd2if(RDn_bk1_o,SFdata,d_au);
-        [IoF_bk2_o] = rd2if(RDn_bk2_o,SFdata,d_au);
+        if ~isempty(RDn_bk2_o)
+            [IoF_bk2_o] = rd2if(RDn_bk2_o,SFdata,d_au);
+        else
+            IoF_bk2_o = [];
+        end
         fprintf('Saving %s ...\n',fpath_TRRYIFDF1);
         IoF_bk1_o = single(IoF_bk1_o);
         save(fpath_TRRYIFDF1,'IoF_bk1_o');

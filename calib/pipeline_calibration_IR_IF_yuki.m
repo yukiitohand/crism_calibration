@@ -21,7 +21,7 @@ function [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_IF_yuki(...
 %   
 %   SPdata_o : manually processed SP data
 %   BKdata1_o: manually processed BKdata1
-%   BKdata2_o: manually processed BKdata2
+%   BKdata2_o: manually processed BKdata2, can be empty
 %   RT14g_df1: non averaged dark (processed up to CDR BK stage)
 %   RT14g_df2: non averaged dark (processed up to CDR BK stage)
 %   
@@ -229,12 +229,20 @@ switch bkoption
         [ RT14h,Bkgd ] = background_subtraction( RT14g,BKdata1,BKdata2,hkt );
         [ RT14h_woc ] = background_subtraction( RT14g_woc,BKdata1_o,BKdata2_o,hkt );
         [ RT14h_bk1_o ] = background_subtraction( RT14g_df1,BKdata1_o,BKdata2_o,hkt_df1cc );
-        [ RT14h_bk2_o ] = background_subtraction( RT14g_df2,BKdata1_o,BKdata2_o,hkt_df2cc );
+        if ~isempty(BKdata2_o)
+            [ RT14h_bk2_o ] = background_subtraction( RT14g_df2,BKdata1_o,BKdata2_o,hkt_df2cc );
+        else
+            RT14h_bk2_o = [];
+        end
     case 2
         [ RT14h,Bkgd ] = background_subtraction_v2( RT14g,BKdata1,BKdata2,hkt );
         [ RT14h_woc ] = background_subtraction_v2( RT14g_woc,BKdata1_o,BKdata2_o,hkt );
         [ RT14h_bk1_o ] = background_subtraction_v2( RT14g_df1,BKdata1_o,BKdata2_o,hkt_df1cc );
-        [ RT14h_bk2_o ] = background_subtraction_v2( RT14g_df2,BKdata1_o,BKdata2_o,hkt_df2cc );
+        if ~isempty(BKdata2_o)
+            [ RT14h_bk2_o ] = background_subtraction_v2( RT14g_df2,BKdata1_o,BKdata2_o,hkt_df2cc );
+        else
+            RT14h_bk2_o = [];
+        end
 end
 if save_mem
     clear RT14g RT14g_woc;
@@ -246,7 +254,11 @@ end
 [RT14h2,dc] = dark_column_subtract(RT14h,DMdata);
 [RT14h2_woc,dc] = dark_column_subtract(RT14h_woc,DMdata);
 [RT14h2_bk1_o,dc_bk1] = dark_column_subtract(RT14h_bk1_o,DMdata);
-[RT14h2_bk2_o,dc_bk2] = dark_column_subtract(RT14h_bk2_o,DMdata);
+if ~isempty(RT14h_bk1_o)
+    [RT14h2_bk2_o,dc_bk2] = dark_column_subtract(RT14h_bk2_o,DMdata);
+else
+    RT14h2_bk2_o = [];
+end
 if save_mem
     clear RT14h RT14h_woc;
 end
@@ -303,7 +315,11 @@ rowNumTableRSPj = SPdata.read_ROWNUM_TABLE();
 [RDm,FF] = calculate_RD(RT14j,RSPl,NUdata,'FLAT_FIELD',flat_field);
 [RDm_woc,FF_woc] = calculate_RD(RT14j_woc,RSPl,NUdata,'FLAT_FIELD',flat_field);
 [RDm_bk1_o,FF_bk1] = calculate_RD(RT14h2_bk1_o,RSPl,NUdata,'FLAT_FIELD',flat_field);
-[RDm_bk2_o,FF_bk2] = calculate_RD(RT14h2_bk2_o,RSPl,NUdata,'FLAT_FIELD',flat_field);
+if ~isempty(RT14h2_bk2_o)
+    [RDm_bk2_o,FF_bk2] = calculate_RD(RT14h2_bk2_o,RSPl,NUdata,'FLAT_FIELD',flat_field);
+else
+    RDm_bk2_o = [];
+end
 if save_mem
     clear RT14j RT14j_woc;
 end
@@ -311,6 +327,10 @@ end
 RDn = apply_DM(RDm,DMdata);
 RDn_woc = apply_DM(RDm_woc,DMdata);
 RDn_bk1_o = apply_DM(RDm_bk1_o,DMdata);
-RDn_bk2_o = apply_DM(RDm_bk2_o,DMdata);
+if ~isempty(RDm_bk2_o)
+    RDn_bk2_o = apply_DM(RDm_bk2_o,DMdata);
+else
+    RDn_bk2_o = [];
+end
 
 end

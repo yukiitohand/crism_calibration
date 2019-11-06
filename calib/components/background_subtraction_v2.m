@@ -5,13 +5,16 @@ function [ RT14h,Bkgd ] = background_subtraction_v2( RT14g,BKdata1,BKdata2,hkt )
 %    RT14g  : 14bit DN image (L,S,B) divided by milliseconds
 %    BKdata1 : CRISMdata obj, CDR BK data, before the measurement
 %    BKdata2 : CRISMdata obj, CDR BK data, after the measurement
+%              can be empty
 %    hkt    : housekeeping table data (from TRR3)
 %  Output parameters
 %    RT14h    : processed data [L,S,B]
 %    Bkgd     : processed Bkgd [L,S,B]
 %
-if isempty(BKdata1.img), BKdata1.readimg(); end;
-if isempty(BKdata2.img),BKdata2.readimg(); end;
+if isempty(BKdata1.img), BKdata1.readimg(); end
+if ~isempty(BKdata2)
+    if isempty(BKdata2.img),BKdata2.readimg(); end
+end
 
 [L,S,Bands] = size(RT14g);
 
@@ -22,13 +25,14 @@ bk1_rateHz = BKdata1.lbl.MRO_FRAME_RATE{1};
 RTD1 = BKdata1.img;
 t_bk1 = mean([BKdata1.get_sclk_start(),BKdata1.get_sclk_stop()]);
 
-
-bk2_integ_t =BKdata2.lbl.MRO_EXPOSURE_PARAMETER;
-bk2_rateHz = BKdata2.lbl.MRO_FRAME_RATE{1};
-[bk2_exptm] = get_integrationTime(bk2_integ_t,bk2_rateHz,'Hz');
-% RTD2 = BKdata2.img ./ bk2_exptm;
-RTD2 = BKdata2.img;
-t_bk2 = mean([BKdata2.get_sclk_start(),BKdata2.get_sclk_stop()]);
+if ~isempty(BKdata2)
+    bk2_integ_t =BKdata2.lbl.MRO_EXPOSURE_PARAMETER;
+    bk2_rateHz = BKdata2.lbl.MRO_FRAME_RATE{1};
+    [bk2_exptm] = get_integrationTime(bk2_integ_t,bk2_rateHz,'Hz');
+    % RTD2 = BKdata2.img ./ bk2_exptm;
+    RTD2 = BKdata2.img;
+    t_bk2 = mean([BKdata2.get_sclk_start(),BKdata2.get_sclk_stop()]);
+end
 
 t_scene = [hkt.data.EXPOSURE_SCLK_S]+[hkt.data.EXPOSURE_SCLK_SS]/(2.^16);
 t_scene = t_scene(:);

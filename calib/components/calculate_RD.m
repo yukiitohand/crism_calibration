@@ -46,12 +46,14 @@ if flat_field
     FL = NUdata.img(1,:,:);
     EP = NUdata.img(2,:,:);
 
-    FF = zeros(size(RTj));
-    for l=1:L
-        FF(l,:,:) = FL + EP .* log(RTj(l,:,:) ./ RSPl) ;
-    end
-
-    %FF = repmat(FL,[L,1,1]) + repmat(EP,[L,1,1]) .* log( RTj ./ repmat(RSPl,[L,1,1]) );
+    % FF = zeros(size(RTj));
+    % for l=1:L
+    %     FF(l,:,:) = FL + EP .* log(RTj(l,:,:) ./ RSPl) ;
+    % end
+    
+    FF = FL + EP .* log(RTj./RSPl) ;
+        
+    % FF = repmat(FL,[L,1,1]) + repmat(EP,[L,1,1]) .* log( RTj ./ repmat(RSPl,[L,1,1]) );
 
     RDm = RTj ./ (FF .* repmat(RSPl,[L,1,1]));
 else

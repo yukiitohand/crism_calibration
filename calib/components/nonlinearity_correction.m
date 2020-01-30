@@ -67,7 +67,7 @@ d = rateQuadrantTABformatter(rate,LCdata.tab,'D','BINX',binx);
 e = rateQuadrantTABformatter(rate,LCdata.tab,'E','BINX',binx);
 
 DN14e_1 = DN14e;
-DN14e_1(DN14e<0) = nan;
+% DN14e_1(DN14e<0) = nan;
 
 % currently only
 if all(e(:)==0)

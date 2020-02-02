@@ -44,6 +44,9 @@ mode_calib = 'yuki';
 vr = '';
 product_type = 'TRR';
 ffc_counter = 1;
+OBS_COUNTER_SCENE_custom = 0;
+OBS_COUNTER_DF_custom = 0;
+verbose = 0;
 %% variable input arguments
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
@@ -71,6 +74,12 @@ else
                 save_mem = varargin{i+1};
             case 'MODE'
                 mode_calib = varargin{i+1};
+            case 'OBS_COUNTER_SCENE'
+                obs_counter_tmp = varargin{i+1};
+                OBS_COUNTER_SCENE_custom = 1;
+            case 'OBS_COUNTER_DF'
+                obs_counter_df_tmp = varargin{i+1};
+                OBS_COUNTER_DF_custom = 1;
             otherwise
                 % Hmmm, something wrong with the parameter string
                 error(['Unrecognized option: ''' varargin{i} '''']);
@@ -100,7 +109,52 @@ if isempty(vr) % vr is hard coded if not set.
 end
 
 %%
-crism_obs = CRISMObservation(obs_id,'SENSOR_ID','L');
+
+[ yyyy_doy,obs_classType ] = searchOBSID2YYYY_DOY(obs_id);
+
+switch obs_classType
+    case {'FRT','HRL','HRS'}
+        obs_counter = '07';
+        obs_counter_epf = '[0-689A-Za-z]{2}';
+        obs_counter_epfdf = '0[0E]{1}';
+        obs_counter_df = '0[68]{1}';
+    case {'FRS','ATO'}
+        obs_counter = '01';
+        obs_counter_df = '0[03]{1}';
+        obs_counter_epf = '';
+        obs_counter_epfdf = '';
+        obs_counter_un = '02';
+    case 'FFC'
+        obs_counter = '0[13]{1}';
+        obs_counter_df = '0[024]{1}';
+        % this could be switched.
+        obs_counter_epf = '';
+        
+    case 'CAL'
+        obs_counter = '[0-9a-fA-F]{2}';
+        obs_counter_df = '[0-9a-fA-F]{1}';
+    case 'ICL'
+        obs_counter = '[0-9a-fA-F]{2}';
+        obs_counter_df = '[0-9a-fA-F]{1}';
+    case {'MSP','HSP'}
+        obs_counter = '01';
+        obs_counter_df = '0[02]{1}';
+        obs_counter_epf = '';
+        obs_counter_epfdf = '';
+    otherwise
+        error('OBS_TYPE %s is not supported yet.',obs_classType);
+end
+
+if OBS_COUNTER_SCENE_custom
+    obs_counter = obs_counter_tmp;
+end
+if OBS_COUNTER_DF_custom
+    obs_counter_df = obs_counter_df_tmp;
+end
+
+%%
+crism_obs = CRISMObservation(obs_id,'SENSOR_ID','L',...
+    'obs_counter_scene',obs_counter,'obs_counter_df',obs_counter_df);
 % crism_obsS = CRISMObservation(obs_id,'SENSOR_ID','S');
 switch upper(crism_obs.info.obs_classType)
     case {'FRT','HRL','HRS','FRS','ATO','MSP','HSP'}

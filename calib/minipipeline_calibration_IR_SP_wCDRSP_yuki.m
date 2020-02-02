@@ -169,8 +169,25 @@ for i=1:length(EDRBIdataList)
     end
 end
 
+% sometimes two or more different sets of BI EDR is selected.
+edrbi_dirnames_s = unique({EDRBIdataList_s.dirname});
+edrbi_groups_s = cellfun(@(x) find(strcmpi(x,edrbi_dirnames_s)), {EDRBIdataList_s.dirname});
+sclk_edrbi_groups = zeros(1,length(edrbi_dirnames_s));
+for gi=1:length(edrbi_dirnames_s)
+    idxes = find(gi==edrbi_groups_s);
+    sclk_mean_list = nan(1,length(idxes));
+    for iii = 1:length(idxes)
+        [sclk_stop_i] = EDRBIdataList_s(idxes(iii)).get_sclk_stop();
+        [sclk_start_i] = EDRBIdataList_s(idxes(iii)).get_sclk_start();
+        sclk_mean_list(iii) = (sclk_start_i + sclk_stop_i) / 2;
+    end
+    sclk_edrbi_groups(gi) = nanmean(sclk_mean_list);
+end
+[~,edrbi_closest] = min(abs(SPdata.prop.sclk-sclk_edrbi_groups));
+EDRBIdataList_ss = EDRBIdataList_s(edrbi_groups_s==edrbi_closest);
+
 if isempty(BIdata)
-    [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,binning_id_sp,dwld);
+    [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_ss,binning_id_sp,dwld);
 end
 
 %-------------------------------------------------------------------------%

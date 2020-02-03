@@ -190,6 +190,8 @@ if isempty(DFdata2)
     DFdata2 = DFdata1;
 end
 
+is_same_df1_df2 = strcmpi(DFdata1.basename,DFdata2.basename);
+
 %-------------------------------------------------------------------------%
 % get BIdata 
 TRRIFdata.readCDR('BI'); BIdata = [];
@@ -222,6 +224,10 @@ for j=1:length(TRRIFdata.cdr.BK)
         end
     end
 end
+if is_same_df1_df2
+    BKdata2 = BKdata1;
+end
+
 if length(BKdata1)>2 || length(BKdata2)>2
     error('BKdata detected twice');
 end

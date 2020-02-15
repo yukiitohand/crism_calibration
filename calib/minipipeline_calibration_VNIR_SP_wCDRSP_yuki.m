@@ -131,7 +131,11 @@ EDRSPdata.download(dwld);
 % get DFdata from SPdata
 SPdata.read_SOURCE_OBS('DF');
 DFdata1 = SPdata.source_obs.DF(1);
-DFdata2 = SPdata.source_obs.DF(2);
+if length(SPdata.source_obs.DF)==1
+    DFdata2 = DFdata1;
+else
+    DFdata2 = SPdata.source_obs.DF(2);
+end
 DFdata1.download(dwld);
 DFdata2.download(dwld);
 

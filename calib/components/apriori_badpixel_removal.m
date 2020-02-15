@@ -64,7 +64,7 @@ switch interpOpt
             gp = find(gp);
             xq = 1:S;
             for l=1:L
-                if ~isempty(gp)
+                if length(gp) > 0.1*S
                     y1ip = interp1(gp,imb(l,gp),xq(bp),'linear','extrap');
                     imbip(l,bp) = y1ip;
                 end

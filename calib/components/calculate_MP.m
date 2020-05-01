@@ -26,7 +26,7 @@ if isempty(SHdataVNIR.img), SHdataVNIR.readimg(); end;
 
 DGS14 = SHdataVNIR.img(1,:,:);
 exptm = get_integrationTime(SHdataVNIR.lbl.MRO_EXPOSURE_PARAMETER,...
-                            SHdataVNIR.lbl.MRO_FRAME_RATE{1},'Hz');
+                            SHdataVNIR.lbl.MRO_FRAME_RATE.value,'Hz');
 % RGS14 = DGS14/exptm;
 RGS14 = DGS14;
 Tg3 = SHdataVNIR.lbl.MRO_SPHERE_TEMPERATURE;

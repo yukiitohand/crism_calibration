@@ -45,7 +45,7 @@ mean_robust = 1;
 bprmvl = false;
 mean_DN14 = true;
 
-frame_rate = DFdata.lbl.MRO_FRAME_RATE{1};
+frame_rate = DFdata.lbl.MRO_FRAME_RATE.value;
 rate_id = get_frame_rate_id(frame_rate);
 binx = DFdata.lbl.PIXEL_AVERAGING_WIDTH;
 binx_bk = binx;

@@ -87,7 +87,7 @@ else
         end
     end
 end
-frame_rate = EDRSPdata.lbl.MRO_FRAME_RATE{1};
+frame_rate = EDRSPdata.lbl.MRO_FRAME_RATE.value;
 rate_id = get_frame_rate_id(frame_rate);
 % binx_sp = EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH;
 

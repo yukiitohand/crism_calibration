@@ -110,7 +110,7 @@ end
 
 %%
 
-[ yyyy_doy,obs_classType ] = searchOBSID2YYYY_DOY(obs_id);
+[ yyyy_doy,obs_classType ] = crism_searchOBSID2YYYY_DOY_v2(obs_id);
 
 switch obs_classType
     case {'FRT','HRL','HRS'}
@@ -317,7 +317,7 @@ switch lower(mode_calib)
 end
 
 % raidance to if
-d_km = DDRdata.lbl.SOLAR_DISTANCE{1};
+d_km = DDRdata.lbl.SOLAR_DISTANCE.value;
 [ d_au ] = km2au( d_km );
 SFdata = TRRIFdata.readCDR('SF');
 [IoF] = rd2if(RDn,SFdata,d_au);

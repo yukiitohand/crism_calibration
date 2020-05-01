@@ -197,7 +197,7 @@ is_same_df1_df2 = strcmpi(DFdata1.basename,DFdata2.basename);
 TRRIFdata.readCDR('BI'); BIdata = [];
 for i=1:length(TRRIFdata.cdr.BI)
     bidata = TRRIFdata.cdr.BI(i);
-    if bidata.lbl.MRO_FRAME_RATE{1} == TRRIFdata.lbl.MRO_FRAME_RATE{1}
+    if bidata.lbl.MRO_FRAME_RATE.value == TRRIFdata.lbl.MRO_FRAME_RATE.value
         if bidata.lbl.PIXEL_AVERAGING_WIDTH == TRRIFdata.lbl.PIXEL_AVERAGING_WIDTH
             BIdata = [BIdata bidata];
         end

@@ -161,10 +161,10 @@ BPdata2 = get_BPdata_fromDF(DFdata2,binning_id_sp,dwld);
 EDRBIdataList = SPdata.read_SOURCE_OBS('BI');
 
 % select EDR BI data with same frame rate.
-frame_rate = SPdata.lbl.MRO_FRAME_RATE{1};
+frame_rate = SPdata.lbl.MRO_FRAME_RATE.value;
 EDRBIdataList_s = CRISMdata.empty(0,0);
 for i=1:length(EDRBIdataList)
-    if EDRBIdataList(i).lbl.MRO_FRAME_RATE{1} == frame_rate
+    if EDRBIdataList(i).lbl.MRO_FRAME_RATE.value == frame_rate
         EDRBIdataList_s = [EDRBIdataList_s EDRBIdataList(i)];
     end
 end
@@ -243,7 +243,7 @@ function [BPdata] = get_BPdata_fromDF(DFdata,binning_id_sp,dwld)
     propBP_search.acro_calibration_type = 'BP';
     propBP_search.binning = get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
     propBP_search.wavelength_filter = DFdata.lbl.MRO_WAVELENGTH_FILTER;
-    propBP_search.frame_rate = get_frame_rate_id(DFdata.lbl.MRO_FRAME_RATE{1});
+    propBP_search.frame_rate = get_frame_rate_id(DFdata.lbl.MRO_FRAME_RATE.value);
     % for the BP products, exposure is almost always 0. Do not set it.
     % propBP_search.exposure = DFdata.lbl.MRO_EXPOSURE_PARAMETER;
     propBP_search.sensor_id = DFdata.lbl.MRO_SENSOR_ID;
@@ -280,7 +280,7 @@ function [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,binning_id_sp,dwld)
     propBI_search.acro_calibration_type = 'BI';
     propBI_search.binning = get_binning_id(EDRBIdataList_s(1).lbl.PIXEL_AVERAGING_WIDTH);
     propBI_search.wavelength_filter = EDRBIdataList_s(1).lbl.MRO_WAVELENGTH_FILTER;
-    propBI_search.frame_rate = get_frame_rate_id(EDRBIdataList_s(1).lbl.MRO_FRAME_RATE{1});
+    propBI_search.frame_rate = get_frame_rate_id(EDRBIdataList_s(1).lbl.MRO_FRAME_RATE.value);
     propBI_search.sensor_id = EDRBIdataList_s(1).lbl.MRO_SENSOR_ID;
     propBI_search.sclk = floor(sclk_stop);
     propBI_search.binning = binning_id_sp;
@@ -315,7 +315,7 @@ function [BKdata] = get_BKdata_fromDF(DFdata,binning_id_sp,dwld)
     propBK_search.acro_calibration_type = 'BK';
     propBK_search.binning = get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
     propBK_search.wavelength_filter = DFdata.lbl.MRO_WAVELENGTH_FILTER;
-    propBK_search.frame_rate = get_frame_rate_id(DFdata.lbl.MRO_FRAME_RATE{1});
+    propBK_search.frame_rate = get_frame_rate_id(DFdata.lbl.MRO_FRAME_RATE.value);
     propBK_search.exposure = DFdata.lbl.MRO_EXPOSURE_PARAMETER;
     propBK_search.sensor_id = DFdata.lbl.MRO_SENSOR_ID;
     [sclk_df_stop,p_df_stop] = DFdata.get_sclk_stop();

@@ -8,15 +8,17 @@ function [IoF] = rd2if(RDn,SFdata,r)
 %  Output Parameters
 %   IoF : I/F cube [L x S x B]
 
-if isempty(SFdata.img), SFdata.readimg(); end;
+if isempty(SFdata.img), SFdata.readimg(); end
 
 [L,S,B] = size(RDn);
 
-IoF = nan(size(RDn));
-for l=1:L
-    RDn_l = RDn(l,:,:);
-    IoF_l = pi .* RDn_l ./ SFdata.img .* (r.^2);
-    IoF(l,:,:) = IoF_l;
-end
+IoF = pi .* RDn ./ SFdata.img .* (r.^2);
+
+% IoF = nan(size(RDn));
+% for l=1:L
+%     RDn_l = RDn(l,:,:);
+%     IoF_l = pi .* RDn_l ./ SFdata.img .* (r.^2);
+%     IoF(l,:,:) = IoF_l;
+% end
 
 end

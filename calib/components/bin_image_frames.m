@@ -46,10 +46,14 @@ S_b = crism_getSampleSize(binx);
 if S_b==S_ori
     img_fr_bn = img_fr;
 else
+    % h = fspecial3('average',[1,binx,1]); % convolution vector
+    % img_fr_bn = convn(img_fr,h,'valid');
+    % img_fr_bn = img_fr_bn(:,1:binx:end,:);
+    
     h = fspecial('average',[binx,1]); % convolution vector
     img_fr_bn = nan([L,S_b,B]);
     for l=1:L
-        image_frames_l = squeeze(img_fr(l,:,:)); %[S x B]
+        image_frames_l = reshape(img_fr(l,:,:),[S_ori,B]); %[S x B]
         image_frames_lbn = conv2(image_frames_l,h,'valid'); % take convolution and 
         image_frames_lbn = image_frames_lbn(1:binx:end,:); % downsample
         img_fr_bn(l,:,:) = reshape(image_frames_lbn,[1,S_b,B]);

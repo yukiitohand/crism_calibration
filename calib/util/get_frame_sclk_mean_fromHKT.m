@@ -7,7 +7,8 @@ function [sclk_mean] = get_frame_sclk_mean_fromHKT(hkt)
 %  OUTPUTS
 %   sclk_mean: L x 1 length vector, storing mean sclk time for each image
 %   frame. (L: number of image frames)
-%
+% 
+% Copyright (C) 2021 Yuki Itoh <yukiitohand@gmail.com>
 
 % get rate and integ parameter from house keeping table
 rate_id = cat(1,hkt.data.RATE);

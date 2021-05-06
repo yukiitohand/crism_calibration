@@ -30,7 +30,11 @@ function [] = crism_calibration_IR_v2(obs_id,varargin)
 %    None
 
 global crism_env_vars
-dir_yuk = crism_env_vars.dir_YUK;
+if ~isfield(crism_env_vars,'dir_YUK')
+    dir_yuk = -1;
+else
+    dir_yuk = crism_env_vars.dir_YUK;
+end
 
 
 %% setup initial values
@@ -85,6 +89,12 @@ else
                 error(['Unrecognized option: ''' varargin{i} '''']);
         end
     end
+end
+
+if save_pdir==-1
+    error(['No default directory crism_env_vars.dir_YUK is defined. ' ...
+        'Please update crismToolbox.json and rerun crism_init, ' ...
+        'or manually specify "SAVE_PDIR".']);
 end
 
 if force && skip_ifexist

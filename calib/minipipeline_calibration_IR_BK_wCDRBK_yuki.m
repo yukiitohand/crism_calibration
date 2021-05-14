@@ -33,17 +33,24 @@ function [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_wCD
 %   'DWLD','DOWNLOAD' : if download the data or not, 2: download, 1:
 %                       access an only show the path, 0: nothing
 %                       (default) 0
-%   'OUT_FILE'       : path to the output file
-%                       (default) ''
-%   'Force'          : binary, whether or not to force performing
+%   'Force_dwld'     : binary, whether or not to force performing
 %                      pds_downloader. (default) false
+%   'DWLD_INDEX_CACHE_UPDATE' : boolean, whether or not to update index.html 
+%        (default) false
+%   'VERBOSE_DWLD'   : boolean, whether or not to show the downloading
+%                      operations.
+%                      (default) true
+%   'DWLD_OVERWRITE' : if overwrite the file if exists
+%                      (default) 0
 saturation_rmvl = 2;
 mean_robust = 1;
 bprmvl = false;
 mean_DN14 = true;
 dwld = 0;
-force = false;
-outfile = '';
+force_dwld = false;
+dwld_index_cache_update = 0;
+verbose_dwld = 1;
+dwld_overwrite = 0;
 save_mem = false;
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
@@ -63,10 +70,14 @@ else
                 mean_DN14 = varargin{i+1};
             case {'DWLD','DOWNLOAD'}
                 dwld = varargin{i+1};
-            case 'FORCE'
-                force = varargin{i+1};
-            case 'OUT_FILE'
-                outfile = varargin{i+1};
+            case 'FORCE_DWLD'
+                force_dwld = varargin{i+1};
+            case 'DWLD_INDEX_CACHE_UPDATE'
+                dwld_index_cache_update = varargin{i+1};
+            case 'DWLD_OVERWRITE'
+                dwld_overwrite = varargin{i+1};
+            case 'VERBOSE_DWLD'
+                verbose_dwld = varargin{i+1};
             otherwise
                 % Hmmm, something wrong with the parameter string
                 error(['Unrecognized option: ''' varargin{i} '''']);
@@ -75,10 +86,12 @@ else
 end
 
 if isempty(CDRBKdata.basenamesCDR)
-    CDRBKdata.load_basenamesCDR('Download',dwld,'Force',force,'OUT_file',outfile);
+    CDRBKdata.load_basenamesCDR('Download',dwld,'FORCE',force_dwld, ...
+        'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
 end
 if isempty(CDRBKdata.basenames_SOURCE_OBS)
-    CDRBKdata.load_basenames_SOURCE_OBS('Download',dwld,'Force',force,'OUT_file',outfile); 
+    CDRBKdata.load_basenames_SOURCE_OBS('Download',dwld,'FORCE',force_dwld, ...
+        'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update); 
 end
 
 %-------------------------------------------------------------------------%

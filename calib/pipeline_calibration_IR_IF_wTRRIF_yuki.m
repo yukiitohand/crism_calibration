@@ -26,10 +26,15 @@ function [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_IF_wTRRIF_y
 %    'DWLD','DOWNLOAD' : if download the data or not, 2: download, 1:
 %                       access an only show the path, 0: nothing
 %                       (default) 0
-%    'OUT_FILE'       : path to the output file
-%                       (default) ''
-%    'Force'          : binary, whether or not to force performing
+%   'Force_dwld'     : binary, whether or not to force performing
 %                      pds_downloader. (default) false
+%   'DWLD_INDEX_CACHE_UPDATE' : boolean, whether or not to update index.html 
+%        (default) false
+%   'VERBOSE_DWLD'   : boolean, whether or not to show the downloading
+%                      operations.
+%                      (default) true
+%   'DWLD_OVERWRITE' : if overwrite the file if exists
+%                      (default) 0
 %    'MODE_SP'
 %       {'MAN','SOC'}
 %       'SOC': CDR SP data produced by science operation center (SOC) is
@@ -92,7 +97,9 @@ function [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_IF_wTRRIF_y
 save_mem = false;
 dwld = 0;
 force_dwld = false;
-outfile = '';
+dwld_index_cache_update = 0;
+verbose_dwld = 1;
+dwld_overwrite = 0;
 mode_SP = 'MAN';
 %
 apbprmvl = 'HighOrd';
@@ -124,8 +131,12 @@ else
                 dwld = varargin{i+1};
             case 'FORCE_DWLD'
                 force_dwld = varargin{i+1};
-            case 'OUT_FILE'
-                outfile = varargin{i+1};
+            case 'DWLD_INDEX_CACHE_UPDATE'
+                dwld_index_cache_update = varargin{i+1};
+            case 'DWLD_OVERWRITE'
+                dwld_overwrite = varargin{i+1};
+            case 'VERBOSE_DWLD'
+                verbose_dwld = varargin{i+1};
             case 'MODE_SP'
                 mode_SP = varargin{i+1};
                 if ~any(strcmpi(mode_SP,{'MAN','SOC'}))
@@ -171,8 +182,10 @@ else
     end
 end
 
-TRRIFdata.load_basenamesCDR('Download',dwld,'Force',force_dwld,'OUT_file',outfile); 
-TRRIFdata.load_basenames_SOURCE_OBS('Download',dwld,'Force',force_dwld,'OUT_file',outfile); 
+TRRIFdata.load_basenamesCDR('Download',dwld,'Force',force_dwld,...
+    'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
+TRRIFdata.load_basenames_SOURCE_OBS('Download',dwld,'Force',force_dwld,...
+    'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
 
 %-------------------------------------------------------------------------%
 % get EDRdata from TRRIFdata
@@ -272,12 +285,18 @@ NUdata = TRRIFdata.readCDR('NU');
 %-------------------------------------------------------------------------%
 % Process Background
 [RT14g_bkgd,BKdata1_o,RT14g_df1] = minipipeline_calibration_IR_BK_wCDRBK_yuki(...
-    BKdata1,BIdata,BPdata1,'DWLD',dwld,'SAVE_MEMORY',save_mem,...
+    BKdata1,BIdata,BPdata1,'DWLD',dwld,'FORCE_DWLD',force_dwld, ...
+    'DWLD_OVERWRITE',dwld_overwrite,'VERBOSE_DWLD',verbose_dwld, ...
+    'DWLD_INDEX_CACHE_UPDATE',dwld_index_cache_update,'VERBOSE_DWLD',verbose_dwld,...
+    'SAVE_MEMORY',save_mem,...
     'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',bk_bprmvl,...
     'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14);
 if ~isempty(BKdata2)
     [RT14g_bkgd,BKdata2_o,RT14g_df2] = minipipeline_calibration_IR_BK_wCDRBK_yuki(...
-        BKdata2,BIdata,BPdata2,'DWLD',dwld,'SAVE_MEMORY',save_mem,...
+        BKdata2,BIdata,BPdata2,'DWLD',dwld,'FORCE_DWLD',force_dwld,...
+        'DWLD_OVERWRITE',dwld_overwrite,'VERBOSE_DWLD',verbose_dwld, ...
+        'DWLD_INDEX_CACHE_UPDATE',dwld_index_cache_update,...
+        'SAVE_MEMORY',save_mem,...
         'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',bk_bprmvl,...
         'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14);
 else
@@ -299,7 +318,9 @@ switch upper(mode_SP)
         %-----------------------------------------------------------------%
         % calculate MP
         [SPdataVNIR_o,RT14jVNIR_woc_mod,RT14j,RT14jVNIR_mod,MP] = minipipeline_calibration_VNIR_SP_wCDRSP_yuki(...
-            SPdataVNIR,TRRIFdataVNIR,'DWLD',dwld);
+            SPdataVNIR,TRRIFdataVNIR,'DWLD',dwld,'FORCE_DWLD',force_dwld, ...
+            'DWLD_OVERWRITE',dwld_overwrite,'VERBOSE_DWLD',verbose_dwld, ...
+            'DWLD_INDEX_CACHE_UPDATE',dwld_index_cache_update);
 
         % [SPdataMP,SSdataMP,SHdataMP] = selectCDR4MP(SPdataVNIR);
         % [MP] = calculate_MP(SPdataVNIR_o,SSdataMP,SHdataMP);
@@ -308,7 +329,10 @@ switch upper(mode_SP)
         % process SP (MP IS NOT APPLIED TO SPDATA_o)
         [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o,BPdata1_sp,BPdata2_sp]...
                   = minipipeline_calibration_IR_SP_wCDRSP_yuki(...
-                    SPdata,bkoption,'DWLD',dwld,'SAVE_MEMORY',save_mem,'APBPRMVL',sp_apbprmvl,...
+                    SPdata,bkoption,'DWLD',dwld,'FORCE_DWLD',force_dwld, ...
+                    'DWLD_OVERWRITE',dwld_overwrite,'VERBOSE_DWLD',verbose_dwld, ...
+                    'DWLD_INDEX_CACHE_UPDATE',dwld_index_cache_update,...
+                    'SAVE_MEMORY',save_mem,'APBPRMVL',sp_apbprmvl,...
                     'MEAN_DN14',sp_mean_DN14,'SATURATION_RMVL',sp_saturation_rmvl,'MEAN_ROBUST',sp_mean_robust,...
                     'BK_SATURATION_RMVL',bk_saturation_rmvl,'BK_BPRMVL',bk_bprmvl,...
                     'BK_MEAN_ROBUST',bk_mean_robust,'BK_MEAN_DN14',bk_mean_DN14);

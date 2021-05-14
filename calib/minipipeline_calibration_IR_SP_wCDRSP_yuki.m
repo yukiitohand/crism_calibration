@@ -26,10 +26,15 @@ function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o,BPdata1,BPdata2] = 
 %    'DWLD','DOWNLOAD' : if download the data or not, 2: download, 1:
 %                       access an only show the path, 0: nothing
 %                       (default) 0
-%    'OUT_FILE'       : path to the output file
-%                       (default) ''
-%    'Force'          : binary, whether or not to force performing
+%    'Force_dwld'     : binary, whether or not to force performing
 %                      pds_downloader. (default) false
+%   'DWLD_INDEX_CACHE_UPDATE' : boolean, whether or not to update index.html 
+%        (default) false
+%   'VERBOSE_DWLD'   : boolean, whether or not to show the downloading
+%                      operations.
+%                      (default) true
+%   'DWLD_OVERWRITE' : if overwrite the file if exists
+%                      (default) 0
 %    'APBPRMVL'
 %       option for a priori bad pixel removal {'HighOrd', 'None'}
 %       'HighOrd': the image where a priori bad pixel removal is performed
@@ -80,8 +85,10 @@ bk_mean_robust = 1;
 bk_bprmvl = false;
 bk_mean_DN14 = true;
 dwld = 0;
-force = false;
-outfile = '';
+force_dwld = false;
+dwld_index_cache_update = 0;
+verbose_dwld = 1;
+dwld_overwrite = 0;
 BIdata = [];
 
 if (rem(length(varargin),2)==1)
@@ -112,10 +119,14 @@ else
                 bk_mean_DN14 = varargin{i+1};
             case {'DWLD','DOWNLOAD'}
                 dwld = varargin{i+1};
-            case 'FORCE'
-                force = varargin{i+1};
-            case 'OUT_FILE'
-                outfile = varargin{i+1};
+            case 'FORCE_DWLD'
+                force_dwld = varargin{i+1};
+            case 'DWLD_INDEX_CACHE_UPDATE'
+                dwld_index_cache_update = varargin{i+1};
+            case 'DWLD_OVERWRITE'
+                dwld_overwrite = varargin{i+1};
+            case 'VERBOSE_DWLD'
+                verbose_dwld = varargin{i+1};
             case 'BIDATA'
                 BIdata = varargin{i+1};
             otherwise
@@ -129,10 +140,12 @@ binx_sp = SPdata.lbl.PIXEL_AVERAGING_WIDTH;
 binning_id_sp = get_binning_id(binx_sp);
 
 % if isempty(SPdata.basenamesCDR)
-    SPdata.load_basenamesCDR('Download',dwld,'Force',force,'OUT_file',outfile); 
+    SPdata.load_basenamesCDR('Download',dwld,'Force',force_dwld, ...
+        'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
 % end
 % if isempty(SPdata.basenames_SOURCE_OBS)
-    SPdata.load_basenames_SOURCE_OBS('Download',dwld,'Force',force,'OUT_file',outfile); 
+    SPdata.load_basenames_SOURCE_OBS('Download',dwld,'Force',force_dwld, ...
+        'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
 % end
 
 %-------------------------------------------------------------------------%
@@ -232,7 +245,7 @@ function [DFdata] = get_DFdata(EDRSPdata,obs_counter,dwld)
     propEDRDF.sensor_id = EDRSPdata.prop.sensor_id;
     propEDRDF.activity_id = 'DF';
 
-    [~,~,~,~,~,basenameEDRDF] = get_dirpath_observation_fromProp(propEDRDF,'dwld',dwld);
+    [~,~,~,~,~,basenameEDRDF] = crism_search_observation_fromProp(propEDRDF,'dwld',dwld);
 
     DFdata = CRISMdata(basenameEDRDF,'');
     DFdata.download(2);
@@ -252,13 +265,13 @@ function [BPdata] = get_BPdata_fromDF(DFdata,binning_id_sp,dwld)
     propBP_search.partition = p_df_stop;
     propBP_search.binning = binning_id_sp;
     [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1);
-    get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
+    crism_get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
     BPdata = CRISMdata(basenameBPmrb,'');
     if isempty(extractMatchedBasename_v2(DFdata.basename,BPdata.lbl.SOURCE_PRODUCT_ID))
         fprintf('It seems no BPdata associated with %s.\n in local database',DFdata.basename);
         fprintf('Connect to remote server...\n');
         [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1,'force',1);
-        get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
+        crism_get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
         BPdata = CRISMdata(basenameBPmrb,'');
         if isempty(extractMatchedBasename_v2(DFdata.basename,BPdata.lbl.SOURCE_PRODUCT_ID))
             error('It seems no BPdata associated with %s.',DFdata.basename);
@@ -285,7 +298,7 @@ function [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,binning_id_sp,dwld)
     propBI_search.sclk = floor(sclk_stop);
     propBI_search.binning = binning_id_sp;
     [basenameBImrb,propBImrb] = crism_searchCDRmrb(propBI_search,'dwld',1);
-    get_dirpath_cdr(basenameBImrb,'dwld',dwld);
+    crism_get_dirpath_cdr(basenameBImrb,'dwld',dwld);
     BIdata = CRISMdata(basenameBImrb,'');
 
     is_in_local_database = 1;
@@ -298,7 +311,7 @@ function [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,binning_id_sp,dwld)
     end
     if ~is_in_local_database
         [basenameBImrb,propBImrb] = crism_searchCDRmrb(propBI_search,'dwld',1,'force',1);
-        get_dirpath_cdr(basenameBImrb,'dwld',dwld);
+        crism_get_dirpath_cdr(basenameBImrb,'dwld',dwld);
         BIdata = CRISMdata(basenameBImrb,'');
         for ii=1:length(EDRBIdataList_s)
             basenameEDRBI_i = EDRBIdataList_s(ii).basename;
@@ -323,7 +336,7 @@ function [BKdata] = get_BKdata_fromDF(DFdata,binning_id_sp,dwld)
     propBK_search.partition = p_df_stop;
     propBK_search.binning = binning_id_sp;
     [basenameBKmrb,propBKmrb] = crism_searchCDRmrb(propBK_search,'dwld',1);
-    get_dirpath_cdr(basenameBKmrb,'dwld',dwld);
+    crism_get_dirpath_cdr(basenameBKmrb,'dwld',dwld);
     BKdata = CRISMdata(basenameBKmrb,'');
     % check if the most recent before product is actually the one we are
     % looking for.
@@ -331,7 +344,7 @@ function [BKdata] = get_BKdata_fromDF(DFdata,binning_id_sp,dwld)
         fprintf('It seems no BKdata associated with %s.\n in local database',DFdata.basename);
         fprintf('Connect to remote server...\n');
         [basenameBKmrb,propBKmrb] = crism_searchCDRmrb(propBK_search,'dwld',1,'force',1);
-        get_dirpath_cdr(basenameBKmrb,'dwld',dwld);
+        crism_get_dirpath_cdr(basenameBKmrb,'dwld',dwld);
         BKdata = CRISMdata(basenameBKmrb,'');
         if isempty(extractMatchedBasename_v2(DFdata.basename,BKdata.lbl.SOURCE_PRODUCT_ID))
             error('It seems no BKdata associated with %s.',DFdata.basename);

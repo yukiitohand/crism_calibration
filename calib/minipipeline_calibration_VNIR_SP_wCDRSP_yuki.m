@@ -26,10 +26,15 @@ function [SPdata_o,RT14j_woc_bn_mod,RT14j_bn,RT14j_bn_mod,MP] = minipipeline_cal
 %    'DWLD','DOWNLOAD' : if download the data or not, 2: download, 1:
 %                       access an only show the path, 0: nothing
 %                       (default) 0
-%    'OUT_FILE'       : path to the output file
-%                       (default) ''
-%    'Force'          : binary, whether or not to force performing
+%    'Force_dwld'     : binary, whether or not to force performing
 %                      pds_downloader. (default) false
+%   'DWLD_INDEX_CACHE_UPDATE' : boolean, whether or not to update index.html 
+%        (default) false
+%   'VERBOSE_DWLD'   : boolean, whether or not to show the downloading
+%                      operations.
+%                      (default) true
+%   'DWLD_OVERWRITE' : if overwrite the file if exists
+%                      (default) 0
 %   'MEAN_ROBUST': integer {0,1}, mode for how mean operation is performed.
 %        0: DN14e_df = nanmean(DN14d_df(:,:,:),1);
 %        1: DN14e_df = robust_v2('mean',DN14d_df,1,'NOutliers',2);
@@ -70,8 +75,10 @@ saturation_rmvl = 2;
 mean_robust = 1;
 bk_mean_robust = 1;
 dwld = 0;
-force = false;
-outfile = '';
+force_dwld = false;
+dwld_index_cache_update = 0;
+verbose_dwld = 1;
+dwld_overwrite = 0;
 % BIdata = [];
 % mean_DN14 = true;
 
@@ -95,10 +102,14 @@ else
                 bk_mean_robust = varargin{i+1};
             case {'DWLD','DOWNLOAD'}
                 dwld = varargin{i+1};
-            case 'FORCE'
-                force = varargin{i+1};
-            case 'OUT_FILE'
-                outfile = varargin{i+1};
+            case 'FORCE_DWLD'
+                force_dwld = varargin{i+1};
+            case 'DWLD_INDEX_CACHE_UPDATE'
+                dwld_index_cache_update = varargin{i+1};
+            case 'DWLD_OVERWRITE'
+                dwld_overwrite = varargin{i+1};
+            case 'VERBOSE_DWLD'
+                verbose_dwld = varargin{i+1};
             % case 'BIDATA'
             %    BIdata = varargin{i+1};
             otherwise
@@ -112,10 +123,12 @@ binx_sp = SPdata.lbl.PIXEL_AVERAGING_WIDTH;
 binning_id_sp = get_binning_id(binx_sp);
 
 % if isempty(SPdata.basenamesCDR)
-    SPdata.load_basenamesCDR('Download',dwld,'Force',force,'OUT_file',outfile); 
+    SPdata.load_basenamesCDR('Download',dwld,'Force',force_dwld, ...
+        'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
 % end
 % if isempty(SPdata.basenames_SOURCE_OBS)
-    SPdata.load_basenames_SOURCE_OBS('Download',dwld,'Force',force,'OUT_file',outfile); 
+    SPdata.load_basenames_SOURCE_OBS('Download',dwld,'Force',force_dwld,...
+        'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
 % end
 
 %-------------------------------------------------------------------------%

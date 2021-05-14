@@ -1,4 +1,4 @@
-function [] = crism_calibration_IR_v2(obs_id,varargin)
+function [IoF_woc,RDn_woc,IoF_bk1_o,IoF_bk2_o] = crism_calibration_IR_v2(obs_id,varargin)
 % [] = crism_calibration_IR_v2(obs_id,varargin)
 %   Perform calibration for CRISM IR image. %he main scene will be processed.
 %   FFC is also supported
@@ -11,6 +11,9 @@ function [] = crism_calibration_IR_v2(obs_id,varargin)
 %       (default) [localCRISM_PDSrootDir]/../YUK/'
 %    'SAVE_DIR_YYYY_DOY'
 %       Boolean, if the YYYY_DOY is inserted in the saving directory.
+%       (default) true;
+%    'SAVE_FILE'
+%       Boolean, save files or not
 %       (default) true;
 %    'VERSION'
 %       version of the data
@@ -26,8 +29,28 @@ function [] = crism_calibration_IR_v2(obs_id,varargin)
 %    'SAVE_MEMORY'
 %       saving memory or not. true or false
 %       (default) true
-%   Output
-%    None
+%    'DWLD','DOWNLOAD'
+%       if download the data or not, 2: download, 1:access an only show the
+%       path, 0: nothing
+%       (default) 0
+%   'Force_dwld'
+%       binary, whether or not to force performing pds_downloader.
+%       (default) false
+%   'DWLD_OVERWRITE'
+%       if overwrite the file if exists
+%       (default) 0
+%   'DWLD_INDEX_CACHE_UPDATE'
+%       boolean, whether or not to update index.html 
+%       (default) false
+%   'VERBOSE'
+%       boolean, whether or not to show operations.
+%       (default) true
+%   OUTPUTS
+%    IoF_woc     : [L x S x B] I/F image cube, single
+%    RDn_woc     : [L x S x B] Radiance image cube, single
+%    IoF_bk1_o   : [L_D x S x B] I/F image cube of DF1 measurement, single
+%    IoF_bk2_o   : [L_D x S x B] I/F image cube of DF2 measurement, single
+%                  empty if not exist.
 
 global crism_env_vars
 if ~isfield(crism_env_vars,'dir_YUK')
@@ -40,6 +63,7 @@ end
 %% setup initial values
 save_pdir = dir_yuk;
 save_dir_yyyy_doy = true;
+save_file = true;
 force = false;
 skip_ifexist = false;
 save_mem = true;
@@ -50,7 +74,12 @@ product_type = 'TRR';
 ffc_counter = 1;
 OBS_COUNTER_SCENE_custom = 0;
 OBS_COUNTER_DF_custom = 0;
-verbose = 0;
+verbose = true;
+dwld = 0;
+force_dwld = 0;
+dwld_index_cache_update = 0;
+dwld_overwrite = 0;
+force_dwld = 0;
 %% variable input arguments
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
@@ -66,6 +95,8 @@ else
                 save_pdir = varargin{i+1};
             case 'SAVE_DIR_YYYY_DOY'
                 save_dir_yyyy_doy = varargin{i+1};
+            case 'SAVE_FILE'
+                save_file = varargin{i+1};
             case 'FORCE'
                 force = varargin{i+1};
             case 'VERSION'
@@ -84,6 +115,17 @@ else
             case 'OBS_COUNTER_DF'
                 obs_counter_df_tmp = varargin{i+1};
                 OBS_COUNTER_DF_custom = 1;
+                
+            case 'FORCE_DWLD'
+                force_dwld = varargin{i+1};
+            case {'DOWNLOAD','DWLD'}
+                dwld = varargin{i+1};
+            case 'DWLD_INDEX_CACHE_UPDATE'
+                dwld_index_cache_update = varargin{i+1};
+            case 'DWLD_OVERWRITE'
+                dwld_overwrite = varargin{i+1};
+            case 'VERBOSE'
+                verbose = varargin{i+1};
             otherwise
                 % Hmmm, something wrong with the parameter string
                 error(['Unrecognized option: ''' varargin{i} '''']);
@@ -260,8 +302,9 @@ if exist_flg
     end
 end
 
-
-if ~exist(save_dir,'dir'), mkdir(save_dir); end
+if save_file
+    if ~exist(save_dir,'dir'), mkdir(save_dir); end
+end
 
 %% main processing
 switch lower(mode_calib)
@@ -269,8 +312,10 @@ switch lower(mode_calib)
         bkoption = 2;
         [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_IF_wTRRIF_yuki(...
         TRRIFdata,TRRIFdataS,crism_obs,bkoption,...
-        'SAVE_MEMORY',save_mem,'dwld',2,'MODE_SP','SOC',...
-        'APBPRMVL','HighOrd','SATURATION_RMVL',0,...
+        'SAVE_MEMORY',save_mem,'dwld',dwld,'FORCE_DWLD',force_dwld, ...
+        'DWLD_OVERWRITE',dwld_overwrite,'VERBOSE_DWLD',verbose, ...
+        'DWLD_INDEX_CACHE_UPDATE',dwld_index_cache_update,...
+        'MODE_SP','SOC', 'APBPRMVL','HighOrd','SATURATION_RMVL',0,...
         'BK_SATURATION_RMVL',1,'BK_BPRMVL',false,'BK_MEAN_ROBUST',0,'BK_MEAN_DN14',0);
         % [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_yuki(...
         %     TRRIFdata,EDRdata,DFdata1,DFdata2,BKdata1,BKdata2,2,...
@@ -280,8 +325,10 @@ switch lower(mode_calib)
         bkoption = 2;
         [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_IF_wTRRIF_yuki(...
         TRRIFdata,TRRIFdataS,crism_obs,bkoption,...
-        'SAVE_MEMORY',save_mem,'dwld',2,'MODE_SP','SOC',...
-        'APBPRMVL','none','SATURATION_RMVL',0,...
+        'SAVE_MEMORY',save_mem,'dwld',dwld,'FORCE_DWLD',force_dwld,...
+        'DWLD_OVERWRITE',dwld_overwrite,'VERBOSE_DWLD',verbose, ...
+        'DWLD_INDEX_CACHE_UPDATE',dwld_index_cache_update,...
+        'MODE_SP','SOC', 'APBPRMVL','none','SATURATION_RMVL',0,...
         'BK_SATURATION_RMVL',1,'BK_BPRMVL',false,'BK_MEAN_ROBUST',0,'BK_MEAN_DN14',0);
         % [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_yuki(...
         %    TRRIFdata,EDRdata,DFdata1,DFdata2,BKdata1,BKdata2,2,...
@@ -291,8 +338,10 @@ switch lower(mode_calib)
         bkoption = 2;
         [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_IF_wTRRIF_yuki(...
         TRRIFdata,[],crism_obs,bkoption,...
-        'SAVE_MEMORY',save_mem,'dwld',2,'MODE_SP','SOC',...
-        'APBPRMVL','HighOrd','SATURATION_RMVL',2,...
+        'SAVE_MEMORY',save_mem,'dwld',dwld,'FORCE_DWLD',force_dwld,...
+        'DWLD_OVERWRITE',dwld_overwrite,'VERBOSE_DWLD',verbose, ...
+        'DWLD_INDEX_CACHE_UPDATE',dwld_index_cache_update,...
+        'MODE_SP','SOC', 'APBPRMVL','HighOrd','SATURATION_RMVL',2,...
         'BK_SATURATION_RMVL',2,'BK_BPRMVL',false,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',0);
         % [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_yuki(...
         %     TRRIFdata,EDRdata,DFdata1,DFdata2,BKdata1,BKdata2,2,...
@@ -303,8 +352,10 @@ switch lower(mode_calib)
         bkoption = 2;
         [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_IF_wTRRIF_yuki(...
         TRRIFdata,[],crism_obs,bkoption,...
-        'SAVE_MEMORY',save_mem,'dwld',2,'MODE_SP','MAN',...
-        'APBPRMVL','HighOrd','SATURATION_RMVL',2,...
+        'SAVE_MEMORY',save_mem,'dwld',dwld,'FORCE_DWLD',force_dwld, ...
+        'DWLD_OVERWRITE',dwld_overwrite,'VERBOSE_DWLD',verbose, ...
+        'DWLD_INDEX_CACHE_UPDATE',dwld_index_cache_update,...
+        'MODE_SP','MAN', 'APBPRMVL','HighOrd','SATURATION_RMVL',2,...
         'SP_SATURATION_RMVL',2,'SP_APBPRMVL','HighOrd','SP_MEAN_ROBUST',1,'SP_MEAN_DN14',1,...
         'BK_SATURATION_RMVL',2,'BK_BPRMVL',false,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',1);
     case 'yuki4'
@@ -312,8 +363,10 @@ switch lower(mode_calib)
         bkoption = 2;
         [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = pipeline_calibration_IR_IF_wTRRIF_yuki(...
         TRRIFdata,[],crism_obs,bkoption,...
-        'SAVE_MEMORY',save_mem,'dwld',2,'MODE_SP','MAN',...
-        'APBPRMVL','HighOrd','SATURATION_RMVL',2,'FLAT_FIELD',false,...
+        'SAVE_MEMORY',save_mem,'dwld',dwld,'FORCE_DWLD',force_dwld, ...
+        'DWLD_OVERWRITE',dwld_overwrite,'VERBOSE_DWLD',verbose, ...
+        'DWLD_INDEX_CACHE_UPDATE',dwld_index_cache_update,...
+        'MODE_SP','MAN', 'APBPRMVL','HighOrd','SATURATION_RMVL',2,'FLAT_FIELD',false,...
         'SP_SATURATION_RMVL',2,'SP_APBPRMVL','HighOrd','SP_MEAN_ROBUST',1,'SP_MEAN_DN14',1,...
         'BK_SATURATION_RMVL',2,'BK_BPRMVL',false,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',1);
     case 'original'
@@ -335,23 +388,27 @@ SFdata = TRRIFdata.readCDR('SF');
 % save(fpath_TRRYIF_mat,'IoF','IoF_woc');
 
 %% saving files
-[hdrif_cat] = crism_const_cathdr(TRRIFdata,false);
-fprintf('Saving %s ...\n',fpath_TRRYIF_lbl);
-% envihdrwritex(hdrif_cat,joinPath(save_dir,[bnameIF '.hdr']),'OPT_CMOUT','false');
-copyfile(TRRIFdata.lblpath,fpath_TRRYIF_lbl);
-fprintf('Done\n');
-fprintf('Saving %s ...\n',fpath_TRRYIF_img);
-envidatawrite(single(IoF_woc),fpath_TRRYIF_img,hdrif_cat);
-fprintf('Done\n');
+IoF_woc = single(IoF_woc);
+RDn_woc = single(RDn_woc);
+if save_file
+    [hdrif_cat] = crism_const_cathdr(TRRIFdata,false);
+    fprintf('Saving %s ...\n',fpath_TRRYIF_lbl);
+    % envihdrwritex(hdrif_cat,joinPath(save_dir,[bnameIF '.hdr']),'OPT_CMOUT','false');
+    copyfile(TRRIFdata.lblpath,fpath_TRRYIF_lbl);
+    fprintf('Done\n');
+    fprintf('Saving %s ...\n',fpath_TRRYIF_img);
+    envidatawrite(IoF_woc,fpath_TRRYIF_img,hdrif_cat);
+    fprintf('Done\n');
 
-[hdrra_cat] = crism_const_cathdr(TRRRAdata,false);
-fprintf('Saving %s ...\n',fpath_TRRYRA_lbl);
-% envihdrwritex(hdrra_cat,joinPath(save_dir,[bnameRA '.hdr']),'OPT_CMOUT','false');
-copyfile(TRRRAdata.lblpath,fpath_TRRYRA_lbl);
-fprintf('Done\n');
-fprintf('Saving %s ...\n',fpath_TRRYRA_img);
-envidatawrite(single(RDn_woc),fpath_TRRYRA_img,hdrra_cat);
-fprintf('Done\n');
+    [hdrra_cat] = crism_const_cathdr(TRRRAdata,false);
+    fprintf('Saving %s ...\n',fpath_TRRYRA_lbl);
+    % envihdrwritex(hdrra_cat,joinPath(save_dir,[bnameRA '.hdr']),'OPT_CMOUT','false');
+    copyfile(TRRRAdata.lblpath,fpath_TRRYRA_lbl);
+    fprintf('Done\n');
+    fprintf('Saving %s ...\n',fpath_TRRYRA_img);
+    envidatawrite(RDn_woc,fpath_TRRYRA_img,hdrra_cat);
+    fprintf('Done\n');
+end
 
 %%
 % conversion for 
@@ -363,15 +420,21 @@ switch lower(mode_calib)
         else
             IoF_bk2_o = [];
         end
-        fprintf('Saving %s ...\n',fpath_TRRYIFDF1);
+        
         IoF_bk1_o = single(IoF_bk1_o);
-        save(fpath_TRRYIFDF1,'IoF_bk1_o');
-        fprintf('Done\n');
-        if ~isempty(bnameDF2_IF)
-            fprintf('Saving %s ...\n',fpath_TRRYIFDF2);
-            IoF_bk2_o = single(IoF_bk2_o);
-            save(fpath_TRRYIFDF2,'IoF_bk2_o');
+        if save_file
+            fprintf('Saving %s ...\n',fpath_TRRYIFDF1);
+            save(fpath_TRRYIFDF1,'IoF_bk1_o');
             fprintf('Done\n');
+        end
+        
+        if ~isempty(bnameDF2_IF)
+            IoF_bk2_o = single(IoF_bk2_o);
+            if save_file
+                fprintf('Saving %s ...\n',fpath_TRRYIFDF2);
+                save(fpath_TRRYIFDF2,'IoF_bk2_o');
+                fprintf('Done\n');
+            end        
         end
     otherwise
 end

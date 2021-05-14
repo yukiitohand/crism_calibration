@@ -1,4 +1,4 @@
-function [RDn,RDn_woc] = pipeline_calibration_VNIR_original(TRRIFdata,EDRdata,DFdata1,DFdata2,BIdata1,BIdata2,bkoption,varargin)
+function [RDn,RDn_woc] = crmcal_pipeline_VNIR_original(TRRIFdata,EDRdata,DFdata1,DFdata2,BIdata1,BIdata2,bkoption,varargin)
 %   Pipeline for the calibration of the CRISM images
 %  Input Parameters
 %   TRRIFdata, EDRdata: TRRIFdata is just for the information of CDR and

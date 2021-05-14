@@ -22,7 +22,7 @@ if L==1
     end
 end
 
-[t] = get_integrationTime(integ_t,rate);
+[t] = crism_get_integrationTime(integ_t,rate);
 
 RT14g = DN14g ./ repmat(t,[1,S,Bands]);
 

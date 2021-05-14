@@ -94,12 +94,11 @@ else
         switch upper(varargin{i})
             case 'BINNING'
                 binning = varargin{i+1};
-                binx = get_binning(binning);
+                binx = crism_get_binning(binning);
             case 'BINX'
                 binx = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);   
+                error('Unrecognized option: %s', varargin{i});   
         end
     end
 end
@@ -107,7 +106,7 @@ end
 [L,S,B] = size(DN14);
 rate_id = cat(1,hkt.data.RATE);
 
-[t_a1] = get_frame_sclk_mean_fromHKT(hkt);
+[t_a1] = crism_get_frame_sclk_mean_fromHKT(hkt);
 % t_a1 = 
 % lazy for time stamps of CDR BI data
 t_d1 = mean([BIdata1.get_sclk_start(),BIdata1.get_sclk_stop()]);
@@ -120,7 +119,7 @@ den = t_e1 - t_d1;
 term2 = (alpha_ea .* BIdata1.img + alpha_ad .* BIdata2.img) ./ den;
 
 
-beta_v = rateQuadrantTABformatter(rate_id,DBdata.tab,'A','BINX',binx);
+beta_v = crism_rateQuadrantTABformatter(rate_id,DBdata.tab,'A','BINX',binx);
 %TaV = lbl_TRR3.MRO_DETECTOR_TEMPERATURE;
 TdV = BIdata1.lbl.MRO_DETECTOR_TEMPERATURE;
 TeV = BIdata2.lbl.MRO_DETECTOR_TEMPERATURE;
@@ -132,7 +131,7 @@ TaV = cat(1,hkt.data.VNIR_DETECTOR_TEMP1);
 % term3 = beta_v.* (alpha_ea.*(TaV - TdV) + alpha_ad.*(TeV - TaV)) / den;
 term3 = beta_v.* (alpha_ea.*(TaV - TdV) + alpha_ad.*(TaV - TeV)) / den;
 
-beta_w = rateQuadrantTABformatter(rate_id,EBdata.tab,'A','BINX',binx);
+beta_w = crism_rateQuadrantTABformatter(rate_id,EBdata.tab,'A','BINX',binx);
 % TaW = lbl_TRR3.MRO_FPE_TEMPERATURE;
 TdW = BIdata1.lbl.MRO_FPE_TEMPERATURE;
 TeW = BIdata2.lbl.MRO_FPE_TEMPERATURE;

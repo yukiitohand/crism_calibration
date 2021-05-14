@@ -63,10 +63,10 @@ else
         switch upper(varargin{i})
             case 'BINNING_SP'
                 binning_sp = varargin{i+1};
-                binx_sp = get_binning(binning_sp);
+                binx_sp = crism_get_binning(binning_sp);
             case 'BINX_SP'
                 binx_sp = varargin{i+1};
-                binning_sp = get_binning_id(binx_sp);
+                binning_sp = crism_get_binning_id(binx_sp);
             case 'SAVE_MEMORY'
                 save_mem = varargin{i+1};
             %case 'APBPRMVL'
@@ -88,7 +88,7 @@ else
     end
 end
 frame_rate = EDRSPdata.lbl.MRO_FRAME_RATE.value;
-rate_id = get_frame_rate_id(frame_rate);
+rate_id = crism_get_frame_rate_id(frame_rate);
 % binx_sp = EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH;
 
 DN = EDRSPdata.readimg();
@@ -144,15 +144,15 @@ BIdata2_o = DFdata2;
 BIdata1_o.img = DN14a_df1;
 BIdata2_o.img = DN14a_df2;
 hkt_df1 = DFdata1.readHKT();
-hkt_df1 = correctHKTwithHD(hkt_df1,HDdata);
-hkt_df1 = correctHKTwithHK(hkt_df1,HKdata);
+hkt_df1 = crism_correctHKTwithHD(hkt_df1,HDdata);
+hkt_df1 = crism_correctHKTwithHK(hkt_df1,HKdata);
 BIdata1_o.hkt = hkt_df1;
 BIdata1_o.lbl.MRO_DETECTOR_TEMPERATURE = nanmean(cat(1,BIdata1_o.hkt.data.VNIR_DETECTOR_TEMP1));
 BIdata1_o.lbl.MRO_FPE_TEMPERATURE = nanmean(cat(1,BIdata1_o.hkt.data.VNIR_FPU_BOARD_TEMP));
 
 hkt_df2 = DFdata2.readHKT();
-hkt_df2 = correctHKTwithHD(hkt_df2,HDdata);
-hkt_df2 = correctHKTwithHK(hkt_df2,HKdata);
+hkt_df2 = crism_correctHKTwithHD(hkt_df2,HDdata);
+hkt_df2 = crism_correctHKTwithHK(hkt_df2,HKdata);
 BIdata2_o.hkt = hkt_df2;
 BIdata2_o.lbl.MRO_DETECTOR_TEMPERATURE = nanmean(cat(1,BIdata2_o.hkt.data.VNIR_DETECTOR_TEMP1));
 BIdata2_o.lbl.MRO_FPE_TEMPERATURE = nanmean(cat(1,BIdata2_o.hkt.data.VNIR_FPU_BOARD_TEMP));
@@ -173,8 +173,8 @@ BIdata2_o.lbl.MRO_FPE_TEMPERATURE = nanmean(cat(1,BIdata2_o.hkt.data.VNIR_FPU_BO
 % HKdata = TRRIFdata.readCDR('HK');
 % TRRIFdata.readHKT(); hkt = TRRIFdata.hkt;
 hkt = EDRSPdata.readHKT();
-hkt = correctHKTwithHD(hkt,HDdata);
-hkt = correctHKTwithHK(hkt,HKdata);
+hkt = crism_correctHKTwithHD(hkt,HDdata);
+hkt = crism_correctHKTwithHK(hkt,HKdata);
 % using Temperature recorded in the label in TRR I/F data 
 % [ DN14a,BI_m ] = subtract_bias_VNIR_1( DN14,BIdata1,BIdata2,DBdata,EBdata,hkt,rownum_table,TRRIFdata.lbl );
 [ DN14a,BI_m ] = subtract_bias_VNIR_1( DN14,BIdata1_o,BIdata2_o,DBdata,EBdata,hkt,rownum_table,EDRSPdata.lbl,'binx',binx_sp);

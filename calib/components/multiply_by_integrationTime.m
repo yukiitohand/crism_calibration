@@ -10,7 +10,7 @@ integ_t = integ_t(:);
 rate = [hkt.data.RATE];
 rate = rate(:);
 
-[t] = get_integrationTime(integ_t,rate);
+[t] = crism_get_integrationTime(integ_t,rate);
 
 DN14g = RT14g .* repmat(t,[1,S,Bands]);
 

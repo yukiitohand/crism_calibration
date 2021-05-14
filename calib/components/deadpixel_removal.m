@@ -43,12 +43,11 @@ else
                 rate_id = varargin{i+1};
             case 'BINNING'
                 binning = varargin{i+1};
-                binx = get_binning(binning);
+                binx = crism_get_binning(binning);
             case 'BINX'
                 binx = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);   
+                error('Unrecognized option: %s', varargin{i});   
         end
     end
 end
@@ -57,7 +56,7 @@ end
 RT14jj = RT14j;
 
 % IR_NOISE_LIMIT = rateQuadrantTABformatter(rate_id,VLdata.tab,'IR_NOISE_LIMIT','BINX',binx);
-IR_SENSITIVITY_LIMIT = rateQuadrantTABformatter(rate_id,VLdata.tab,'IR_SENSITIVITY_LIMIT','BINX',binx);
+IR_SENSITIVITY_LIMIT = crism_rateQuadrantTABformatter(rate_id,VLdata.tab,'IR_SENSITIVITY_LIMIT','BINX',binx);
 
 
 % next detect dead pixels

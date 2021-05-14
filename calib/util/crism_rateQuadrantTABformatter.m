@@ -1,5 +1,5 @@
-function [datafrmtd] = rateQuadrantTABformatter(rate_id,tab,colname,varargin)
-% [datafrmtd] = rateQuadrantTABformatter(rate_id,tab,colname)
+function [datafrmtd] = crism_rateQuadrantTABformatter(rate_id,tab,colname,varargin)
+% [datafrmtd] = crism_rateQuadrantTABformatter(rate_id,tab,colname,varargin)
 %   format a column (colname) of the CRISM TAB data with columns defined 
 %   as 'RATE','QUADRANT', and something, like
 %         0,1,31.0
@@ -49,12 +49,11 @@ else
         switch upper(varargin{i})
             case 'BINNING'
                 binning = varargin{i+1};
-                binx = get_binning(binning);
+                binx = crism_get_binning(binning);
             case 'BINX'
                 binx = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);   
+                error('Unrecognized option: %s', varargin{i});   
         end
     end
 end
@@ -68,7 +67,7 @@ L = length(rate_id);
 rate_id = rate_id(:);
 datafrmtd = zeros([L,S,1]);
 for i=1:4 % quadrant ID
-    x = get_quadrantPxl(i,'BINX',binx);
+    x = crism_get_quadrantPxl(i,'BINX',binx);
     idx = 4.*rate_id + i;
     datatmp = [tbl_srtd(idx).(colname)];
     datatmp = datatmp(:);

@@ -113,14 +113,13 @@ else
             % case 'BIDATA'
             %    BIdata = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);
+                error('Unrecognized option: %s', varargin{i});
         end
     end
 end
 
 binx_sp = SPdata.lbl.PIXEL_AVERAGING_WIDTH;
-binning_id_sp = get_binning_id(binx_sp);
+binning_id_sp = crism_get_binning_id(binx_sp);
 
 % if isempty(SPdata.basenamesCDR)
     SPdata.load_basenamesCDR('Download',dwld,'Force',force_dwld, ...
@@ -183,7 +182,7 @@ LCdata = crism_searchCDR6mrb('LC',SPdata.prop.sclk,'sensor_id','S');
 VLdata = crism_searchCDR6mrb('VL',SPdata.prop.sclk,'sensor_id','S');
 
 DMdata = crism_searchCDR4mrb('DM',SPdata.prop.sclk,'sensor_id','S',...
-    'wavelength_filter',EDRSPdata.lbl.MRO_WAVELENGTH_FILTER,'binning',get_binning_id(EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH));
+    'wavelength_filter',EDRSPdata.lbl.MRO_WAVELENGTH_FILTER,'binning',crism_get_binning_id(EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH));
 DMdata_SP = crism_searchCDR4mrb('DM',SPdata.prop.sclk,'sensor_id','S',...
     'wavelength_filter',SPdata.prop.wavelength_filter,'binning',SPdata.prop.binning);
 %-------------------------------------------------------------------------%

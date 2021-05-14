@@ -130,14 +130,13 @@ else
             case 'BIDATA'
                 BIdata = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);
+                error('Unrecognized option: %s', varargin{i});
         end
     end
 end
 
 binx_sp = SPdata.lbl.PIXEL_AVERAGING_WIDTH;
-binning_id_sp = get_binning_id(binx_sp);
+binning_id_sp = crism_get_binning_id(binx_sp);
 
 % if isempty(SPdata.basenamesCDR)
     SPdata.load_basenamesCDR('Download',dwld,'Force',force_dwld, ...
@@ -254,9 +253,9 @@ end
 function [BPdata] = get_BPdata_fromDF(DFdata,binning_id_sp,dwld)
     propBP_search = crism_create_propCDR4basename;
     propBP_search.acro_calibration_type = 'BP';
-    propBP_search.binning = get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
+    propBP_search.binning = crism_get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
     propBP_search.wavelength_filter = DFdata.lbl.MRO_WAVELENGTH_FILTER;
-    propBP_search.frame_rate = get_frame_rate_id(DFdata.lbl.MRO_FRAME_RATE.value);
+    propBP_search.frame_rate = crism_get_frame_rate_id(DFdata.lbl.MRO_FRAME_RATE.value);
     % for the BP products, exposure is almost always 0. Do not set it.
     % propBP_search.exposure = DFdata.lbl.MRO_EXPOSURE_PARAMETER;
     propBP_search.sensor_id = DFdata.lbl.MRO_SENSOR_ID;
@@ -291,9 +290,9 @@ function [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,binning_id_sp,dwld)
 
     propBI_search = crism_create_propCDR4basename;
     propBI_search.acro_calibration_type = 'BI';
-    propBI_search.binning = get_binning_id(EDRBIdataList_s(1).lbl.PIXEL_AVERAGING_WIDTH);
+    propBI_search.binning = crism_get_binning_id(EDRBIdataList_s(1).lbl.PIXEL_AVERAGING_WIDTH);
     propBI_search.wavelength_filter = EDRBIdataList_s(1).lbl.MRO_WAVELENGTH_FILTER;
-    propBI_search.frame_rate = get_frame_rate_id(EDRBIdataList_s(1).lbl.MRO_FRAME_RATE.value);
+    propBI_search.frame_rate = crism_get_frame_rate_id(EDRBIdataList_s(1).lbl.MRO_FRAME_RATE.value);
     propBI_search.sensor_id = EDRBIdataList_s(1).lbl.MRO_SENSOR_ID;
     propBI_search.sclk = floor(sclk_stop);
     propBI_search.binning = binning_id_sp;
@@ -326,9 +325,9 @@ end
 function [BKdata] = get_BKdata_fromDF(DFdata,binning_id_sp,dwld)
     propBK_search = crism_create_propCDR4basename;
     propBK_search.acro_calibration_type = 'BK';
-    propBK_search.binning = get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
+    propBK_search.binning = crism_get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
     propBK_search.wavelength_filter = DFdata.lbl.MRO_WAVELENGTH_FILTER;
-    propBK_search.frame_rate = get_frame_rate_id(DFdata.lbl.MRO_FRAME_RATE.value);
+    propBK_search.frame_rate = crism_get_frame_rate_id(DFdata.lbl.MRO_FRAME_RATE.value);
     propBK_search.exposure = DFdata.lbl.MRO_EXPOSURE_PARAMETER;
     propBK_search.sensor_id = DFdata.lbl.MRO_SENSOR_ID;
     [sclk_df_stop,p_df_stop] = DFdata.get_sclk_stop();

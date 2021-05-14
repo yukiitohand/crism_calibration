@@ -59,13 +59,12 @@ else
             case 'BK_BPRMVL'
                 bk_bprmvl = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);
+                error('Unrecognized option: %s', varargin{i});
         end
     end
 end
 frame_rate = TRRIFdata.lbl.MRO_FRAME_RATE{1};
-rate_id = get_frame_rate_id(frame_rate);
+rate_id = crism_get_frame_rate_id(frame_rate);
 binx = TRRIFdata.lbl.PIXEL_AVERAGING_WIDTH;
 
 DN = EDRdata.readimg();
@@ -101,8 +100,8 @@ HDdata = TRRIFdata.readCDR('HD');
 HKdata = TRRIFdata.readCDR('HK');
 % TRRIFdata.readHKT(); hkt = TRRIFdata.hkt;
 hkt = EDRdata.readHKT();
-hkt = correctHKTwithHD(hkt,HDdata);
-hkt = correctHKTwithHK(hkt,HKdata);
+hkt = crism_correctHKTwithHD(hkt,HDdata);
+hkt = crism_correctHKTwithHK(hkt,HKdata);
 % using Temperature recorded in the label in TRR I/F data 
 % [ DN14a,BI_m ] = subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,TRRIFdata.lbl );
 [ DN14a,BI_m ] = subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,'BINX',binx);
@@ -224,12 +223,12 @@ end
     DFdata2,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,BIdata,DMdata,...
     BPdata2,GHdata,VLdata,LCdata,'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',bk_bprmvl,...
     'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_meanDN14);
-hkt_df1 = DFdata1.readHKT();
-hkt_df1c = correctHKTwithHD(hkt_df1,HDdata);
-hkt_df1cc = correctHKTwithHK(hkt_df1c,HKdata);
-hkt_df2 = DFdata2.readHKT();
-hkt_df2c = correctHKTwithHD(hkt_df2,HDdata);
-hkt_df2cc = correctHKTwithHK(hkt_df2c,HKdata);
+hkt_df1   = DFdata1.readHKT();
+hkt_df1c  = crism_correctHKTwithHD(hkt_df1,HDdata);
+hkt_df1cc = crism_correctHKTwithHK(hkt_df1c,HKdata);
+hkt_df2   = DFdata2.readHKT();
+hkt_df2c  = crism_correctHKTwithHD(hkt_df2,HDdata);
+hkt_df2cc = crism_correctHKTwithHK(hkt_df2c,HKdata);
 % DFdata1.readimg();
 % rownum_table_df1 = DFdata1.read_ROWNUM_TABLE();
 % [ DN14_df1 ] = DN12toDN14( DFdata1.img,PPdata,rownum_table_df1 );

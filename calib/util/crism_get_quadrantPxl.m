@@ -1,5 +1,5 @@
-function [x] = get_quadrantPxl(quadrant_id,varargin)
-% [x] = get_quadrantPxl(quadrant_id)
+function [x] = crism_get_quadrantPxl(quadrant_id,varargin)
+% [x] = crism_get_quadrantPxl(quadrant_id,varargin)
 %  get an array of spatial pixels for the input quadrant ID. In case of
 %  binning = 0 (spatial averaging width = 1)
 %   1: 1:160
@@ -32,12 +32,11 @@ else
         switch upper(varargin{i})
             case 'BINNING'
                 binning = varargin{i+1};
-                binx = get_binning(binning);
+                binx = crism_get_binning(binning);
             case 'BINX'
                 binx = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);   
+                error('Unrecognized option: %s', varargin{i});   
         end
     end
 end

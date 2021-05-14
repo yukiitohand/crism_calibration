@@ -69,10 +69,10 @@ function [ DN14a,BI_m ] = subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,
 %       
 % if isempty(EDRdata.img),EDRdata.readimg(); end;
 % if isempty(EDRdata.hkt),EDRdata.readHKT(); end;
-if isempty(BIdata.img),BIdata.readimg(); end;
-if isempty(BSdata.tab),BSdata.readTAB(); end;
-if isempty(DBdata.tab),DBdata.readTAB(); end;
-if isempty(EBdata.tab),EBdata.readTAB(); end;
+if isempty(BIdata.img),BIdata.readimg(); end
+if isempty(BSdata.tab),BSdata.readTAB(); end
+if isempty(DBdata.tab),DBdata.readTAB(); end
+if isempty(EBdata.tab),EBdata.readTAB(); end
 
 binx = 1;
 if (rem(length(varargin),2)==1)
@@ -82,12 +82,11 @@ else
         switch upper(varargin{i})
             case 'BINNING'
                 binning = varargin{i+1};
-                binx = get_binning(binning);
+                binx = crism_get_binning(binning);
             case 'BINX'
                 binx = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);   
+                error('Unrecognized option: %s', varargin{i});   
         end
     end
 end
@@ -98,7 +97,7 @@ term2 = repmat(BIdata.img,[L,1,1]);
 
 rate = [hkt.data.RATE];
 rate = rate(:);
-a0I = rateQuadrantTABformatter(rate,BSdata.tab,'A0','BINX',binx);
+a0I = crism_rateQuadrantTABformatter(rate,BSdata.tab,'A0','BINX',binx);
 % a0I = 31;
 % fprintf('a0I=31 is currently manually set becase it is same for all the cases now');
 
@@ -113,14 +112,14 @@ term3 = repmat(a0I,[1,1,B]) ...
     .*heaviside(repmat(row_lambdaList,[L,S,1])-repmat(term_integ_t,[1,S,B]));
 
 % what is the right way to do? mean or 
-beta_I = rateQuadrantTABformatter(rate,DBdata.tab,'A','BINX',binx);
+beta_I = crism_rateQuadrantTABformatter(rate,DBdata.tab,'A','BINX',binx);
 % T_aI = lbl_TRR3.MRO_DETECTOR_TEMPERATURE;
 T_aI = cat(1,hkt.data.IR_DETECTOR_TEMP1);
 T_bI = BIdata.lbl.MRO_DETECTOR_TEMPERATURE;
 
 term4 = repmat(beta_I,[1,1,B]) .* repmat(T_aI-T_bI,[1,S,B]);
 
-beta_J = rateQuadrantTABformatter(rate,EBdata.tab,'A','BINX',binx);
+beta_J = crism_rateQuadrantTABformatter(rate,EBdata.tab,'A','BINX',binx);
 % T_aJ = lbl_TRR3.MRO_FPE_TEMPERATURE;
 T_aJ = cat(1,hkt.data.IR_FPU_BOARD_TEMP);
 T_bJ = BIdata.lbl.MRO_FPE_TEMPERATURE;

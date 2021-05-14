@@ -39,12 +39,11 @@ else
         switch upper(varargin{i})
             case 'BINNING'
                 binning = varargin{i+1};
-                binx = get_binning(binning);
+                binx = crism_get_binning(binning);
             case 'BINX'
                 binx = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);   
+                error('Unrecognized option: %s', varargin{i});   
         end
     end
 end
@@ -60,11 +59,11 @@ if L==1
     end
 end
 
-a = rateQuadrantTABformatter(rate,LCdata.tab,'A','BINX',binx);
-b = rateQuadrantTABformatter(rate,LCdata.tab,'B','BINX',binx);
-c = rateQuadrantTABformatter(rate,LCdata.tab,'C','BINX',binx);
-d = rateQuadrantTABformatter(rate,LCdata.tab,'D','BINX',binx);
-e = rateQuadrantTABformatter(rate,LCdata.tab,'E','BINX',binx);
+a = crism_rateQuadrantTABformatter(rate,LCdata.tab,'A','BINX',binx);
+b = crism_rateQuadrantTABformatter(rate,LCdata.tab,'B','BINX',binx);
+c = crism_rateQuadrantTABformatter(rate,LCdata.tab,'C','BINX',binx);
+d = crism_rateQuadrantTABformatter(rate,LCdata.tab,'D','BINX',binx);
+e = crism_rateQuadrantTABformatter(rate,LCdata.tab,'E','BINX',binx);
 
 DN14e_1 = DN14e;
 % DN14e_1(DN14e<0) = nan;

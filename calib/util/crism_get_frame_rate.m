@@ -1,5 +1,5 @@
-function [rateHz] = get_frame_rate(rate)
-% [rateHz] = get_frame_rate(rate)
+function [rateHz] = crism_get_frame_rate(rate)
+% [rateHz] = crism_get_frame_rate(rate)
 %  get rate [Hz] from the index of each rate
 %  Input Parameters
 %    rate: integer, 0-4

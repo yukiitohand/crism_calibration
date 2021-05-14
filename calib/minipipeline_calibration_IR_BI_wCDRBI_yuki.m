@@ -102,9 +102,9 @@ HKdata = CDRBIdata.readCDR('HK');
         sclk_stop = max(sclk_EDRBI_list);
         propBP_search = crism_create_propCDR4basename;
         propBP_search.acro_calibration_type = 'BP';
-        propBP_search.binning = get_binning_id(EDRBIdataList_s(1).lbl.PIXEL_AVERAGING_WIDTH);
+        propBP_search.binning = crism_get_binning_id(EDRBIdataList_s(1).lbl.PIXEL_AVERAGING_WIDTH);
         propBP_search.wavelength_filter = EDRBIdataList_s(1).lbl.MRO_WAVELENGTH_FILTER;
-        propBP_search.frame_rate = get_frame_rate_id(EDRBIdataList_s(1).lbl.MRO_FRAME_RATE{1});
+        propBP_search.frame_rate = crism_get_frame_rate_id(EDRBIdataList_s(1).lbl.MRO_FRAME_RATE{1});
         % for the BP products, exposure is almost always 0. Do not set it.
         % propBP_search.exposure = DFdata.lbl.MRO_EXPOSURE_PARAMETER;
         propBP_search.sensor_id = EDRBIdataList_s(1).lbl.MRO_SENSOR_ID;
@@ -140,7 +140,7 @@ BIdata_o.img = imgBI;
 % expo_timeList = zeros(length(EDRBIdataList_s),1);
 % for i=1:length(EDRBIdataList_s)
 %     integ = EDRBIdataList_s(i).lbl.MRO_EXPOSURE_PARAMETER;
-%     [t] = get_integrationTime(integ,frame_rate,'Hz');
+%     [t] = crism_get_integrationTime(integ,frame_rate,'Hz');
 %     expo_timeList(i) = t;
 % end
 % 
@@ -160,7 +160,7 @@ BIdata_o.img = imgBI;
 % BSdata = CDRBIdata.readCDR('BS');
 % if isempty(BSdata.tab),BSdata.readTAB(); end
 % binx = CDRBIdata.lbl.PIXEL_AVERAGING_WIDTH;
-% a0I = rateQuadrantTABformatter(rate,BSdata.tab,'A0','BINX',binx);
+% a0I = crism_rateQuadrantTABformatter(rate,BSdata.tab,'A0','BINX',binx);
 % row_lambdaList = reshape(rownum_table,[1 1 B])+1; % +1 is already performed.
 % term_a0IList = [];
 % for i=1:length(EDRBIdataList_s)

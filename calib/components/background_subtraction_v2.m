@@ -22,7 +22,7 @@ end
 
 bk1_integ_t =BKdata1.lbl.MRO_EXPOSURE_PARAMETER;
 bk1_rateHz = BKdata1.lbl.MRO_FRAME_RATE.value;
-[bk1_exptm] = get_integrationTime(bk1_integ_t,bk1_rateHz,'Hz');
+[bk1_exptm] = crism_get_integrationTime(bk1_integ_t,bk1_rateHz,'Hz');
 % RTD1 = BKdata1.img ./ bk1_exptm;
 RTD1 = BKdata1.img;
 t_bk1 = mean([BKdata1.get_sclk_start(),BKdata1.get_sclk_stop()]);
@@ -30,7 +30,7 @@ t_bk1 = mean([BKdata1.get_sclk_start(),BKdata1.get_sclk_stop()]);
 if ~isempty(BKdata2)
     bk2_integ_t =BKdata2.lbl.MRO_EXPOSURE_PARAMETER;
     bk2_rateHz = BKdata2.lbl.MRO_FRAME_RATE.value;
-    [bk2_exptm] = get_integrationTime(bk2_integ_t,bk2_rateHz,'Hz');
+    [bk2_exptm] = crism_get_integrationTime(bk2_integ_t,bk2_rateHz,'Hz');
     % RTD2 = BKdata2.img ./ bk2_exptm;
     RTD2 = BKdata2.img;
     t_bk2 = mean([BKdata2.get_sclk_start(),BKdata2.get_sclk_stop()]);

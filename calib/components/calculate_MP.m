@@ -25,7 +25,7 @@ if isempty(SPdataVNIR.img), SPdataVNIR.readimg(); end;
 if isempty(SHdataVNIR.img), SHdataVNIR.readimg(); end;
 
 DGS14 = SHdataVNIR.img(1,:,:);
-exptm = get_integrationTime(SHdataVNIR.lbl.MRO_EXPOSURE_PARAMETER,...
+exptm = crism_get_integrationTime(SHdataVNIR.lbl.MRO_EXPOSURE_PARAMETER,...
                             SHdataVNIR.lbl.MRO_FRAME_RATE.value,'Hz');
 % RGS14 = DGS14/exptm;
 RGS14 = DGS14;

@@ -1,4 +1,4 @@
-function [hkt_corrHK] = correctHKTwithHK(hkt_corr,HKdata)
+function [hkt_corrHK] = crism_correctHKTwithHK(hkt_corr,HKdata)
 
 if isempty(HKdata.tab), HKdata.readTAB(); end;
 hkt_corrHK = hkt_corr;

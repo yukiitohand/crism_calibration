@@ -1,6 +1,6 @@
-function [t] = get_integrationTime(integ,rate,varargin)
-% [t] = get_integrationTime(integ,varargin)
-% [t] = get_integrationTime(integ,rate,'Hz')
+function [t] = crism_get_integrationTime(integ,rate,varargin)
+% [t] = crism_get_integrationTime(integ,varargin)
+% [t] = crism_get_integrationTime(integ,rate,'Hz')
 %  Calculate integration time [milliseconds] from the 'integ' parameter
 %  and frame rate [Hz]
 % Input Parameters
@@ -11,8 +11,8 @@ function [t] = get_integrationTime(integ,rate,varargin)
 %   t: integration time, [milli seconds]
 %
 % Usage
-%   >> [t] = get_integrationTime(integ,rate)
-%   >> [t] = get_integrationTime(integ,rate,'Hz')
+%   >> [t] = crism_get_integrationTime(integ,rate)
+%   >> [t] = crism_get_integrationTime(integ,rate,'Hz')
 %  
 
 % Detail
@@ -30,7 +30,7 @@ end
     
 switch rateUnit
     case 'none'
-        rateHz = get_frame_rate(rate);
+        rateHz = crism_get_frame_rate(rate);
     case 'Hz'
         rateHz = rate;
     otherwise

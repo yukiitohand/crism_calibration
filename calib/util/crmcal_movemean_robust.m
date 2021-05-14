@@ -1,5 +1,5 @@
-function [Xhat] = movemean_robust(X,dim)
-% [Xhat] = movemean_robust(X,dim)
+function [Xhat] = crmcal_movemean_robust(X,dim)
+% [Xhat] = crmcal_movemean_robust(X,dim)
 %  Performing moving mean while removing the 4 extreme (2 largest and 2 
 %  smallest) points. Currently window size is fixed at 15. 
 %  
@@ -34,7 +34,7 @@ function [Xhat_bi] = movemean_robust2d(X_bi)
     Xhat_bi = nan(size(X_bi));
     for si=1:S
         % [VV,II] = sort(X_bi,1,'ascend');
-        Xhat_bi(:,si) = movemean_robust1d_batchsort(X_bi(:,si));% ,VV(:,si),II(:,si));       
+        Xhat_bi(:,si) = crmcal_movemean_robust1d_batchsort(X_bi(:,si));% ,VV(:,si),II(:,si));       
     end
 end
 

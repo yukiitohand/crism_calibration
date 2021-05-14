@@ -34,12 +34,11 @@ else
         switch upper(varargin{i})
             case 'BINNING'
                 binning = varargin{i+1};
-                binx = get_binning(binning);
+                binx = crism_get_binning(binning);
             case 'BINX'
                 binx = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);   
+                error('Unrecognized option: %s', varargin{i});   
         end
     end
 end
@@ -49,11 +48,11 @@ if isempty(GHdata.tab), GHdata.readTAB(); end
 [L,S,Bands] = size(DN14a);
 
 rate = [hkt.data.RATE];
-A = frame_rateTABformatter(rate,GHdata.tab,'VNIR_GHOST_A','BINX',binx);
-B = frame_rateTABformatter(rate,GHdata.tab,'VNIR_GHOST_B','BINX',binx);
-C = frame_rateTABformatter(rate,GHdata.tab,'VNIR_GHOST_C','BINX',binx);
-D = frame_rateTABformatter(rate,GHdata.tab,'VNIR_GHOST_D','BINX',binx);
-E = frame_rateTABformatter(rate,GHdata.tab,'VNIR_GHOST_E','BINX',binx);
+A = crism_frame_rateTABformatter(rate,GHdata.tab,'VNIR_GHOST_A','BINX',binx);
+B = crism_frame_rateTABformatter(rate,GHdata.tab,'VNIR_GHOST_B','BINX',binx);
+C = crism_frame_rateTABformatter(rate,GHdata.tab,'VNIR_GHOST_C','BINX',binx);
+D = crism_frame_rateTABformatter(rate,GHdata.tab,'VNIR_GHOST_D','BINX',binx);
+E = crism_frame_rateTABformatter(rate,GHdata.tab,'VNIR_GHOST_E','BINX',binx);
 
 GHOST_DN = zeros([L,S,Bands]);
 for b=1:Bands
@@ -64,10 +63,10 @@ for b=1:Bands
 end
 
 % sum GHOST_DN
-x = get_quadrantPxl(1,'BINX',binx);
+x = crism_get_quadrantPxl(1,'BINX',binx);
 sumGHOST_DN = GHOST_DN(:,x,:);
 for i=2:4
-    x = get_quadrantPxl(i,'BINX',binx);
+    x = crism_get_quadrantPxl(i,'BINX',binx);
     sumGHOST_DN = sumGHOST_DN + GHOST_DN(:,x,:);
 end
 sumGHOST_DN = repmat(sumGHOST_DN,[1,4,1]);

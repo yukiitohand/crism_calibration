@@ -56,13 +56,12 @@ else
             case 'BK_MEAN_DN14'
                 bk_meanDN14 = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);
+                error('Unrecognized option: %s', varargin{i});
         end
     end
 end
 frame_rate = TRRIFdata.lbl.MRO_FRAME_RATE{1};
-rate_id = get_frame_rate_id(frame_rate);
+rate_id = crism_get_frame_rate_id(frame_rate);
 binx = TRRIFdata.lbl.PIXEL_AVERAGING_WIDTH;
 
 DN = EDRdata.readimg();

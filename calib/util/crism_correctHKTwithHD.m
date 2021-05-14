@@ -1,4 +1,4 @@
-function [hkt_corr] = correctHKTwithHD(hkt,HDdata)
+function [hkt_corr] = crism_correctHKTwithHD(hkt,HDdata)
 % 
 
 if isempty(HDdata.tab), HDdata.readTAB(); end;
@@ -25,7 +25,7 @@ for i=1:length(hk_names)
     
     % VNIR_SPHERE_COEFFICIENT (col 3)
     % Add this coefficient if hkt.data.VNIR_SPHERE_PWR
-    c3 = frame_rateTABformatter(rate,tab_sub,'VNIR_SPHERE_COEFFICIENT',...
+    c3 = crism_frame_rateTABformatter(rate,tab_sub,'VNIR_SPHERE_COEFFICIENT',...
                                 'COLUMNS',1);
     vnir_sphere_pwr = cat(1,hkt.data.VNIR_SPHERE_PWR);
     y3 = y + vnir_sphere_pwr .* c3;
@@ -33,7 +33,7 @@ for i=1:length(hk_names)
     % VNIR_FLOOD1_COEFFICIENT (col 4)
     % Add hkt.data.VNIR_Flood1_Level / (this coefficient)
     % if hkt.data.VNIR_FLOOD1_PWR
-    c4 = frame_rateTABformatter(rate,tab_sub,'VNIR_FLOOD1_COEFFICIENT',...
+    c4 = crism_frame_rateTABformatter(rate,tab_sub,'VNIR_FLOOD1_COEFFICIENT',...
                                 'COLUMNS',1);
     c4(c4==0) = inf;
     vnir_flood1_pwr = cat(1,hkt.data.VNIR_FLOOD1_PWR);
@@ -43,7 +43,7 @@ for i=1:length(hk_names)
     % VNIR_FLOOD2_COEFFICIENT (col 5)
     % Add hkt.data.VNIR_Flood2_Level / (this coefficient)
     % if hkt.data.VNIR_FLOOD2_PWR
-    c5 = frame_rateTABformatter(rate,tab_sub,'VNIR_FLOOD2_COEFFICIENT',...
+    c5 = crism_frame_rateTABformatter(rate,tab_sub,'VNIR_FLOOD2_COEFFICIENT',...
                                 'COLUMNS',1);
     c5(c5==0) = inf;
     vnir_flood2_pwr = cat(1,hkt.data.VNIR_FLOOD2_PWR);
@@ -52,7 +52,7 @@ for i=1:length(hk_names)
 
     % IR_SPHERE_COEFFICIENT (col 6)
     % Add this coefficient if hkt.data.IR_SPHERE_PWR
-    c6 = frame_rateTABformatter(rate,tab_sub,'IR_SPHERE_COEFFICIENT',...
+    c6 = crism_frame_rateTABformatter(rate,tab_sub,'IR_SPHERE_COEFFICIENT',...
                                 'COLUMNS',1);
     
     ir_sphere_pwr = cat(1,hkt.data.IR_SPHERE_PWR);
@@ -61,7 +61,7 @@ for i=1:length(hk_names)
     % IR_FLOOD1_COEFFICIENT (col 7)
     % Add hkt.data.IR_Flood1_Level / (this coefficient)
     % if hkt.data.IR_FLOOD1_PWR
-    c7 = frame_rateTABformatter(rate,tab_sub,'IR_FLOOD1_COEFFICIENT',...
+    c7 = crism_frame_rateTABformatter(rate,tab_sub,'IR_FLOOD1_COEFFICIENT',...
                                 'COLUMNS',1);
     c7(c7==0) = inf;
     ir_flood1_pwr = cat(1,hkt.data.IR_FLOOD1_PWR);
@@ -71,7 +71,7 @@ for i=1:length(hk_names)
     % IR_FLOOD2_COEFFICIENT (col 8)
     % Add hkt.data.IR_Flood2_Level / (this coefficient)
     % if hkt.data.IR_FLOOD2_PWR
-    c8 = frame_rateTABformatter(rate,tab_sub,'IR_FLOOD2_COEFFICIENT',...
+    c8 = crism_frame_rateTABformatter(rate,tab_sub,'IR_FLOOD2_COEFFICIENT',...
                                 'COLUMNS',1);
     c8(c8==0) = inf;
     ir_flood2_pwr = cat(1,hkt.data.IR_FLOOD2_PWR);
@@ -81,7 +81,7 @@ for i=1:length(hk_names)
     % COOLER1_LEVEL_COEFFICIENT (col 9)
     % Add hkt.data.IR_COOL1_LEVEL / (this coefficient)
     % if hkt.data.IR_COOL1_PWR
-    c9 = frame_rateTABformatter(rate,tab_sub,'COOLER1_LEVEL_COEFFICIENT',...
+    c9 = crism_frame_rateTABformatter(rate,tab_sub,'COOLER1_LEVEL_COEFFICIENT',...
                                 'COLUMNS',1);
     c9(c9==0) = inf;
     ir_cool1_pwr = cat(1,hkt.data.IR_COOL1_PWR);
@@ -91,7 +91,7 @@ for i=1:length(hk_names)
     % COOLER2_LEVEL_COEFFICIENT (col 10)
     % Add hkt.data.IR_COOL2_LEVEL / (this coefficient)
     % if hkt.data.IR_COOL2_PWR
-    c10 = frame_rateTABformatter(rate,tab_sub,'COOLER2_LEVEL_COEFFICIENT',...
+    c10 = crism_frame_rateTABformatter(rate,tab_sub,'COOLER2_LEVEL_COEFFICIENT',...
                                 'COLUMNS',1);
     c10(c10==0) = inf;
     ir_cool2_pwr = cat(1,hkt.data.IR_COOL2_PWR);
@@ -101,7 +101,7 @@ for i=1:length(hk_names)
     % COOLER3_LEVEL_COEFFICIENT (col 11)
     % Add hkt.data.IR_COOL3_LEVEL / (this coefficient)
     % if hkt.data.IR_COOL3_PWR
-    c11 = frame_rateTABformatter(rate,tab_sub,'COOLER3_LEVEL_COEFFICIENT',...
+    c11 = crism_frame_rateTABformatter(rate,tab_sub,'COOLER3_LEVEL_COEFFICIENT',...
                                 'COLUMNS',1);
     c11(c11==0) = inf;
     ir_cool3_pwr = cat(1,hkt.data.IR_COOL3_PWR);
@@ -110,7 +110,7 @@ for i=1:length(hk_names)
 
     % VNIR_EXPOSURE_COEFFICIENT (col 12)
     % Add (1-480) hkt.data.VNIR_EXPOSE / (this coefficient)
-    c12 = frame_rateTABformatter(rate,tab_sub,'VNIR_EXPOSURE_COEFFICIENT',...
+    c12 = crism_frame_rateTABformatter(rate,tab_sub,'VNIR_EXPOSURE_COEFFICIENT',...
                                 'COLUMNS',1);
     c12(c12==0) = inf;
     vnir_expose = cat(1,hkt.data.VNIR_EXPOSE);
@@ -118,7 +118,7 @@ for i=1:length(hk_names)
 
     % IR_EXPOSURE_COEFFICIENT (col 13)
     % Add (1-480) hkt.data.IR_EXPOSE / (this coefficient)
-    c13 = frame_rateTABformatter(rate,tab_sub,'IR_EXPOSURE_COEFFICIENT',...
+    c13 = crism_frame_rateTABformatter(rate,tab_sub,'IR_EXPOSURE_COEFFICIENT',...
                                 'COLUMNS',1);
     c13(c13==0) = inf;
     ir_expose = cat(1,hkt.data.IR_EXPOSE);
@@ -126,19 +126,19 @@ for i=1:length(hk_names)
 
     % FRAMERATE_COMPENSATION_OFFSET (col 14)
     % Add this offset to counts
-    offset = frame_rateTABformatter(rate,tab_sub,'FRAMERATE_COMPENSATION_OFFSET',...
+    offset = crism_frame_rateTABformatter(rate,tab_sub,'FRAMERATE_COMPENSATION_OFFSET',...
                                 'COLUMNS',1);
     y14 = y13 + offset;
 
     % FRAMERATE_COMPENSATION_SLOPE (col 15)
     % Multiply counts by this coefficient
-    slope = frame_rateTABformatter(rate,tab_sub,'FRAMERATE_COMPENSATION_SLOPE',...
+    slope = crism_frame_rateTABformatter(rate,tab_sub,'FRAMERATE_COMPENSATION_SLOPE',...
                                 'COLUMNS',1);
     y15 = y14 .* slope;
 
     % FRAMERATE_COMPENSATION_CURV (col 16)
     % Multiply counts^2 by this coefficient and add to counts
-    curv_cff = frame_rateTABformatter(rate,tab_sub,'FRAMERATE_COMPENSATION_CURV',...
+    curv_cff = crism_frame_rateTABformatter(rate,tab_sub,'FRAMERATE_COMPENSATION_CURV',...
                                 'COLUMNS',1);
 %     y16 = y15 + curv_cff .* y15.^2;
     y16 = offset + y13 .* slope + curv_cff .* y13.^2;

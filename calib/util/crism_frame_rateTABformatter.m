@@ -1,5 +1,5 @@
-function [datafrmtd] = frame_rateTABformatter(rate,tab,colname,varargin)
-% [datafrmtd] = frame_rateTABformatter(rate,tab,colname)
+function [datafrmtd] = crism_frame_rateTABformatter(rate,tab,colname,varargin)
+% [datafrmtd] = crism_frame_rateTABformatter(rate,tab,colname,varargin)
 %   format a column (colname) of the CRISM TAB data with columns defined 
 %   as 'FRAME_RATE', and something, like
 %     0,  0.00000, -0.0004, -0.00045,  100.0,   0.00
@@ -38,7 +38,7 @@ else
         switch upper(varargin{i})
             case 'BINNING'
                 binning = varargin{i+1};
-                binx = get_binning(binning);
+                binx = crism_get_binning(binning);
                 columns = columns/binx;
             case 'BINX'
                 binx = varargin{i+1};

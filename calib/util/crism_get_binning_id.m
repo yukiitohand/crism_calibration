@@ -1,5 +1,5 @@
-function [binning_id] = get_binning_id(binx)
-% [binng_id] = get_binning_id(binx)
+function [binning_id] = crism_get_binning_id(binx)
+% [binning_id] = crism_get_binning_id(binx)
 % 
 
 switch binx

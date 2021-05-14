@@ -64,7 +64,7 @@ for i=1:length(EDRBIdataList)
     frame_rate = EDRBIdataList(i).lbl.MRO_FRAME_RATE{1};
     integ = EDRBIdataList(i).lbl.MRO_EXPOSURE_PARAMETER;
     integ_list(i) = integ;
-    [t] = get_integrationTime(integ,frame_rate,'Hz');
+    [t] = crism_get_integrationTime(integ,frame_rate,'Hz');
     expo_timeList(i) = t;
 end
 
@@ -102,8 +102,8 @@ term_a0IList = [];
 for i=1:length(EDRBIdataList)
     binx = EDRBIdataList(i).lbl.PIXEL_AVERAGING_WIDTH;
     hkt = EDRBIdataList(i).readHKT();
-    hkt = correctHKTwithHD(hkt,HDdata);
-    hkt = correctHKTwithHK(hkt,HKdata);
+    hkt = crism_correctHKTwithHD(hkt,HDdata);
+    hkt = crism_correctHKTwithHK(hkt,HKdata);
     rate = cat(1,hkt.data.RATE);
     rate = unique(rate);
     if length(rate)>1

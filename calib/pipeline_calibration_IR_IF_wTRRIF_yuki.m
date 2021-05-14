@@ -198,7 +198,7 @@ EDRdata.download(dwld,'Force',force_dwld);
 
 %-------------------------------------------------------------------------%
 % get DFdata
-[DFdata1,DFdata2] = get_DFdata4SC(EDRdata,crism_obs);
+[DFdata1,DFdata2] = crism_get_DFdata4SC(EDRdata,crism_obs);
 if isempty(DFdata2)
     DFdata2 = DFdata1;
 end

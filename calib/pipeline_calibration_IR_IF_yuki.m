@@ -70,13 +70,12 @@ else
             case 'FLAT_FIELD'
                 flat_field = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);
+                error('Unrecognized option: %s', varargin{i});
         end
     end
 end
 frame_rate = EDRdata.lbl.MRO_FRAME_RATE.value;
-rate_id = get_frame_rate_id(frame_rate);
+rate_id = crism_get_frame_rate_id(frame_rate);
 binx = EDRdata.lbl.PIXEL_AVERAGING_WIDTH;
 
 DN = EDRdata.readimg();
@@ -112,8 +111,8 @@ end
 % HKdata = TRRIFdata.readCDR('HK');
 % TRRIFdata.readHKT(); hkt = TRRIFdata.hkt;
 hkt = EDRdata.readHKT();
-hkt = correctHKTwithHD(hkt,HDdata);
-hkt = correctHKTwithHK(hkt,HKdata);
+hkt = crism_correctHKTwithHD(hkt,HDdata);
+hkt = crism_correctHKTwithHK(hkt,HKdata);
 % using Temperature recorded in the label in TRR I/F data 
 % [ DN14a,BI_m ] = subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,TRRIFdata.lbl );
 [ DN14a,BI_m ] = subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,'BINX',binx);
@@ -218,12 +217,12 @@ end
 %%
 %-------------------------------------------------------------------------%
 % background subtraction
-hkt_df1 = DFdata1.readHKT();
-hkt_df1c = correctHKTwithHD(hkt_df1,HDdata);
-hkt_df1cc = correctHKTwithHK(hkt_df1c,HKdata);
-hkt_df2 = DFdata2.readHKT();
-hkt_df2c = correctHKTwithHD(hkt_df2,HDdata);
-hkt_df2cc = correctHKTwithHK(hkt_df2c,HKdata);
+hkt_df1   = DFdata1.readHKT();
+hkt_df1c  = crism_correctHKTwithHD(hkt_df1,HDdata);
+hkt_df1cc = crism_correctHKTwithHK(hkt_df1c,HKdata);
+hkt_df2   = DFdata2.readHKT();
+hkt_df2c  = crism_correctHKTwithHD(hkt_df2,HDdata);
+hkt_df2cc = crism_correctHKTwithHK(hkt_df2c,HKdata);
 switch bkoption
     case 1
         [ RT14h,Bkgd ] = background_subtraction( RT14g,BKdata1,BKdata2,hkt );

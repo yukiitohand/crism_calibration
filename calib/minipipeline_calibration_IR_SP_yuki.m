@@ -93,10 +93,10 @@ else
         switch upper(varargin{i})
             case 'BINNING_SP'
                 binning_sp = varargin{i+1};
-                binx_sp = get_binning(binning_sp);
+                binx_sp = crism_get_binning(binning_sp);
             case 'BINX_SP'
                 binx_sp = varargin{i+1};
-                binning_sp = get_binning_id(binx_sp);
+                binning_sp = crism_get_binning_id(binx_sp);
             case 'SAVE_MEMORY'
                 save_mem = varargin{i+1};
             case 'APBPRMVL'
@@ -121,8 +121,7 @@ else
             case 'SPDATA_REF'
                 SPdata_ref = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);
+                error('Unrecognized option: %s', varargin{i});
         end
     end
 end
@@ -131,7 +130,7 @@ end
 % actual processing
 %-------------------------------------------------------------------------%
 frame_rate = EDRSPdata.lbl.MRO_FRAME_RATE.value;
-rate_id = get_frame_rate_id(frame_rate);
+rate_id = crism_get_frame_rate_id(frame_rate);
 % binx_sp = binx_sp;
 % binx = EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH;
 
@@ -158,8 +157,8 @@ end
 %-------------------------------------------------------------------------%
 % second step (subtract bias)
 hkt = EDRSPdata.readHKT();
-hkt = correctHKTwithHD(hkt,HDdata);
-hkt = correctHKTwithHK(hkt,HKdata);
+hkt = crism_correctHKTwithHD(hkt,HDdata);
+hkt = crism_correctHKTwithHK(hkt,HKdata);
 % using Temperature recorded in the label in TRR I/F data 
 %[ DN14a,BI_m ] = subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,[],'BINX',binx);
 [ DN14a,BI_m ] = subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,'BINX',binx_sp);
@@ -265,12 +264,12 @@ end
     BPdata2,GHdata,VLdata,LCdata,'SATURATION_RMVL',bk_saturation_rmvl,'BPRMVL',bk_bprmvl,...
     'MEAN_ROBUST',bk_mean_robust,'MEAN_DN14',bk_mean_DN14,...
     'binning_bk',binning_sp);
-hkt_df1 = DFdata1.readHKT();
-hkt_df1c = correctHKTwithHD(hkt_df1,HDdata);
-hkt_df1cc = correctHKTwithHK(hkt_df1c,HKdata);
-hkt_df2 = DFdata2.readHKT();
-hkt_df2c = correctHKTwithHD(hkt_df2,HDdata);
-hkt_df2cc = correctHKTwithHK(hkt_df2c,HKdata);
+hkt_df1   = DFdata1.readHKT();
+hkt_df1c  = crism_correctHKTwithHD(hkt_df1,HDdata);
+hkt_df1cc = crism_correctHKTwithHK(hkt_df1c,HKdata);
+hkt_df2   = DFdata2.readHKT();
+hkt_df2c  = crism_correctHKTwithHD(hkt_df2,HDdata);
+hkt_df2cc = crism_correctHKTwithHK(hkt_df2c,HKdata);
 %%
 %-------------------------------------------------------------------------%
 % background subtraction

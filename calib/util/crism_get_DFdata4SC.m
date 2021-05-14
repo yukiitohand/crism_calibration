@@ -1,5 +1,5 @@
-function [DFdata1,DFdata2] = get_DFdata4SC(EDRdata,crism_obs)
-% [DFdata1,DFdata2] = get_DFdata4SC(EDRdata,crism_obs)
+function [DFdata1,DFdata2] = crism_get_DFdata4SC(EDRdata,crism_obs)
+% [DFdata1,DFdata2] = crism_get_DFdata4SC(EDRdata,crism_obs)
 % switch EDRdata.lbl.OBSERVATION_TYPE
 %     case {'FRT','HRL','HRS'}
 %         obs_counter_sc = 7;

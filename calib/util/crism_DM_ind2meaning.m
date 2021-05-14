@@ -1,4 +1,4 @@
-function [meaning] = DM_ind2meaning(dm_id)
+function [meaning] = crism_DM_ind2meaning(dm_id)
 
 switch dm_id
     case 0

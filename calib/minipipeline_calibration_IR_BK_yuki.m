@@ -46,10 +46,10 @@ bprmvl = false;
 mean_DN14 = true;
 
 frame_rate = DFdata.lbl.MRO_FRAME_RATE.value;
-rate_id = get_frame_rate_id(frame_rate);
+rate_id = crism_get_frame_rate_id(frame_rate);
 binx = DFdata.lbl.PIXEL_AVERAGING_WIDTH;
 binx_bk = binx;
-binning_bk = get_binning_id(binx_bk);
+binning_bk = crism_get_binning_id(binx_bk);
 
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
@@ -58,10 +58,10 @@ else
         switch upper(varargin{i})
             case 'BINNING_BK'
                 binning_bk = varargin{i+1};
-                binx_bk = get_binning(binning_bk);
+                binx_bk = crism_get_binning(binning_bk);
             case 'BINX_BK'
                 binx_bk = varargin{i+1};
-                binning_bk = get_binning_id(binx_bk);
+                binning_bk = crism_get_binning_id(binx_bk);
             case 'SATURATION_RMVL'
                 saturation_rmvl = varargin{i+1};
             case 'BPRMVL'
@@ -71,8 +71,7 @@ else
             case 'MEAN_DN14'
                 mean_DN14 = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);
+                error('Unrecognized option: %s', varargin{i});
         end
     end
 end
@@ -101,8 +100,8 @@ rownum_table_df = DFdata.read_ROWNUM_TABLE();
 %-------------------------------------------------------------------------%
 % second step (subtract bias)
 hkt_df = DFdata.readHKT();
-hkt_dfc = correctHKTwithHD(hkt_df,HDdata);
-hkt_dfcc = correctHKTwithHK(hkt_dfc,HKdata);
+hkt_dfc  = crism_correctHKTwithHD(hkt_df,HDdata);
+hkt_dfcc = crism_correctHKTwithHK(hkt_dfc,HKdata);
 [ DN14a_df,BI_m_df ] = subtract_bias( DN14_df,BIdata,BSdata,DBdata,EBdata,...
     hkt_dfcc,rownum_table_df,'BINX',binx_bk );
 

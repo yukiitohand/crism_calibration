@@ -1,6 +1,6 @@
-function [frame_rate_id] = get_frame_rate_id(frame_rateHz)
-% [frame_rate_id] = get_frame_rate_id(frame_rateHz)
-% get_frame_rate_id from given frame_rate
+function [frame_rate_id] = crism_get_frame_rate_id(frame_rateHz)
+% [frame_rate_id] = crism_get_frame_rate_id(frame_rateHz)
+% crism_get_frame_rate_id from given frame_rate
 
 %   rate  rateHz[Hz]
 %      0       1

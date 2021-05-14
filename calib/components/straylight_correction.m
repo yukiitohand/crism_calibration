@@ -17,11 +17,10 @@ else
         switch upper(varargin{i})
             case 'BINNING'
                 binning = varargin{i+1};
-                binx = get_binning(binning);
+                binx = crism_get_binning(binning);
             case 'BINX'
                 binx = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
                 error('Unrecognized option: %s',varargin{i});   
         end
     end
@@ -87,11 +86,11 @@ if L==1
     SL(:,:,blt563) = SW.*RT14h_ab_mean(:,:,blt563);
 else
     % SL(:,:,blt563) = SW.*RT14h_ab_mean(:,:,blt563);
-    SL(:,:,blt563) = movemean_robust(SW.*RT14h_ab_mean(:,:,blt563),1);
+    SL(:,:,blt563) = crmcal_movemean_robust(SW.*RT14h_ab_mean(:,:,blt563),1);
 end
-% SL(:,:,:) = movemean_robust(SW.*RT14h_ab_mean(:,:,:),1);
+% SL(:,:,:) = crmcal_movemean_robust(SW.*RT14h_ab_mean(:,:,:),1);
 
-% RT14i(:,:,blt563) = RT14h(:,:,blt563) - movemean_robust(SW.*RT14h_ab_mean(:,:,blt563),1);
+% RT14i(:,:,blt563) = RT14h(:,:,blt563) - crmcal_movemean_robust(SW.*RT14h_ab_mean(:,:,blt563),1);
 
 %%
 %-------------------------------------------------------------------------%
@@ -141,9 +140,9 @@ if L==1
     SL(:,:,bgt563) = CS(:,:,bgt563).*RT14h_ab_mean(:,:,bgt563);
 else
     % SL(:,:,bgt563) = CS(:,:,bgt563).*RT14h_ab_mean(:,:,bgt563);
-    SL(:,:,bgt563) = movemean_robust(CS(:,:,bgt563).*RT14h_ab_mean(:,:,bgt563),1);
+    SL(:,:,bgt563) = crmcal_movemean_robust(CS(:,:,bgt563).*RT14h_ab_mean(:,:,bgt563),1);
 end
-% SL = movemean_robust(CS(:,:,:).*RT14h_ab_mean(:,:,:),1);
+% SL = crmcal_movemean_robust(CS(:,:,:).*RT14h_ab_mean(:,:,:),1);
 
 %%
 RT14i = RT14h - SL;

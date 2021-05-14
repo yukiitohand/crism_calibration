@@ -38,7 +38,7 @@ else
             case 'BINX'
                 binx = varargin{i+1};
             otherwise
-                error(['Unrecognized option: %s', varargin{i});   
+                error('Unrecognized option: %s', varargin{i});   
         end
     end
 end

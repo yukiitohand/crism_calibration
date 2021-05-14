@@ -1,5 +1,5 @@
-function [ DN14g ] = nonlinearity_correction( DN14e,LCdata,hkt,varargin )
-% [ DN14g ] = nonlinearity_correction( DN14b,LCdata )
+function [ DN14g ] = crmcal_nonlinearity_correction( DN14e,LCdata,hkt,varargin )
+% [ DN14g ] = crmcal_nonlinearity_correction( DN14e,LCdata,hkt,varargin )
 %  The forth step of the calibration: nonliearity correcion
 %  Input Parameters
 %    DN14e  : 14bit DN image (L,S,B) quadrant ghost corrected

@@ -202,8 +202,8 @@ DMdata_SP = crism_searchCDR4mrb('DM',SPdata.prop.sclk,'sensor_id','S',...
 RT14j_woc_bn = crism_bin_image_frames(RT14j_woc,'binning',SPdata.prop.binning);
 RT14j_bn = crism_bin_image_frames(RT14j,'binning',SPdata.prop.binning);
 
-RT14j_woc_bn = apply_DM(RT14j_woc_bn,DMdata_SP);
-RT14j_bn = apply_DM(RT14j_bn,DMdata_SP);
+RT14j_woc_bn = crmcal_apply_DM(RT14j_woc_bn,DMdata_SP);
+RT14j_bn     = crmcal_apply_DM(RT14j_bn,DMdata_SP);
 
 %-------------------------------------------------------------------------%
 % post processing
@@ -216,7 +216,7 @@ SHdata = crism_searchCDR4mrb('SH',SPdata.prop.sclk,'sensor_id','S',...
 % SHdata = TRRIFdata.readCDR('SH');
 SPdata_o = CRISMdata(SPdata.basename,'');
 SPdata_o.img = RT14j_woc_bn;
-[MP] = calculate_MP(SPdata_o,SSdata,SHdata);
+[MP] = crmcal_calculate_MP(SPdata_o,SSdata,SHdata);
 
 SHdata.readimg();
 SC = SHdata.img(2,:,:);

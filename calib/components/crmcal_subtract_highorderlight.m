@@ -1,5 +1,5 @@
-function [RT14j,K] = subtract_highorderlight(RT14i,LLdata)
-% [RT14j] = subtract_highorderlight(RT14i,LLdata)
+function [RT14j,K] = crmcal_subtract_highorderlight(RT14i,LLdata)
+% [RT14j,K] = crmcal_subtract_highorderlight(RT14i,LLdata)
 %  The ** step of the calibration: subtract high order light
 %  Input Parameters
 %    RT14i  : 14bit RT [counts/milliseconds] image (L,S,B) 

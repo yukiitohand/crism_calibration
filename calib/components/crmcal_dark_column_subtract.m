@@ -1,5 +1,5 @@
-function [RT14h2,dc] = dark_column_subtract(RT14h,DMdata)
-% [RT14h2,dc] = dark_column_subtract(RT14h,DMdata)
+function [RT14h2,dc] = crmcal_dark_column_subtract(RT14h,DMdata)
+% [RT14h2,dc] = crmcal_dark_column_subtract(RT14h,DMdata)
 %  subtract median of dark columns. The pixel of the dark columns are
 %  specified by detector mask (CRISM DM data)
 %   Input Parameters
@@ -9,7 +9,7 @@ function [RT14h2,dc] = dark_column_subtract(RT14h,DMdata)
 %    RT14h2: image dark column subtracted
 %    dc: median of dark column
 
-if isempty(DMdata.img), DMdata.readimg(); end;
+if isempty(DMdata.img), DMdata.readimg(); end
 
 [L,S,B] = size(RT14h);
 darkMask = double(DMdata.img == 2);

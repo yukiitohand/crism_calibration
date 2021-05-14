@@ -1,5 +1,5 @@
-function [RDn] = apply_DM(RDm,DMdata,varargin)
-% [RSPl] = apply_DM(RDm,DM)
+function [RDn] = crmcal_apply_DM(RDm,DMdata,varargin)
+% [RDn] = crmcal_apply_DM(RDm,DMdata,varargin)
 %  apply the detector mask defined in (CDR DM data).
 %   Input
 %     RDm   : radiance cube (L x S x B)
@@ -20,15 +20,14 @@ else
             case 'MISSING_CONSTANT'
                 missing_constant = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);
+                error('Unrecognized option: %s', varargin{i});
         end
     end
 end
 
 [L,~,~] = size(RDm);
 
-if isempty(DMdata.img), DMdata.readimg(); end;
+if isempty(DMdata.img), DMdata.readimg(); end
 
 mask = DMdata.img;
 

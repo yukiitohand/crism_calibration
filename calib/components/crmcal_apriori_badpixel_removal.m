@@ -1,5 +1,5 @@
-function [ DN14c,BP ] = apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,varargin )
-% [ DN14c ] = apriori_badpixel_removal( DN14b,BPdata1,BPdata2 )
+function [ DN14c,BP ] = crmcal_apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,varargin )
+% [ DN14c,BP ] = crmcal_apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,varargin )
 %  Apply a priori bad pixel removal
 %  Input parameters:
 %    DN14b   : 14bit DN image (L,S,B) processed until quadratic ghost
@@ -22,8 +22,7 @@ else
             case 'INTERPOPT'
                 interpOpt = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);
+                error('Unrecognized option: %s', varargin{i});
         end
     end
 end

@@ -1,5 +1,5 @@
-function [RT14jj,mask_dead] = deadpixel_removal_VNIR(RT14j,VLdata,DMdata,varargin)
-% [RT14jj,mask_dead] = deadpixel_removal_VNIR(RT14j,VLdata,DMdata,varargin)
+function [RT14jj,mask_dead] = crmcal_deadpixel_removal_VNIR(RT14j,VLdata,DMdata,varargin)
+% [RT14jj,mask_dead] = crmcal_deadpixel_removal_VNIR(RT14j,VLdata,DMdata,varargin)
 %   Mask and replace dead pixels with nans. Sphere measurement only. Only
 %   scene pixels are evaluated. for VNIR
 %  INPUTS
@@ -61,7 +61,7 @@ VNIR_SENSITIVITY_LIMIT = crism_rateQuadrantTABformatter(rate_id,VLdata.tab,'VNIR
 
 
 % next detect dead pixels
-[RT14j_dm] = apply_DM(RT14j,DMdata);
+RT14j_dm     = crmcal_apply_DM(RT14j,DMdata);
 RT14j_dm_ext = reshape(RT14j_dm,[L*S,B]);
 RT14j_dm_med = reshape(nanmedian(RT14j_dm_ext,1),[1,1,B]);
 mask_dead = RT14j_dm < (VNIR_SENSITIVITY_LIMIT.*RT14j_dm_med);

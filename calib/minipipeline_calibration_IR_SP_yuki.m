@@ -149,7 +149,7 @@ end
 rownum_table = EDRSPdata.read_ROWNUM_TABLE();
 %-------------------------------------------------------------------------%
 % first step (DN12 --> DN14)
-[ DN14 ] = DN12toDN14( DN,PPdata,rownum_table );
+[ DN14 ] = crmcal_DN12toDN14( DN,PPdata,rownum_table );
 
 if save_mem
     clear DN;
@@ -160,14 +160,14 @@ hkt = EDRSPdata.readHKT();
 hkt = crism_correctHKTwithHD(hkt,HDdata);
 hkt = crism_correctHKTwithHK(hkt,HKdata);
 % using Temperature recorded in the label in TRR I/F data 
-%[ DN14a,BI_m ] = subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,[],'BINX',binx);
-[ DN14a,BI_m ] = subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,'BINX',binx_sp);
+%[ DN14a,BI_m ] = crmcal_subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,[],'BINX',binx);
+[ DN14a,BI_m ] = crmcal_subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,'BINX',binx_sp);
 if save_mem
     clear DN14;
 end
 %-------------------------------------------------------------------------%
 % the third step (remove detector quadrant electronics ghost)
-[ DN14b,sumGhost ] = remove_quadrantGhost( DN14a,GHdata,hkt,'BINX',binx_sp );
+[ DN14b,sumGhost ] = crmcal_remove_quadrantGhost( DN14a,GHdata,hkt,'BINX',binx_sp );
 if save_mem
     clear DN14a;
 end
@@ -190,7 +190,7 @@ switch saturation_rmvl
         DN14c(flg_dsat) = nan;
     case 2
         % analogue saturation is also dealt with
-        [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,flg_dsat,...
+        [DN14c,mask_saturation] = crmcal_saturation_removal(DN14b,VLdata,flg_dsat,...
         'binx',binx_sp,'rate_id',rate_id);
     otherwise
         error('Saturation option %d is not defined',saturation_rmvl);
@@ -198,7 +198,7 @@ end
 % if bk_saturation_rmvl
 % %     DN14d = DN14c;
 % %     DN14d(flg_saturation) = nan;
-%     [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,flg_dsat,...
+%     [DN14c,mask_saturation] = crmcal_saturation_removal(DN14b,VLdata,flg_dsat,...
 %         'binx',binx,'rate_id',rate_id);
 %     %DN14c_woc = DN14b;
 %     %DN14d_woc(flg_saturation) = nan;
@@ -208,7 +208,7 @@ end
 % apply bad a priori pixel interpolation
 switch upper(apbprmvl)
     case 'HIGHORD'
-        [ DN14d,BP ] = apriori_badpixel_removal( DN14c,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
+        [ DN14d,BP ] = crmcal_apriori_badpixel_removal( DN14c,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
     case 'NONE'
         DN14d = DN14c;
 end
@@ -234,18 +234,18 @@ end
 
 %-------------------------------------------------------------------------%
 % fourth step (nonlinearity correction)
-[ DN14g ] = nonlinearity_correction( DN14e,LCdata,hkt,'BINX',binx_sp );
-[ DN14g_woc ] = nonlinearity_correction( DN14e_woc,LCdata,hkt,'BINX',binx_sp );
+[ DN14g ]     = crmcal_nonlinearity_correction( DN14e,LCdata,hkt,'BINX',binx_sp );
+[ DN14g_woc ] = crmcal_nonlinearity_correction( DN14e_woc,LCdata,hkt,'BINX',binx_sp );
 if save_mem
     clear DN14c DN14b;
 end
 
 %-------------------------------------------------------------------------%
 % fifth step (division by exposure time)
-[ RT14g ] = divide_by_integrationTime( DN14g,hkt );
-[ RT14g_woc ] = divide_by_integrationTime( DN14g_woc,hkt );
-% [ RT14g ] = divide_by_integrationTime( DN14c,hkt );
-% [ RT14g_woc ] = divide_by_integrationTime( DN14b,hkt );
+[ RT14g ]     = crmcal_divide_by_integrationTime( DN14g,hkt );
+[ RT14g_woc ] = crmcal_divide_by_integrationTime( DN14g_woc,hkt );
+% [ RT14g ]     = crmcal_divide_by_integrationTime( DN14c,hkt );
+% [ RT14g_woc ] = crmcal_divide_by_integrationTime( DN14b,hkt );
 if save_mem
     clear DN14g DN14g_woc;
 end
@@ -275,15 +275,15 @@ hkt_df2cc = crism_correctHKTwithHK(hkt_df2c,HKdata);
 % background subtraction
 switch bkoption
     case 1
-        [ RT14h,Bkgd ] = background_subtraction( RT14g,BKdata1,BKdata2,hkt );
-        [ RT14h_woc ] = background_subtraction( RT14g_woc,BKdata1_o,BKdata2_o,hkt );
-        [ RT14h_bk1_o ] = background_subtraction( RT14g_df1,BKdata1_o,BKdata2_o,hkt_df1cc );
-        [ RT14h_bk2_o ] = background_subtraction( RT14g_df2,BKdata1_o,BKdata2_o,hkt_df2cc );
+        [ RT14h,Bkgd ]  = crmcal_background_subtraction( RT14g,BKdata1,BKdata2,hkt );
+        [ RT14h_woc ]   = crmcal_background_subtraction( RT14g_woc,BKdata1_o,BKdata2_o,hkt );
+        [ RT14h_bk1_o ] = crmcal_background_subtraction( RT14g_df1,BKdata1_o,BKdata2_o,hkt_df1cc );
+        [ RT14h_bk2_o ] = crmcal_background_subtraction( RT14g_df2,BKdata1_o,BKdata2_o,hkt_df2cc );
     case 2
-        [ RT14h,Bkgd ] = background_subtraction_v2( RT14g,BKdata1,BKdata2,hkt );
-        [ RT14h_woc ] = background_subtraction_v2( RT14g_woc,BKdata1_o,BKdata2_o,hkt );
-        [ RT14h_bk1_o ] = background_subtraction_v2( RT14g_df1,BKdata1_o,BKdata2_o,hkt_df1cc );
-        [ RT14h_bk2_o ] = background_subtraction_v2( RT14g_df2,BKdata1_o,BKdata2_o,hkt_df2cc );
+        [ RT14h,Bkgd ]  = crmcal_background_subtraction_v2( RT14g,BKdata1,BKdata2,hkt );
+        [ RT14h_woc ]   = crmcal_background_subtraction_v2( RT14g_woc,BKdata1_o,BKdata2_o,hkt );
+        [ RT14h_bk1_o ] = crmcal_background_subtraction_v2( RT14g_df1,BKdata1_o,BKdata2_o,hkt_df1cc );
+        [ RT14h_bk2_o ] = crmcal_background_subtraction_v2( RT14g_df2,BKdata1_o,BKdata2_o,hkt_df2cc );
 end
 if save_mem
     clear RT14g RT14g_woc;
@@ -291,19 +291,19 @@ end
 %-------------------------------------------------------------------------%
 % dark column subtract
 % I think additional dark column subtract is applied somewhere
-[RT14h2,dc] = dark_column_subtract(RT14h,DMdata);
-[RT14h2_woc,dc] = dark_column_subtract(RT14h_woc,DMdata);
-[RT14h2_bk1_o,dc_bk1] = dark_column_subtract(RT14h_bk1_o,DMdata);
-[RT14h2_bk2_o,dc_bk2] = dark_column_subtract(RT14h_bk2_o,DMdata);
+[RT14h2,dc]           = crmcal_dark_column_subtract(RT14h,DMdata);
+[RT14h2_woc,dc]       = crmcal_dark_column_subtract(RT14h_woc,DMdata);
+[RT14h2_bk1_o,dc_bk1] = crmcal_dark_column_subtract(RT14h_bk1_o,DMdata);
+[RT14h2_bk2_o,dc_bk2] = crmcal_dark_column_subtract(RT14h_bk2_o,DMdata);
 % if save_mem
 %     clear RT14h RT14h_woc;
 % end
 
 %-------------------------------------------------------------------------%
 % second order light removal
-[RT14j,K] = subtract_highorderlight(RT14h2,LLdata);
+[RT14j,K] = crmcal_subtract_highorderlight(RT14h2,LLdata);
 RT14j_woc = RT14h2_woc - K;
-% [RT14j,K] = subtract_highorderlight(RT14h,LLdata);
+% [RT14j,K] = crmcal_subtract_highorderlight(RT14h,LLdata);
 % RT14j_woc = RT14h_woc - K;
 if save_mem
     clear RT14h2 RT14h2_woc;
@@ -311,8 +311,8 @@ end
 
 %-------------------------------------------------------------------------%
 % dead pixel removal
-[RT14jj,mask_dead] = deadpixel_removal(RT14j,VLdata,DMdata,'binx',binx_sp,'rate_id',rate_id);
-[RT14jj_woc,mask_dead] = deadpixel_removal(RT14j_woc,VLdata,DMdata,'binx',binx_sp,'rate_id',rate_id);
+[RT14jj,mask_dead]     = crmcal_deadpixel_removal(RT14j,VLdata,DMdata,'binx',binx_sp,'rate_id',rate_id);
+[RT14jj_woc,mask_dead] = crmcal_deadpixel_removal(RT14j_woc,VLdata,DMdata,'binx',binx_sp,'rate_id',rate_id);
 
 %-------------------------------------------------------------------------%
 % mean if 

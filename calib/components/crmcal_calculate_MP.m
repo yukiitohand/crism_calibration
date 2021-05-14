@@ -1,5 +1,5 @@
-function [MP] = calculate_MP(SPdataVNIR,SSdataVNIR,SHdataVNIR)
-% [MP] = calculate_MP(SSdata,SPdataVNIR,SHdata)
+function [MP] = crmcal_calculate_MP(SPdataVNIR,SSdataVNIR,SHdataVNIR)
+% [MP] = crmcal_calculate_MP(SPdataVNIR,SSdataVNIR,SHdataVNIR)
 %  calculate mirror parameter (MP) for Shutter mirror nonrepeatability
 %  correction.
 %   Input
@@ -20,9 +20,9 @@ propSH = crism_getProp_basenameCDR4(SHdataVNIR.basename);
 propSP = crism_getProp_basenameCDR4(SPdataVNIR.basename);
 propSS = crism_getProp_basenameCDR4(SSdataVNIR.basename);
 
-if isempty(SSdataVNIR.img), SSdataVNIR.readimg(); end;
-if isempty(SPdataVNIR.img), SPdataVNIR.readimg(); end;
-if isempty(SHdataVNIR.img), SHdataVNIR.readimg(); end;
+if isempty(SSdataVNIR.img), SSdataVNIR.readimg(); end
+if isempty(SPdataVNIR.img), SPdataVNIR.readimg(); end
+if isempty(SHdataVNIR.img), SHdataVNIR.readimg(); end
 
 DGS14 = SHdataVNIR.img(1,:,:);
 exptm = crism_get_integrationTime(SHdataVNIR.lbl.MRO_EXPOSURE_PARAMETER,...

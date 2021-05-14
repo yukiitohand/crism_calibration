@@ -1,5 +1,5 @@
-function [RT14j,K] = subtract_highorderlight_v2(RT14i,LLdata,BP,DN,d,GP_all)
-% [RT14j] = subtract_highorderlight_v2(RT14i,LLdata,BP)
+function [RT14j,K] = crmcal_subtract_highorderlight_v2(RT14i,LLdata,BP,DN,d,GP_all)
+% [RT14j,K] = crmcal_subtract_highorderlight_v2(RT14i,LLdata,BP,DN,d,GP_all)
 %  The ** step of the calibration: subtract high order light
 %  Input Parameters
 %    RT14i  : 14bit RT [counts/milliseconds] image (L,S,B) 
@@ -13,8 +13,8 @@ function [RT14j,K] = subtract_highorderlight_v2(RT14i,LLdata,BP,DN,d,GP_all)
 %   section 2.12 in "CRISM_DPSIS_Appendix_L_v5_2016-09-01.pdf" and CDR LL
 %   data.
 
-if isempty(LLdata.img), LLdata.readimg(); end;
-if isempty(LLdata.ROWNUM_TABLE), LLdata.read_ROWNUM_TABLE(); end;
+if isempty(LLdata.img), LLdata.readimg(); end
+if isempty(LLdata.ROWNUM_TABLE), LLdata.read_ROWNUM_TABLE(); end
 
 
 

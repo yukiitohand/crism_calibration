@@ -1,5 +1,5 @@
-function [RSPj] = calculate_RSP_VNIR(SPdata,SSdata,SHdata,TDdata,MP,rowNumTableRSPj)
-% [RSPj] = calculate_RSP_VNIR(SPdata,SSdata,SHdata,TDdata,MP,rownum_table)
+function [RSPj] = crmcal_calculate_RSP_VNIR(SPdata,SSdata,SHdata,TDdata,MP,rowNumTableRSPj)
+% [RSPj] = crmcal_calculate_RSP_VNIR(SPdata,SSdata,SHdata,TDdata,MP,rowNumTableRSPj)
 %  calculate the spectralradiometric responsitivity using the sphere 
 %  radiance on which shutter mirror non-repeatability correction is applied
 %  for vnir.

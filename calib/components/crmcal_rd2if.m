@@ -1,5 +1,5 @@
-function [IoF] = rd2if(RDn,SFdata,r)
-% [IoF] = rd2if(RDn,SFdata,r)
+function [IoF] = crmcal_rd2if(RDn,SFdata,r)
+% IoF] = crmcal_rd2if(RDn,SFdata,r)
 %   convert radiance to I/F
 %  Input Parameters
 %   RDn: radiance cube [L x S x B]

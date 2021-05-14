@@ -1,5 +1,5 @@
-function [RDmm,coeff] = additional_stripe_removal_VNIR(RDm,DMdata,rownum_table)
-% [RDmm] = additional_stripe_removal_VNIR(RDm)
+function [RDmm,coeff] = crmcal_additional_stripe_removal_VNIR(RDm,DMdata,rownum_table)
+% [RDmm,coeff] = crmcal_additional_stripe_removal_VNIR(RDm,DMdata,rownum_table)
 %  Perform additional destriping of the image. The destriping is performed
 %  by multiplying a factor estimated from the image itself
 %  INPUTS
@@ -21,7 +21,7 @@ s_w(squeeze(sceneMask)) = 9;
 imgmean = nanmean(RDm,1);
 imgmean_smooth = nan(size(imgmean));
 for b=1:B
-    [imgmean_smooth(:,:,b)] = movemean_robust1d_batchsort(imgmean(:,:,b)','Window_Size',s_w);
+    [imgmean_smooth(:,:,b)] = crmcal_movemean_robust1d_batchsort(imgmean(:,:,b)','Window_Size',s_w);
 end
 coeff = imgmean ./ imgmean_smooth;
 RDmm = RDm./ coeff;

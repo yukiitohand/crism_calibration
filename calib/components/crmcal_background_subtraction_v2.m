@@ -1,5 +1,5 @@
-function [ RT14h,Bkgd ] = background_subtraction_v2( RT14g,BKdata1,BKdata2,hkt )
-% [ RT14h ] = background_subtraction( RT14g,BKdata1,BKdata2,hkt )
+function [ RT14h,Bkgd ] = crmcal_background_subtraction_v2( RT14g,BKdata1,BKdata2,hkt )
+% [ RT14h,Bkgd ] = crmcal_background_subtraction_v2( RT14g,BKdata1,BKdata2,hkt )
 %  The sixth step of the calibration:  Subtract dark current
 %  Input Parameters
 %    RT14g  : 14bit DN image (L,S,B) divided by milliseconds

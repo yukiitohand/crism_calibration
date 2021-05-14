@@ -150,7 +150,7 @@ BIdata_o.img = imgBI;
 % for i=1:length(EDRBIdataList_s)
 %     EDRBIdataList_s.read_ROWNUM_TABLE();
 %     DN12 = EDRBIdataList_s.readimg();
-%     [ DN14 ] = DN12toDN14( DN12,PPdata,EDRBIdataList_s.rownum_table );
+%     [ DN14 ] = crmcal_DN12toDN14( DN12,PPdata,EDRBIdataList_s.rownum_table );
 %     DN14a_i = robust_v2('mean',DN14,1,'NOutliers',2);
 %     DN14a = cat(3,DN14a,DN14a_i);
 % end

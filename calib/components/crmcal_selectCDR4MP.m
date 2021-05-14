@@ -1,4 +1,4 @@
-function [SPdata,SSdata,SHdata] = selectCDR4MP(SPdata_input,varargin)
+function [SPdata,SSdata,SHdata] = crmcal_selectCDR4MP(SPdata_input,varargin)
 
 propSP_input = crism_getProp_basenameCDR4(SPdata_input.basename);
 

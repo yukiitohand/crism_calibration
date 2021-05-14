@@ -76,7 +76,7 @@ rownum_table = EDRdata.read_ROWNUM_TABLE();
 %-------------------------------------------------------------------------%
 % first step (DN12 --> DN14)
 PPdata = TRRIFdata.readCDR('PP');
-[ DN14 ] = DN12toDN14_VNIR( DN,PPdata,rownum_table );
+[ DN14 ] = crmcal_DN12toDN14_VNIR( DN,PPdata,rownum_table );
 
 if save_mem
     clear DN;
@@ -86,8 +86,8 @@ end
 % process darks
 % DFdata1.readimg();
 % DFdata2.readimg();
-% [ DN14_df1 ] = DN12toDN14_VNIR( DFdata1.img,PPdata,rownum_table );
-% [ DN14_df2 ] = DN12toDN14_VNIR( DFdata2.img,PPdata,rownum_table );
+% [ DN14_df1 ] = crmcal_DN12toDN14_VNIR( DFdata1.img,PPdata,rownum_table );
+% [ DN14_df2 ] = crmcal_DN12toDN14_VNIR( DFdata2.img,PPdata,rownum_table );
 % switch bkgd_robust
 %     case 0
 %         DN14a_df1 = nanmean(DN14_df1(:,:,:),1);
@@ -121,12 +121,12 @@ HDdata = TRRIFdata.readCDR('HD');
 HKdata = TRRIFdata.readCDR('HK');
 TRRIFdata.readHKT(); hkt = TRRIFdata.hkt;
 %hkt = EDRdata.readHKT();
-%hkt = correctHKTwithHD(hkt,HDdata);
-%hkt = correctHKTwithHK(hkt,HKdata);
+%hkt = crism_correctHKTwithHD(hkt,HDdata);
+%hkt = crism_correctHKTwithHK(hkt,HKdata);
 % using Temperature recorded in the label in TRR I/F data 
-[ DN14a,BI_m ] = subtract_bias_VNIR_1( DN14,BIdata1,BIdata2,DBdata,EBdata,hkt,rownum_table,TRRIFdata.lbl );
-% [ DN14a_o,BI_m_o ] = subtract_bias_VNIR_1( DN14,BIdata1_o,BIdata2_o,DBdata,EBdata,hkt,rownum_table,TRRIFdata.lbl );
-% [ DN14a,BI_m ] = subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,'BINX',binx);
+[ DN14a,BI_m ] = crmcal_subtract_bias_VNIR_1( DN14,BIdata1,BIdata2,DBdata,EBdata,hkt,rownum_table,TRRIFdata.lbl );
+% [ DN14a_o,BI_m_o ] = crmcal_subtract_bias_VNIR_1( DN14,BIdata1_o,BIdata2_o,DBdata,EBdata,hkt,rownum_table,TRRIFdata.lbl );
+% [ DN14a,BI_m ] = crmcal_subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,'BINX',binx);
 % if save_mem
 %     clear DN14;
 % end
@@ -134,7 +134,7 @@ TRRIFdata.readHKT(); hkt = TRRIFdata.hkt;
 %-------------------------------------------------------------------------%
 % the third step (remove detector quadrant electronics ghost)
 GHdata = TRRIFdata.readCDR('GH');
-[ DN14b,sumGhost ] = remove_quadrantGhost_VNIR( DN14a,GHdata,hkt,'BINX',binx );
+[ DN14b,sumGhost ] = crmcal_remove_quadrantGhost_VNIR( DN14a,GHdata,hkt,'BINX',binx );
 if save_mem
     clear DN14a;
 end
@@ -142,7 +142,7 @@ end
 %-------------------------------------------------------------------------%
 % fourth step (dark column subtract)
 DMdata = TRRIFdata.readCDR('DM');
-[DN14bb,dc] = dark_column_subtract(DN14b,DMdata);
+[DN14bb,dc] = crmcal_dark_column_subtract(DN14b,DMdata);
 if save_mem
     clear DN14b;
 end
@@ -165,7 +165,7 @@ switch saturation_rmvl
         DN14c(flg_dsat) = nan;
     case 2
         % analogue saturation is also dealt with
-        [DN14c,mask_saturation] = saturation_removal_VNIR(DN14bb,VLdata,flg_dsat,...
+        [DN14c,mask_saturation] = crmcal_saturation_removal_VNIR(DN14bb,VLdata,flg_dsat,...
         'binx',binx,'rate_id',rate_id);
     otherwise
         error('Saturation option %d is not defined',saturation_rmvl);
@@ -205,12 +205,12 @@ TRRIFdata.readCDR('BP');
 % end
 
 % DMdata = TRRIFdata.readCDR('DM');
-% [ DN14c,BP ] = apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
+% [ DN14c,BP ] = crmcal_apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
 
 switch upper(apbprmvl)
     case 'HIGHORD'
         if length(TRRIFdata.cdr.BP)==2
-            [ DN14d,BP ] = apriori_badpixel_removal( DN14c,TRRIFdata.cdr.BP(1),TRRIFdata.cdr.BP(2),DMdata,'InterpOpt',1 );
+            [ DN14d,BP ] = crmcal_apriori_badpixel_removal( DN14c,TRRIFdata.cdr.BP(1),TRRIFdata.cdr.BP(2),DMdata,'InterpOpt',1 );
         else
             error('Please implement for a priori bad pixel removal for BP more than 2');
         end
@@ -221,16 +221,16 @@ end
 %-------------------------------------------------------------------------%
 % fifth step (nonlinearity correction)
 LCdata = TRRIFdata.readCDR('LC');
-[ DN14g ] = nonlinearity_correction( DN14d,LCdata,hkt,'BINX',binx );
-[ DN14g_woc ] = nonlinearity_correction( DN14c,LCdata,hkt,'BINX',binx );
+[ DN14g ]     = crmcal_nonlinearity_correction( DN14d,LCdata,hkt,'BINX',binx );
+[ DN14g_woc ] = crmcal_nonlinearity_correction( DN14c,LCdata,hkt,'BINX',binx );
 if save_mem
     clear DN14c DN14b;
 end
 
 %-------------------------------------------------------------------------%
 % sixth step (division by exposure time)
-[ RT14g ] = divide_by_integrationTime( DN14g,hkt );
-[ RT14g_woc ] = divide_by_integrationTime( DN14g_woc,hkt );
+[ RT14g ]     = crmcal_divide_by_integrationTime( DN14g,hkt );
+[ RT14g_woc ] = crmcal_divide_by_integrationTime( DN14g_woc,hkt );
 if save_mem
     clear DN14g DN14g_woc;
 end
@@ -240,7 +240,7 @@ end
 if strcmpi(TRRIFdata.prop.obs_class_type,'MSP') && (TRRIFdata.get_sclk_stop < 850327000)
     error('Stray light correction is not implemented for a special case: MSP & sclk<85032700');
 else
-    [ RT14j,SL ] = straylight_correction( RT14g,DMdata,rownum_table );
+    [ RT14j,SL ] = crmcal_straylight_correction( RT14g,DMdata,rownum_table );
 end
 RT14j_woc = RT14g_woc - SL;
 %%
@@ -262,11 +262,11 @@ end
 
 
 
-% [SR] = calculate_SR(SSdata,SPdata,SHdata,0);
+% [SR] = crmcal_calculate_SR(SSdata,SPdata,SHdata,0);
 
 %-------------------------------------------------------------------------%
 % calculate spectroradiometric responsitivity
-% [SPdataMP,SSdataMP,SHdataMP] = selectCDR4MP(SPdata);
+% [SPdataMP,SSdataMP,SHdataMP] = crmcal_selectCDR4MP(SPdata);
 if isempty(SPdata_o), SPdata_o = SPdata; end
 SSdata = TRRIFdata.readCDR('SS');
 SHdata = TRRIFdata.readCDR('SH');
@@ -277,16 +277,16 @@ SHdata = TRRIFdata.readCDR('SH');
 % SSdata8 = CRISMdata(basenameSS8,'');
 % SSdata8.readimg();
 
-[MP] = calculate_MP(SPdata_o,SSdata,SHdata);
+[MP] = crmcal_calculate_MP(SPdata_o,SSdata,SHdata);
 rowNumTableRSPj = SPdata_o.read_ROWNUM_TABLE();
 TDdata = TRRIFdata.readCDR('TD');
-[RSPj] = calculate_RSP_VNIR(SPdata_o,SSdata,SHdata,TDdata,0,rowNumTableRSPj);
+[RSPj] = crmcal_calculate_RSP_VNIR(SPdata_o,SSdata,SHdata,TDdata,0,rowNumTableRSPj);
 
 
 %-------------------------------------------------------------------------%
 % apply binning
 DMdata = TRRIFdata.readCDR('DM');
-[RSPl] = binning_RSP(RSPj,DMdata,rowNumTableRSPj,'BINX',binx);
+[RSPl] = crmcal_binning_RSP(RSPj,DMdata,rowNumTableRSPj,'BINX',binx);
 
 %-------------------------------------------------------------------------%
 % correct to radiance with the binned responsitivity and flat fielding
@@ -296,26 +296,26 @@ NUdata = TRRIFdata.readCDR('NU');
 % propNU7.version = 7;
 % basenameNU7 = crism_get_basenameCDR4_fromProp(propNU7);
 % NUdata7 = CRISMdata(basenameNU7,'');
-[RDm,FF] = calculate_RD_VNIR(RT14j,RSPl,SPdata,SSdata,NUdata,rowNumTableRSPj);
-[RDm_woc,FF_woc] = calculate_RD_VNIR(RT14j,RSPl,SPdata,SSdata,NUdata,rowNumTableRSPj);
+[RDm,FF]         = crmcal_calculate_RD_VNIR(RT14j,RSPl,SPdata,SSdata,NUdata,rowNumTableRSPj);
+[RDm_woc,FF_woc] = crmcal_calculate_RD_VNIR(RT14j,RSPl,SPdata,SSdata,NUdata,rowNumTableRSPj);
 
-% [RDm,FF] = calculate_RD(RT14j,RSPl,NUdata);
-% [RDm_woc,FF] = calculate_RD(RT14j_woc,RSPl,NUdata);
+% [RDm,FF] = crmcal_calculate_RD(RT14j,RSPl,NUdata);
+% [RDm_woc,FF] = crmcal_calculate_RD(RT14j_woc,RSPl,NUdata);
 
 %-------------------------------------------------------------------------%
 % additional destriping step is added.
-% [RDmm,coeff] = additional_stripe_removal_VNIR(RDm,DMdata,rownum_table);
-% [RDmm_woc,coeff] = additional_stripe_removal_VNIR(RDm_woc,DMdata,rownum_table);
+% [RDmm,coeff] = crmcal_additional_stripe_removal_VNIR(RDm,DMdata,rownum_table);
+% [RDmm_woc,coeff] = crmcal_additional_stripe_removal_VNIR(RDm_woc,DMdata,rownum_table);
 
-%[RDm_bk1_o,FF_bk1] = calculate_RD(RT14h2_bk1_o,RSPl,NUdata);
-%[RDm_bk2_o,FF_bk2] = calculate_RD(RT14h2_bk2_o,RSPl,NUdata);
+%[RDm_bk1_o,FF_bk1] = crmcal_calculate_RD(RT14h2_bk1_o,RSPl,NUdata);
+%[RDm_bk2_o,FF_bk2] = crmcal_calculate_RD(RT14h2_bk2_o,RSPl,NUdata);
 if save_mem
     clear RT14j RT14j_woc;
 end
 
-RDn = apply_DM(RDm,DMdata);
-RDn_woc = apply_DM(RDm_woc,DMdata);
-%RDn_bk1_o = apply_DM(RDm_bk1_o,DMdata);
-%RDn_bk2_o = apply_DM(RDm_bk2_o,DMdata);
+RDn        = crmcal_apply_DM(RDm,DMdata);
+RDn_woc    = crmcal_apply_DM(RDm_woc,DMdata);
+%RDn_bk1_o = crmcal_apply_DM(RDm_bk1_o,DMdata);
+%RDn_bk2_o = crmcal_apply_DM(RDm_bk2_o,DMdata);
 
 end

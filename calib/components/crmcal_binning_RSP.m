@@ -1,5 +1,5 @@
-function [RSPl] = binning_RSP(RSPj,DMdata,rowNumTableRSPj,varargin)
-% [RSPl] = binning_RSP(RSPj,DMdata)
+function [RSPl] = crmcal_binning_RSP(RSPj,DMdata,rowNumTableRSPj,varargin)
+% [RSPl] = crmcal_binning_RSP(RSPj,DMdata,rowNumTableRSPj,varargin)
 %  apply binning to spectralradiometric responsitivity using the detector
 %  mask defined in (CDR DM data).
 %   Input

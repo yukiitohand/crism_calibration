@@ -348,8 +348,8 @@ end
 d_km = crism_obs.data.ddr.lbl.SOLAR_DISTANCE{1};
 [ d_au ] = km2au( d_km );
 SFdata = TRRIFdata.readCDR('SF');
-[IoF] = rd2if(RDn,SFdata,d_au);
-[IoF_woc] = rd2if(RDn_woc,SFdata,d_au);
+[IoF]     = crmcal_rd2if(RDn,SFdata,d_au);
+[IoF_woc] = crmcal_rd2if(RDn_woc,SFdata,d_au);
 % save(fpath_TRRYIF_mat,'IoF','IoF_woc');
 
 %% saving files
@@ -375,8 +375,8 @@ fprintf('Done\n');
 % conversion for 
 switch lower(mode_calib)
     case {'yuki','yuki2','yuki3'}
-        [IoF_bk1_o] = rd2if(RDn_bk1_o,SFdata,d_au);
-        [IoF_bk2_o] = rd2if(RDn_bk2_o,SFdata,d_au);
+        [IoF_bk1_o] = crmcal_rd2if(RDn_bk1_o,SFdata,d_au);
+        [IoF_bk2_o] = crmcal_rd2if(RDn_bk2_o,SFdata,d_au);
         fprintf('Saving %s ...\n',fpath_TRRYIFDF1);
         IoF_bk1_o = single(IoF_bk1_o);
         save(fpath_TRRYIFDF1,'IoF_bk1_o');

@@ -79,7 +79,7 @@ rownum_table = EDRdata.read_ROWNUM_TABLE();
 %-------------------------------------------------------------------------%
 % first step (DN12 --> DN14)
 PPdata = TRRIFdata.readCDR('PP');
-[ DN14 ] = DN12toDN14( DN,PPdata,rownum_table );
+[ DN14 ] = crmcal_DN12toDN14( DN,PPdata,rownum_table );
 
 if save_mem
     clear DN;
@@ -103,15 +103,15 @@ hkt = EDRdata.readHKT();
 hkt = crism_correctHKTwithHD(hkt,HDdata);
 hkt = crism_correctHKTwithHK(hkt,HKdata);
 % using Temperature recorded in the label in TRR I/F data 
-% [ DN14a,BI_m ] = subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,TRRIFdata.lbl );
-[ DN14a,BI_m ] = subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,'BINX',binx);
+% [ DN14a,BI_m ] = crmcal_subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,TRRIFdata.lbl );
+[ DN14a,BI_m ] = crmcal_subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,'BINX',binx);
 if save_mem
     clear DN14;
 end
 %-------------------------------------------------------------------------%
 % the third step (remove detector quadrant electronics ghost)
 GHdata = TRRIFdata.readCDR('GH');
-[ DN14b,sumGhost ] = remove_quadrantGhost( DN14a,GHdata,hkt,'BINX',binx );
+[ DN14b,sumGhost ] = crmcal_remove_quadrantGhost( DN14a,GHdata,hkt,'BINX',binx );
 if save_mem
     clear DN14a;
 end
@@ -135,13 +135,13 @@ switch saturation_rmvl
         DN14c(flg_dsat) = nan;
     case 2
         % analogue saturation is also dealt with
-        [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,flg_dsat,...
+        [DN14c,mask_saturation] = crmcal_saturation_removal(DN14b,VLdata,flg_dsat,...
         'binx',binx,'rate_id',rate_id);
     otherwise
         error('Saturation option %d is not defined',saturation_rmvl);
 end
 % if saturation_rmvl
-%     [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,flg_dsat,...
+%     [DN14c,mask_saturation] = crmcal_saturation_removal(DN14b,VLdata,flg_dsat,...
 %     'binx',binx,'rate_id',rate_id);
 %     % DN14b(flg_dsat) = nan;
 % else
@@ -182,11 +182,11 @@ switch EDRdata.lbl.OBSERVATION_TYPE
 end
 
 DMdata = TRRIFdata.readCDR('DM');
-% [ DN14c,BP ] = apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
+% [ DN14c,BP ] = crmcal_apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
 
 switch upper(apbprmvl)
     case 'HIGHORD'
-        [ DN14d,BP ] = apriori_badpixel_removal( DN14c,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
+        [ DN14d,BP ] = crmcal_apriori_badpixel_removal( DN14c,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
     case 'NONE'
         DN14d = DN14c;
 end
@@ -194,16 +194,16 @@ end
 %-------------------------------------------------------------------------%
 % fourth step (nonlinearity correction)
 LCdata = TRRIFdata.readCDR('LC');
-[ DN14g ] = nonlinearity_correction( DN14d,LCdata,hkt,'BINX',binx );
-[ DN14g_woc ] = nonlinearity_correction( DN14c,LCdata,hkt,'BINX',binx );
+[ DN14g ]     = crmcal_nonlinearity_correction( DN14d,LCdata,hkt,'BINX',binx );
+[ DN14g_woc ] = crmcal_nonlinearity_correction( DN14c,LCdata,hkt,'BINX',binx );
 if save_mem
     clear DN14c DN14b;
 end
 
 %-------------------------------------------------------------------------%
 % fifth step (division by exposure time)
-[ RT14g ] = divide_by_integrationTime( DN14g,hkt );
-[ RT14g_woc ] = divide_by_integrationTime( DN14g_woc,hkt );
+[ RT14g ]     = crmcal_divide_by_integrationTime( DN14g,hkt );
+[ RT14g_woc ] = crmcal_divide_by_integrationTime( DN14g_woc,hkt );
 if save_mem
     clear DN14g DN14g_woc;
 end
@@ -231,27 +231,27 @@ hkt_df2c  = crism_correctHKTwithHD(hkt_df2,HDdata);
 hkt_df2cc = crism_correctHKTwithHK(hkt_df2c,HKdata);
 % DFdata1.readimg();
 % rownum_table_df1 = DFdata1.read_ROWNUM_TABLE();
-% [ DN14_df1 ] = DN12toDN14( DFdata1.img,PPdata,rownum_table_df1 );
+% [ DN14_df1 ] = crmcal_DN12toDN14( DFdata1.img,PPdata,rownum_table_df1 );
 % DF1mask = DFdata1.img==4095;
 % hkt_df1 = DFdata1.readHKT();
-% hkt_df1c = correctHKTwithHD(hkt_df1,HDdata);
-% hkt_df1cc = correctHKTwithHK(hkt_df1c,HKdata);
-% [ DN14a_df1,BI_m_df1 ] = subtract_bias( DN14_df1,BIdata,BSdata,DBdata,EBdata,hkt_df1cc,rownum_table_df1,'BINX',binx );
-% [ DN14b_df1 ] = remove_quadrantGhost( DN14a_df1,GHdata,hkt_df1,'BINX',binx );
-% [ DN14g_df1 ] = nonlinearity_correction( DN14b_df1,LCdata,hkt_df1cc,'BINX',binx );
-% [ RT14g_df1 ] = divide_by_integrationTime( DN14g_df1,hkt_df1cc );
+% hkt_df1c  = crism_correctHKTwithHD(hkt_df1,HDdata);
+% hkt_df1cc = crism_correctHKTwithHK(hkt_df1c,HKdata);
+% [ DN14a_df1,BI_m_df1 ] = crmcal_subtract_bias( DN14_df1,BIdata,BSdata,DBdata,EBdata,hkt_df1cc,rownum_table_df1,'BINX',binx );
+% [ DN14b_df1 ] = crmcal_remove_quadrantGhost( DN14a_df1,GHdata,hkt_df1,'BINX',binx );
+% [ DN14g_df1 ] = crmcal_nonlinearity_correction( DN14b_df1,LCdata,hkt_df1cc,'BINX',binx );
+% [ RT14g_df1 ] = crmcal_divide_by_integrationTime( DN14g_df1,hkt_df1cc );
 
 % DFdata2.readimg();
 % rownum_table_df2 = DFdata2.read_ROWNUM_TABLE();
-% [ DN14_df2 ] = DN12toDN14( DFdata2.img,PPdata,rownum_table_df2 );
+% [ DN14_df2 ] = crmcal_DN12toDN14( DFdata2.img,PPdata,rownum_table_df2 );
 % DF2mask = DFdata2.img==4095;
 % hkt_df2 = DFdata2.readHKT();
-% hkt_df2c = correctHKTwithHD(hkt_df2,HDdata);
-% hkt_df2cc = correctHKTwithHK(hkt_df2c,HKdata);
-% [ DN14a_df2,BI_m_df2 ] = subtract_bias( DN14_df2,BIdata,BSdata,DBdata,EBdata,hkt_df2cc,rownum_table_df2,'BINX',binx );
-% [ DN14b_df2 ] = remove_quadrantGhost( DN14a_df2,GHdata,hkt_df2,'BINX',binx );
-% [ DN14g_df2 ] = nonlinearity_correction( DN14b_df2,LCdata,hkt_df2cc,'BINX',binx );
-% [ RT14g_df2 ] = divide_by_integrationTime( DN14g_df2,hkt_df2cc );
+% hkt_df2c  = crism_correctHKTwithHD(hkt_df2,HDdata);
+% hkt_df2cc = crism_correctHKTwithHK(hkt_df2c,HKdata);
+% [ DN14a_df2,BI_m_df2 ] = crmcal_subtract_bias( DN14_df2,BIdata,BSdata,DBdata,EBdata,hkt_df2cc,rownum_table_df2,'BINX',binx );
+% [ DN14b_df2 ] = crmcal_remove_quadrantGhost( DN14a_df2,GHdata,hkt_df2,'BINX',binx );
+% [ DN14g_df2 ] = crmcal_nonlinearity_correction( DN14b_df2,LCdata,hkt_df2cc,'BINX',binx );
+% [ RT14g_df2 ] = crmcal_divide_by_integrationTime( DN14g_df2,hkt_df2cc );
 % 
 % BKdata1_o = CRISMdata(DFdata1.basename,DFdata1.dirpath);
 % RT14g_df1(DF1mask) = nan;
@@ -272,8 +272,8 @@ hkt_df2cc = crism_correctHKTwithHK(hkt_df2c,HKdata);
 
 % BKdata1.readimg(); BKdata2.readimg();
 % I think it makes sense to interpolate background, too.
-% [ DN14c_bk1,~ ] = apriori_badpixel_removal( BKdata1.img,BPdata1,BPdata2 );
-% [ DN14c_bk2,~ ] = apriori_badpixel_removal( BKdata2.img,BPdata1,BPdata2 );
+% [ DN14c_bk1,~ ] = crmcal_apriori_badpixel_removal( BKdata1.img,BPdata1,BPdata2 );
+% [ DN14c_bk2,~ ] = crmcal_apriori_badpixel_removal( BKdata2.img,BPdata1,BPdata2 );
 % BKdata1.img = DN14c_bk1; BKdata2.img = DN14c_bk2;
 %-------------------------------------------------------------------------%
 %%
@@ -281,15 +281,15 @@ hkt_df2cc = crism_correctHKTwithHK(hkt_df2c,HKdata);
 % background subtraction
 switch bkoption
     case 1
-        [ RT14h,Bkgd ] = background_subtraction( RT14g,BKdata1,BKdata2,hkt );
-        [ RT14h_woc ] = background_subtraction( RT14g_woc,BKdata1_o,BKdata2_o,hkt );
-        [ RT14h_bk1_o ] = background_subtraction( RT14g_df1,BKdata1_o,BKdata2_o,hkt_df1cc );
-        [ RT14h_bk2_o ] = background_subtraction( RT14g_df2,BKdata1_o,BKdata2_o,hkt_df2cc );
+        [ RT14h,Bkgd ]  = crmcal_background_subtraction( RT14g,BKdata1,BKdata2,hkt );
+        [ RT14h_woc ]   = crmcal_background_subtraction( RT14g_woc,BKdata1_o,BKdata2_o,hkt );
+        [ RT14h_bk1_o ] = crmcal_background_subtraction( RT14g_df1,BKdata1_o,BKdata2_o,hkt_df1cc );
+        [ RT14h_bk2_o ] = crmcal_background_subtraction( RT14g_df2,BKdata1_o,BKdata2_o,hkt_df2cc );
     case 2
-        [ RT14h,Bkgd ] = background_subtraction_v2( RT14g,BKdata1,BKdata2,hkt );
-        [ RT14h_woc ] = background_subtraction_v2( RT14g_woc,BKdata1_o,BKdata2_o,hkt );
-        [ RT14h_bk1_o ] = background_subtraction_v2( RT14g_df1,BKdata1_o,BKdata2_o,hkt_df1cc );
-        [ RT14h_bk2_o ] = background_subtraction_v2( RT14g_df2,BKdata1_o,BKdata2_o,hkt_df2cc );
+        [ RT14h,Bkgd ]  = crmcal_background_subtraction_v2( RT14g,BKdata1,BKdata2,hkt );
+        [ RT14h_woc ]   = crmcal_background_subtraction_v2( RT14g_woc,BKdata1_o,BKdata2_o,hkt );
+        [ RT14h_bk1_o ] = crmcal_background_subtraction_v2( RT14g_df1,BKdata1_o,BKdata2_o,hkt_df1cc );
+        [ RT14h_bk2_o ] = crmcal_background_subtraction_v2( RT14g_df2,BKdata1_o,BKdata2_o,hkt_df2cc );
 end
 if save_mem
     clear RT14g RT14g_woc;
@@ -298,10 +298,10 @@ end
 % dark column subtract
 % I think additional dark column subtract is applied somewhere
 DMdata = TRRIFdata.readCDR('DM');
-[RT14h2,dc] = dark_column_subtract(RT14h,DMdata);
-[RT14h2_woc,dc] = dark_column_subtract(RT14h_woc,DMdata);
-[RT14h2_bk1_o,dc_bk1] = dark_column_subtract(RT14h_bk1_o,DMdata);
-[RT14h2_bk2_o,dc_bk2] = dark_column_subtract(RT14h_bk2_o,DMdata);
+[RT14h2,dc]           = crmcal_dark_column_subtract(RT14h,DMdata);
+[RT14h2_woc,dc]       = crmcal_dark_column_subtract(RT14h_woc,DMdata);
+[RT14h2_bk1_o,dc_bk1] = crmcal_dark_column_subtract(RT14h_bk1_o,DMdata);
+[RT14h2_bk2_o,dc_bk2] = crmcal_dark_column_subtract(RT14h_bk2_o,DMdata);
 if save_mem
     clear RT14h RT14h_woc;
 end
@@ -309,7 +309,7 @@ end
 %-------------------------------------------------------------------------%
 % second order light removal
 LLdata = TRRIFdata.readCDR('LL');
-[RT14j,K] = subtract_highorderlight(RT14h2,LLdata);
+[RT14j,K] = crmcal_subtract_highorderlight(RT14h2,LLdata);
 RT14j_woc = RT14h2_woc - K;
 if save_mem
     clear RT14h2 RT14h2_woc;
@@ -332,38 +332,38 @@ for i=1:length(TRRIFdata.cdr.SP)
     end
 end
 
-% [SPdataMP,SSdataMP,SHdataMP] = selectCDR4MP(SPdataVNIR);
-% [MP] = calculate_MP(SPdataMP,SSdataMP,SHdataMP);
+% [SPdataMP,SSdataMP,SHdataMP] = crmcal_selectCDR4MP(SPdataVNIR);
+% [MP] = crmcal_calculate_MP(SPdataMP,SSdataMP,SHdataMP);
 SSdata = TRRIFdata.readCDR('SS');
 SHdata = TRRIFdata.readCDR('SH');
 
-[SR] = calculate_SR(SSdata,SPdata,SHdata,0);
+[SR] = crmcal_calculate_SR(SSdata,SPdata,SHdata,0);
 
 %-------------------------------------------------------------------------%
 % calculate spectroradiometric responsitivity
 if isempty(SPdata_o), SPdata_o = SPdata; end
-[RSPj] = calculate_RSP(SPdata_o,SR);
+[RSPj] = crmcal_calculate_RSP(SPdata_o,SR);
 rowNumTableRSPj = SPdata.read_ROWNUM_TABLE();
 
 %-------------------------------------------------------------------------%
 % apply binning
 DMdata = TRRIFdata.readCDR('DM');
-[RSPl] = binning_RSP(RSPj,DMdata,rowNumTableRSPj,'BINX',binx);
+[RSPl] = crmcal_binning_RSP(RSPj,DMdata,rowNumTableRSPj,'BINX',binx);
 
 %-------------------------------------------------------------------------%
 % correct to radiance with the binned responsitivity and flat fielding
 NUdata = TRRIFdata.readCDR('NU');
-[RDm,FF] = calculate_RD(RT14j,RSPl,NUdata);
-[RDm_woc,FF_woc] = calculate_RD(RT14j_woc,RSPl,NUdata);
-[RDm_bk1_o,FF_bk1] = calculate_RD(RT14h2_bk1_o,RSPl,NUdata);
-[RDm_bk2_o,FF_bk2] = calculate_RD(RT14h2_bk2_o,RSPl,NUdata);
+[RDm,FF]           = crmcal_calculate_RD(RT14j,RSPl,NUdata);
+[RDm_woc,FF_woc]   = crmcal_calculate_RD(RT14j_woc,RSPl,NUdata);
+[RDm_bk1_o,FF_bk1] = crmcal_calculate_RD(RT14h2_bk1_o,RSPl,NUdata);
+[RDm_bk2_o,FF_bk2] = crmcal_calculate_RD(RT14h2_bk2_o,RSPl,NUdata);
 if save_mem
     clear RT14j RT14j_woc;
 end
 
-RDn = apply_DM(RDm,DMdata);
-RDn_woc = apply_DM(RDm_woc,DMdata);
-RDn_bk1_o = apply_DM(RDm_bk1_o,DMdata);
-RDn_bk2_o = apply_DM(RDm_bk2_o,DMdata);
+RDn       = crmcal_apply_DM(RDm,DMdata);
+RDn_woc   = crmcal_apply_DM(RDm_woc,DMdata);
+RDn_bk1_o = crmcal_apply_DM(RDm_bk1_o,DMdata);
+RDn_bk2_o = crmcal_apply_DM(RDm_bk2_o,DMdata);
 
 end

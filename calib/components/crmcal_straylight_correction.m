@@ -1,5 +1,5 @@
-function [ RT14i,SL ] = straylight_correction( RT14h,DMdata,rownum_table,varargin )
-% [ RT14i ] = straylight_correction( RT14h,DMdata )
+function [ RT14i,SL ] = crmcal_straylight_correction( RT14h,DMdata,rownum_table,varargin )
+% [ RT14i,SL ] = crmcal_straylight_correction( RT14h,DMdata,rownum_table,varargin )
 %   stray light (scattered light) correction for VNIR correction
 %  INPUTS
 %   RT14h: [LxSxB], input image

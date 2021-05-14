@@ -95,19 +95,19 @@ end
 %-------------------------------------------------------------------------%
 % first step (DN12 --> DN14)
 rownum_table_df = DFdata.read_ROWNUM_TABLE();
-[ DN14_df ] = DN12toDN14( DN12_df,PPdata,rownum_table_df );
+[ DN14_df ] = crmcal_DN12toDN14( DN12_df,PPdata,rownum_table_df );
 
 %-------------------------------------------------------------------------%
 % second step (subtract bias)
 hkt_df = DFdata.readHKT();
 hkt_dfc  = crism_correctHKTwithHD(hkt_df,HDdata);
 hkt_dfcc = crism_correctHKTwithHK(hkt_dfc,HKdata);
-[ DN14a_df,BI_m_df ] = subtract_bias( DN14_df,BIdata,BSdata,DBdata,EBdata,...
+[ DN14a_df,BI_m_df ] = crmcal_subtract_bias( DN14_df,BIdata,BSdata,DBdata,EBdata,...
     hkt_dfcc,rownum_table_df,'BINX',binx_bk );
 
 %-------------------------------------------------------------------------%
 % the third step (remove detector quadrant electronics ghost)
-[ DN14b_df ] = remove_quadrantGhost( DN14a_df,GHdata,hkt_df,'BINX',binx_bk );
+[ DN14b_df ] = crmcal_remove_quadrantGhost( DN14a_df,GHdata,hkt_df,'BINX',binx_bk );
 
 %-------------------------------------------------------------------------%
 % replace saturated pixel
@@ -122,7 +122,7 @@ switch saturation_rmvl
         DN14c_df(DFmask4095) = nan;
     case 2
         % analogue saturation is also dealt with
-        [DN14c_df,mask_saturation] = saturation_removal(DN14b_df,VLdata,DFmask4095,...
+        [DN14c_df,mask_saturation] = crmcal_saturation_removal(DN14b_df,VLdata,DFmask4095,...
         'binx',binx_bk,'rate_id',rate_id);
     otherwise
         error('Saturation option %d is not defined',saturation_rmvl);
@@ -131,7 +131,7 @@ end
 %-------------------------------------------------------------------------%
 % bad pixel removal
 if bprmvl
-    [ DN14d_df,BP ] = apriori_badpixel_removal( DN14c_df,BPdata,BPdata,DMdata,'InterpOpt',1 );
+    [ DN14d_df,BP ] = crmcal_apriori_badpixel_removal( DN14c_df,BPdata,BPdata,DMdata,'InterpOpt',1 );
 else
     DN14d_df = DN14c_df;
 end
@@ -153,13 +153,13 @@ end
 
 %-------------------------------------------------------------------------%
 % fourth step (nonlinearity correction)
-[ DN14g_df ] = nonlinearity_correction( DN14e_df,LCdata,hkt_dfcc,'BINX',binx_bk );
-[ DN14g_df_all ] = nonlinearity_correction( DN14d_df,LCdata,hkt_dfcc,'BINX',binx_bk );
+[ DN14g_df ]     = crmcal_nonlinearity_correction( DN14e_df,LCdata,hkt_dfcc,'BINX',binx_bk );
+[ DN14g_df_all ] = crmcal_nonlinearity_correction( DN14d_df,LCdata,hkt_dfcc,'BINX',binx_bk );
 
 %-------------------------------------------------------------------------%
 % fifth step (division by exposure time)
-[ RT14g_df ] = divide_by_integrationTime( DN14g_df,hkt_dfcc );
-[ RT14g_df_all ] = divide_by_integrationTime( DN14g_df_all,hkt_dfcc );
+[ RT14g_df ]     = crmcal_divide_by_integrationTime( DN14g_df,hkt_dfcc );
+[ RT14g_df_all ] = crmcal_divide_by_integrationTime( DN14g_df_all,hkt_dfcc );
 
 %-------------------------------------------------------------------------%
 % taking mean last

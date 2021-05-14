@@ -1,5 +1,5 @@
-function [RDm,FF] = calculate_RD_VNIR(RTj,RSPl,SPdata,SSdata,NUdata,rowNumTableRSPj)
-% [RD] = calculate_RD_VNIR(RTj,RSPl,NUdata)
+function [RDm,FF] = crmcal_calculate_RD_VNIR(RTj,RSPl,SPdata,SSdata,NUdata,rowNumTableRSPj)
+% [RDm,FF] = crmcal_calculate_RD_VNIR(RTj,RSPl,SPdata,SSdata,NUdata,rowNumTableRSPj)
 %  calculate scene radiance at the instrument aperture and divide by flat
 %  field for VNIR.
 %   Input Parameters

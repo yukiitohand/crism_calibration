@@ -1,5 +1,5 @@
-function [ DN14g ] = multiply_by_integrationTime( RT14g,hkt )
-% [ DN14g ] = mupltiply_by_integrationTime( RT14g,hkt )
+function [ DN14g ] = crmcal_multiply_by_integrationTime( RT14g,hkt )
+% [ DN14g ] = crmcal_multiply_by_integrationTime( RT14g,hkt )
 %   Multip.y RT14g with integration time [milliseconds]
 
 [L,S,Bands] = size(RT14g);

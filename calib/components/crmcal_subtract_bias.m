@@ -1,5 +1,5 @@
-function [ DN14a,BI_m ] = subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,varargin )
-% [ DN14a ] = subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata )
+function [ DN14a,BI_m ] = crmcal_subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,varargin )
+% [ DN14a,BI_m ] = crmcal_subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,varargin )
 %  The second step of the calibration: subtract Bias
 %  Input parameters:
 %    DN14   : 14bit DN image (L,S,B)

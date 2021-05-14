@@ -1,5 +1,5 @@
-function [ DN14a,BI_m ] = subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,lbl_TRR3,varargin )
-% [ DN14a ] = subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata )
+function [ DN14a,BI_m ] = crmcal_subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,lbl_TRR3,varargin )
+% [ DN14a,BI_m ] = crmcal_subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,lbl_TRR3,varargin )
 %  This is for replicating calibration
 %  The second step of the calibration: subtract Bias
 %  Input parameters:

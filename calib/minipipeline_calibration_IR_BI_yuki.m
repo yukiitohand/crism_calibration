@@ -76,7 +76,7 @@ for i=1:length(EDRBIdataList)
     DN12 = EDRBIdataList(i).readimg();
     % convert 12bits to 14bits -------------------------------------------%
     EDRBIdataList(i).read_ROWNUM_TABLE();
-    [ DN14 ] = DN12toDN14( DN12,PPdata,EDRBIdataList(i).ROWNUM_TABLE );
+    [ DN14 ] = crmcal_DN12toDN14( DN12,PPdata,EDRBIdataList(i).ROWNUM_TABLE );
     % flag saturated pixels ----------------------------------------------%
     if dn4095_rmvl
         flg_saturation = (DN12==4095);
@@ -136,7 +136,7 @@ imgBI = c0;
 %-------------------------------------------------------------------------%
 % bad pixel removal
 if bprmvl
-    [ imgBI,BP ] = apriori_badpixel_removal( imgBI,BPdata,BPdata,DMdata,'InterpOpt',1 );
+    [ imgBI,BP ] = crmcal_apriori_badpixel_removal( imgBI,BPdata,BPdata,DMdata,'InterpOpt',1 );
 end
 
 

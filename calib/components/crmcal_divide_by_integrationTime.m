@@ -1,5 +1,5 @@
-function [ RT14g ] = divide_by_integrationTime( DN14g,hkt )
-% [ RT14g ] = divide_by_integrationTime( DN14g,hkt )
+function [ RT14g ] = crmcal_divide_by_integrationTime( DN14g,hkt )
+% [ RT14g ] = crmcal_divide_by_integrationTime( DN14g,hkt )
 %   Divide DN14g with integration time [milliseconds]
 
 [L,S,Bands] = size(DN14g);

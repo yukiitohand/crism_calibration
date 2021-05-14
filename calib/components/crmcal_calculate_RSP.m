@@ -1,5 +1,5 @@
-function [RSP] = calculate_RSP(SPdata,SR)
-% [RSP] = calculate_RSP(SPdata,SR)
+function [RSP] = crmcal_calculate_RSP(SPdata,SR)
+% [RSP] = crmcal_calculate_RSP(SPdata,SR)
 %  calculate the spectralradiometric responsitivity using the sphere 
 %  radiance on which shutter mirror non-repeatability correction is applied
 %   Input
@@ -8,7 +8,7 @@ function [RSP] = calculate_RSP(SPdata,SR)
 %   Output Parameters
 %     RSP: spectral radiometric responsitivity
 
-if isempty(SPdata.img), SPdata.readimg(); end;
+if isempty(SPdata.img), SPdata.readimg(); end
 
 RTS14 = SPdata.img;
 

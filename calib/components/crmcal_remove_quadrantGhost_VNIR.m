@@ -1,5 +1,5 @@
-function [ DN14b,sumGHOST_DN ] = remove_quadrantGhost_VNIR( DN14a,GHdata,hkt,varargin )
-% [ DN14b,sumGHOST_DN ] = remove_quadrantGhost( DN14a,GHdata,hkt )
+function [ DN14b,sumGHOST_DN ] = crmcal_remove_quadrantGhost_VNIR( DN14a,GHdata,hkt,varargin )
+% [ DN14b,sumGHOST_DN ] = crmcal_remove_quadrantGhost_VNIR( DN14a,GHdata,hkt,varargin )
 %  The third step of the calibration: remove detector quadrant electronics
 %  ghost
 %  Input parameters:

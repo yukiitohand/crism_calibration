@@ -1,5 +1,5 @@
-function [SR] = calculate_SR(SSdata,SPdata,SHdata,MP)
-% [SR] = calculate_SR(SSdata,SPdataVNIR,SPdata,SHdata)
+function [SR] = crmcal_calculate_SR(SSdata,SPdata,SHdata,MP)
+% [SR] = crmcal_calculate_SR(SSdata,SPdata,SHdata,MP)
 %  calculate the sphere radiance on which shutter mirror non-repeatability
 %  correction is applied
 %   Input

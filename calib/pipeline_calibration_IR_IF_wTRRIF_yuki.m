@@ -322,8 +322,8 @@ switch upper(mode_SP)
             'DWLD_OVERWRITE',dwld_overwrite,'VERBOSE_DWLD',verbose_dwld, ...
             'DWLD_INDEX_CACHE_UPDATE',dwld_index_cache_update);
 
-        % [SPdataMP,SSdataMP,SHdataMP] = selectCDR4MP(SPdataVNIR);
-        % [MP] = calculate_MP(SPdataVNIR_o,SSdataMP,SHdataMP);
+        % [SPdataMP,SSdataMP,SHdataMP] = crmcal_selectCDR4MP(SPdataVNIR);
+        % [MP] = crmcal_calculate_MP(SPdataVNIR_o,SSdataMP,SHdataMP);
 
         %-----------------------------------------------------------------%
         % process SP (MP IS NOT APPLIED TO SPDATA_o)

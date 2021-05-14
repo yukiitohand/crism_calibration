@@ -1,5 +1,5 @@
-function [DN14c,mask_saturation] = saturation_removal(DN14b,VLdata,mask4095,varargin)
-% [DN14c] = saturation_removal(DN14b,VLdata,mask4095,varargin)
+function [DN14c,mask_saturation] = crmcal_saturation_removal(DN14b,VLdata,mask4095,varargin)
+% [DN14c,mask_saturation] = crmcal_saturation_removal(DN14b,VLdata,mask4095,varargin)
 %   mask and replace "digital" and "analogue" saturated pixels with nans
 %  INPUTS
 %    DN14b: DN14b image [LxSxB]

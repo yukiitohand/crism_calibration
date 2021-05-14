@@ -1,5 +1,5 @@
-function [RT14j] = RD2RT14(RDm,RSPl,NUdata)
-% [RT14j] = RD2RT14(RDm,RSPl,NUdata)
+function [RT14j] = crmcal_RD2RT14(RDm,RSPl,NUdata)
+% [RT14j] = crmcal_RD2RT14(RDm,RSPl,NUdata)
 %  reverse the scene radiance at the instrument aperture flat field applied
 %  to RT14j.
 %   Input Parameters

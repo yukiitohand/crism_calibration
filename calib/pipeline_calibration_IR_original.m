@@ -54,7 +54,7 @@ rownum_table = EDRdata.read_ROWNUM_TABLE();
 
 % first step (DN12 --> DN14)
 PPdata = TRRIFdata.readCDR('PP');
-[ DN14 ] = DN12toDN14( DN,PPdata,rownum_table );
+[ DN14 ] = crmcal_DN12toDN14( DN,PPdata,rownum_table );
 if save_mem
     clear DN;
 end
@@ -74,8 +74,8 @@ HDdata = TRRIFdata.readCDR('HD');
 HKdata = TRRIFdata.readCDR('HK');
 TRRIFdata.readHKT(); hkt = TRRIFdata.hkt;
 % using Temperature recorded in the label in TRR I/F data 
-[ DN14a,BI_m ] = subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,TRRIFdata.lbl,'BINX',binx);
-% [ DN14a,BI_m ] = subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table);
+[ DN14a,BI_m ] = crmcal_subtract_bias_1( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table,TRRIFdata.lbl,'BINX',binx);
+% [ DN14a,BI_m ] = crmcal_subtract_bias( DN14,BIdata,BSdata,DBdata,EBdata,hkt,rownum_table);
 if save_mem
     clear DN14;
 end
@@ -83,8 +83,8 @@ end
 % DMdata = TRRIFdata.readCDR('DM');
 % switch dcoption
 %     case 1
-%         [DN14a,dc] = dark_column_subtract(DN14a,DMdata);
-% %         [RT14h2_woc,dc] = dark_column_subtract(RT14h_woc,DMdata);
+%         [DN14a,dc] = crmcal_dark_column_subtract(DN14a,DMdata);
+% %         [RT14h2_woc,dc] = crmcal_dark_column_subtract(RT14h_woc,DMdata);
 %     case 0
 %         DN14a = DN14a;
 % %         RT14h2_woc= RT14h_woc;
@@ -92,7 +92,7 @@ end
 
 % the third step (remove detector quadrant electronics ghost)
 GHdata = TRRIFdata.readCDR('GH');
-[ DN14b,sumGhost ] = remove_quadrantGhost( DN14a,GHdata,hkt,'BINX',binx );
+[ DN14b,sumGhost ] = crmcal_remove_quadrantGhost( DN14a,GHdata,hkt,'BINX',binx );
 if save_mem
     clear DN14a;
 end
@@ -117,22 +117,22 @@ end
 DMdata = TRRIFdata.readCDR('DM');
 switch upper(apbprmvl)
     case 'HIGHORD'
-        [ DN14c,BP ] = apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
+        [ DN14c,BP ] = crmcal_apriori_badpixel_removal( DN14b,BPdata1,BPdata2,DMdata,'InterpOpt',1 );
     case 'NONE'
         DN14c = DN14b;
 end
 %%
 % fourth step (nonlinearity correction)
 LCdata = TRRIFdata.readCDR('LC');
-[ DN14g ] = nonlinearity_correction( DN14c,LCdata,hkt,'BINX',binx );
-[ DN14g_woc ] = nonlinearity_correction( DN14b,LCdata,hkt,'BINX',binx );
+[ DN14g ]     = crmcal_nonlinearity_correction( DN14c,LCdata,hkt,'BINX',binx );
+[ DN14g_woc ] = crmcal_nonlinearity_correction( DN14b,LCdata,hkt,'BINX',binx );
 if save_mem
     clear DN14c DN14b;
 end
 
 % fifth step (division by exposure time)
-[ RT14g ] = divide_by_integrationTime( DN14g,hkt );
-[ RT14g_woc ] = divide_by_integrationTime( DN14g_woc,hkt );
+[ RT14g ]     = crmcal_divide_by_integrationTime( DN14g,hkt );
+[ RT14g_woc ] = crmcal_divide_by_integrationTime( DN14g_woc,hkt );
 if save_mem
     clear DN14g DN14g_woc;
 end
@@ -155,8 +155,8 @@ end
 %         error(' calibration for OBSERVATION TYPE %s is not implemented',EDRdata.lbl.OBSERVATION_TYPE);
 % end
 % I think it makes sense to interpolate background here, too.
-[ RT14h,Bkgd ] = background_subtraction( RT14g,BKdata1,BKdata2,hkt );
-[ RT14h_woc,Bkgd ] = background_subtraction( RT14g_woc,BKdata1,BKdata2,hkt );
+[ RT14h,Bkgd ]     = crmcal_background_subtraction( RT14g,BKdata1,BKdata2,hkt );
+[ RT14h_woc,Bkgd ] = crmcal_background_subtraction( RT14g_woc,BKdata1,BKdata2,hkt );
 if save_mem
     clear RT14g RT14g_woc;
 end
@@ -168,8 +168,8 @@ end
 DMdata = TRRIFdata.readCDR('DM');
 switch dcoption
     case 1
-        [RT14h2,dc] = dark_column_subtract(RT14h,DMdata);
-        [RT14h2_woc,dc] = dark_column_subtract(RT14h_woc,DMdata);
+        [RT14h2,dc]     = crmcal_dark_column_subtract(RT14h,DMdata);
+        [RT14h2_woc,dc] = crmcal_dark_column_subtract(RT14h_woc,DMdata);
     case 0
         RT14h2 = RT14h;
 %         RT14h2_woc= RT14h_woc;
@@ -194,8 +194,8 @@ end
 
 % second order light removal
 LLdata = TRRIFdata.readCDR('LL');
-[RT14j,K] = subtract_highorderlight(RT14h2,LLdata);
-% [~,K] = subtract_highorderlight(RT14h2_woc,LLdata);
+[RT14j,K] = crmcal_subtract_highorderlight(RT14h2,LLdata);
+% [~,K] = crmcal_subtract_highorderlight(RT14h2_woc,LLdata);
 RT14j_woc = RT14h2_woc - K;
 if save_mem
     clear RT14h2 RT14h2_woc;
@@ -217,43 +217,43 @@ for i=1:length(TRRIFdata.cdr.SP)
     end
 end
 
-[SPdataMP,SSdataMP,SHdataMP] = selectCDR4MP(SPdataVNIR);
-[MP] = calculate_MP(SPdataMP,SSdataMP,SHdataMP);
+[SPdataMP,SSdataMP,SHdataMP] = crmcal_selectCDR4MP(SPdataVNIR);
+[MP] = crmcal_calculate_MP(SPdataMP,SSdataMP,SHdataMP);
 SSdata = TRRIFdata.readCDR('SS');
 SHdata = TRRIFdata.readCDR('SH');
 
 % unfortunately MP=0 leads to reasonable result
-[SR] = calculate_SR(SSdata,SPdata,SHdata,0);
-%[SR] = calculate_SR(SSdata,SPdata,SHdata,MP);
+[SR] = crmcal_calculate_SR(SSdata,SPdata,SHdata,0);
+%[SR] = crmcal_calculate_SR(SSdata,SPdata,SHdata,MP);
 
 % calculate spectroradiometric responsitivity
-[RSPj] = calculate_RSP(SPdata,SR);
+[RSPj] = crmcal_calculate_RSP(SPdata,SR);
 rowNumTableRSPj = SPdata.read_ROWNUM_TABLE();
 
 % apply binning
 DMdata = TRRIFdata.readCDR('DM');
-[RSPl] = binning_RSP(RSPj,DMdata,rowNumTableRSPj);
+[RSPl] = crmcal_binning_RSP(RSPj,DMdata,rowNumTableRSPj);
 
 % correct to radiance with the binned responsitivity and flat fielding
 NUdata = TRRIFdata.readCDR('NU');
-[RDm,FF] = calculate_RD(RT14j,RSPl,NUdata);
-[RDm_woc,FF_woc] = calculate_RD(RT14j_woc,RSPl,NUdata);
+[RDm,FF]         = crmcal_calculate_RD(RT14j,RSPl,NUdata);
+[RDm_woc,FF_woc] = crmcal_calculate_RD(RT14j_woc,RSPl,NUdata);
 
 if save_mem
     clear RT14j RT14j_woc;
 end
 
-RDn = apply_DM(RDm,DMdata);
-RDn_woc = apply_DM(RDm_woc,DMdata);
+RDn     = crmcal_apply_DM(RDm,DMdata);
+RDn_woc = crmcal_apply_DM(RDm_woc,DMdata);
 
 if isdebug && ~isempty(RAdata)
     RAdata.readimg();
     [L,S,B] = size(RAdata.img);
-    [RT14j_r] = RD2RT14(RAdata.img,RSPl,NUdata);
+    [RT14j_r] = crmcal_RD2RT14(RAdata.img,RSPl,NUdata);
     RT14h_r = RT14j_r + K;
 %     RT14g1_r = RT14h_r + repmat(dc,[1,S,B]);
     RT14g_r = RT14h_r + Bkgd;
-    [DN14g_r] = multiply_by_integrationTime(RT14g_r,hkt);
+    [DN14g_r] = crmcal_multiply_by_integrationTime(RT14g_r,hkt);
     BPdata1.readimg(); BPdata2.readimg();
     BP = or(BPdata1.img,BPdata2.img);
 

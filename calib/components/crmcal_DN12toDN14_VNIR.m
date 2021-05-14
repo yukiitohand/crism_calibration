@@ -1,5 +1,5 @@
-function [ DN14 ] = DN12toDN14_VNIR( DN,PPdata,rownum_table )
-% [ DN14 ] = DN12toDN14_VNIR( DN,PPdata )
+function [ DN14 ] = crmcal_DN12toDN14_VNIR( DN,PPdata,rownum_table )
+% [ DN14 ] = crmcal_DN12toDN14_VNIR( DN,PPdata,rownum_table )
 %   convert 12bit DN data to 14bit DNdata for VNIR
 %  Input Parameters
 %   DN     : 12bit DN image (L,S,B)

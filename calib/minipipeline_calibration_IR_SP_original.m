@@ -118,8 +118,7 @@ else
             case 'BIDATA'
                 BIdata = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);
+                error('Unrecognized option: %s', varargin{i});
         end
     end
 end
@@ -141,8 +140,8 @@ end
 %
 %
 % then apply 1/(1+MP*SC)
-[SPdataMP,SSdataMP,SHdataMP] = selectCDR4MP(SPdataVNIR);
-[MP] = calculate_MP(SPdataMP,SSdataMP,SHdataMP);
+[SPdataMP,SSdataMP,SHdataMP] = crmcal_selectCDR4MP(SPdataVNIR);
+[MP] = crmcal_calculate_MP(SPdataMP,SSdataMP,SHdataMP);
 %SSdata = TRRIFdata.readCDR('SS');
 SHdata = SPdata.readCDR('SH');
 

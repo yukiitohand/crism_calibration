@@ -1,5 +1,5 @@
-function [RDm,FF] = calculate_RD(RTj,RSPl,NUdata,varargin)
-% [RD] = calculate_RD(RTj,RSPl,NUdata)
+function [RDm,FF] = crmcal_calculate_RD(RTj,RSPl,NUdata,varargin)
+% [RDm,FF] = crmcal_calculate_RD(RTj,RSPl,NUdata,varargin)
 %  calculate scene radiance at the instrument aperture and divide by flat
 %  field
 %   Input Parameters
@@ -27,8 +27,7 @@ else
             case 'FLAT_FIELD'
                 flat_field = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);
+                error('Unrecognized option: %s', varargin{i});
         end
     end
 end

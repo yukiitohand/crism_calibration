@@ -247,7 +247,7 @@ end
 
 %-------------------------------------------------------------------------%
 % get BPdata
-[BPdata1,BPdata2,BPdata_post] = load_BPdataSC_fromDF(TRRIFdata,DFdata1.basename,DFdata2.basename);
+[BPdata1,BPdata2,BPdata_post] = crism_load_BPdataSC_fromDF(TRRIFdata,DFdata1.basename,DFdata2.basename);
 if length(BPdata1)>2 || length(BPdata2)>2
     error('BPdata detected twice');
 end

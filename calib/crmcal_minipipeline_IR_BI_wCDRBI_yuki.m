@@ -1,5 +1,5 @@
-function [BIdata_o,imgBI] = minipipeline_calibration_IR_BI_wCDRBI_yuki(CDRBIdata,varargin)
-% [BIdata_o,imgBI] = minipipeline_calibration_IR_BI_wCDRBI_yuki(CDRBIdata,varargin)
+function [BIdata_o,imgBI] = crmcal_minipipeline_IR_BI_wCDRBI_yuki(CDRBIdata,varargin)
+% [BIdata_o,imgBI] = crmcal_minipipeline_IR_BI_wCDRBI_yuki(CDRBIdata,varargin)
 %  re-calculate CDR BI data without performing bad pixel interpolation
 %  INPUTS
 %    CDRBIdata: CRISMdata obj, reference CDR BI data.
@@ -130,7 +130,7 @@ end
 
 %--------------------------------------------------------------------------
 % main calculation
-[imgBI] = minipipeline_calibration_IR_BI_yuki(...
+[imgBI] = crmcal_minipipeline_IR_BI_yuki(...
     EDRBIdataList_s,PPdata,BSdata,HDdata,HKdata,DMdata,BPdata,...
     'DN4095_RMVL',dn4095_rmvl,'BPRMVL',bprmvl,'MEAN_ROBUST',mean_robust);
 BIdata_o = CRISMdata(CDRBIdata.basename,'');

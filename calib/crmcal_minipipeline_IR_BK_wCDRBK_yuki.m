@@ -1,8 +1,8 @@
-function [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_wCDRBK_yuki(CDRBKdata,CDRBIdata,CDRBPdata,varargin)
-% [RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_wCDRBK_yuki(CDRBKdata,CDRBIdata,CDRBPdata,varargin)
+function [RT14g_bkgd,BKdata_o,RT14g_df_all] = crmcal_minipipeline_IR_BK_wCDRBK_yuki(CDRBKdata,CDRBIdata,CDRBPdata,varargin)
+% [RT14g_bkgd,BKdata_o,RT14g_df_all] = crmcal_minipipeline_IR_BK_wCDRBK_yuki(CDRBKdata,CDRBIdata,CDRBPdata,varargin)
 %  re-calculate Background CDR using SOURCE_PRODUCTS stored in lbl of CDR
 %  BKdata. This is a wrapper function for 
-%     "minipipeline_calibration_IR_BK_yuki"
+%     "crmcal_minipipeline_IR_BK_yukii"
 %   INPUTS
 %    CDRBKdata: CRISMdata object of the CDR BK data
 %    BIdata: CRISMdata object of CDR BI data (estimation should be done
@@ -108,7 +108,7 @@ DMdata = CDRBKdata.readCDR('DM');
 VLdata = CDRBKdata.readCDR('VL');
 
 %-------------------------------------------------------------------------%
-[RT14g_bkgd,BKdata_o,RT14g_df_all] = minipipeline_calibration_IR_BK_yuki(...
+[RT14g_bkgd,BKdata_o,RT14g_df_all] = crmcal_minipipeline_IR_BK_yuki(...
     DFdata,PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,CDRBIdata,DMdata,CDRBPdata,...
     GHdata,VLdata,LCdata,'SATURATiON_RMVL',saturation_rmvl,'BPRMVL',bprmvl,...
     'MEAN_ROBUST',mean_robust,'MEAN_DN14',mean_DN14);

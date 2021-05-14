@@ -1,5 +1,5 @@
-function [imgBI] = minipipeline_calibration_IR_BI_yuki(EDRBIdataList,PPdata,BSdata,HDdata,HKdata,DMdata,BPdata,varargin)
-% [imgBI] = minipipeline_calibration_IR_BI_yuki(EDRBIdataList_s,PPdata,BSdata,HDdata,HKdata,DMdata,BPdata,varargin)
+function [imgBI] = crmcal_minipipeline_IR_BI_yuki(EDRBIdataList,PPdata,BSdata,HDdata,HKdata,DMdata,BPdata,varargin)
+% [imgBI] = crmcal_minipipeline_IR_BI_yuki(EDRBIdataList,PPdata,BSdata,HDdata,HKdata,DMdata,BPdata,varargin)
 %  re-calculate CDR BI data from the collection of EDR BI data
 %  INPUTS
 %   EDRBIdataList: CRISMdata array of EDR BI data. Make sure frame rate is

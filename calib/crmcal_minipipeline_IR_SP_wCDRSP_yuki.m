@@ -1,6 +1,6 @@
-function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o,BPdata1,BPdata2] = minipipeline_calibration_IR_SP_wCDRSP_yuki(...
+function [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o,BPdata1,BPdata2] = crmcal_minipipeline_IR_SP_wCDRSP_yuki(...
     SPdata,bkoption,varargin)
-% [RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_calibration_IR_SP_wCDRSP_yuki(...
+% [SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o,BPdata1,BPdata2] = crmcal_minipipeline_IR_SP_wCDRSP_yuki(...
 %     SPdata,bkoption,varargin)
 %   Mini pipeline for the calibration of the CRISM images using SP CDR
 %   data. This is a wrapper function for 
@@ -230,9 +230,9 @@ VLdata = SPdata.readCDR('VL');
     'BK_MEAN_ROBUST',bk_mean_robust,'BK_MEAN_DN14',bk_mean_DN14,'SPdata_ref',SPdata,...
     'BINNING_SP',binning_id_sp);
 
-% [BP1nan] = formatBP1nan(BPdata1);
-% BPpri1nan = formatBPpri1nan(BPdata1,BPdata2);
-%[BIdata_o,imgBI] = minipipeline_calibration_IR_BI_wCDRBI_yuki(BIdata,'DN4095_RMVL',0,'BPRMVL',0,'MEAN_ROBUST',1);
+% [BP1nan] = crism_formatBP1nan(BPdata1);
+% BPpri1nan = crism_formatBPpri1nan(BPdata1,BPdata2);
+%[BIdata_o,imgBI] = crmcal_minipipeline_IR_BI_wCDRBI_yuki(BIdata,'DN4095_RMVL',0,'BPRMVL',0,'MEAN_ROBUST',1);
 end
 
 function [DFdata] = get_DFdata(EDRSPdata,obs_counter,dwld)

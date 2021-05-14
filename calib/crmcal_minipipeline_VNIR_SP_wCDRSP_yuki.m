@@ -2,7 +2,7 @@ function [SPdata_o,RT14j_woc_bn_mod,RT14j_bn,RT14j_bn_mod,MP] = minipipeline_cal
     SPdata,TRRIFdata,varargin)
 %   Main pipeline for the calibration of the CRISM images using CDR SPdata,
 %   VNIR. This is a wrapper function for 
-%    "minipipeline_calibration_VNIR_SP_yuki"
+%    "crmcal_minipipeline_VNIR_SP_yuki"
 %   Binning is also applied.
 %  Input Parameters
 %   SPdata: CDR SPdata, CRISMdata obj
@@ -187,15 +187,15 @@ DMdata_SP = crism_searchCDR4mrb('DM',SPdata.prop.sclk,'sensor_id','S',...
     'wavelength_filter',SPdata.prop.wavelength_filter,'binning',SPdata.prop.binning);
 %-------------------------------------------------------------------------%
 % main pipeline
-[~,RT14j_woc,RT14j] = minipipeline_calibration_VNIR_SP_yuki( EDRSPdata,DFdata1,DFdata2,...
+[~,RT14j_woc,RT14j] = crmcal_minipipeline_VNIR_SP_yuki( EDRSPdata,DFdata1,DFdata2,...
     PPdata,DBdata,EBdata,HDdata,HKdata,GHdata,VLdata,DMdata_SP,LCdata,...
     'save_memory',save_mem,'saturation_rmvl',saturation_rmvl,...
     'bk_mean_robust',bk_mean_robust,'mean_robust',mean_robust,...
     'BINNING_SP',binning_id_sp);
 
-% [BP1nan] = formatBP1nan(BPdata1);
-% BPpri1nan = formatBPpri1nan(BPdata1,BPdata2);
-%[BIdata_o,imgBI] = minipipeline_calibration_IR_BI_wCDRBI_yuki(BIdata,'DN4095_RMVL',0,'BPRMVL',0,'MEAN_ROBUST',1);
+% [BP1nan] = crism_formatBP1nan(BPdata1);
+% BPpri1nan = crism_formatBPpri1nan(BPdata1,BPdata2);
+%[BIdata_o,imgBI] = crmcal_minipipeline_IR_BI_wCDRBI_yuki(BIdata,'DN4095_RMVL',0,'BPRMVL',0,'MEAN_ROBUST',1);
 
 %-------------------------------------------------------------------------%
 % binning

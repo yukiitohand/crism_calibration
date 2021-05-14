@@ -1,4 +1,4 @@
-function [RDn,RDn_woc] = pipeline_calibration_IR_original(TRRIFdata,EDRdata,DFdata1,DFdata2,BKdata1,BKdata2,dcoption,varargin)
+function [RDn,RDn_woc] = crmcal_pipeline_IR_original(TRRIFdata,EDRdata,DFdata1,DFdata2,BKdata1,BKdata2,dcoption,varargin)
 % perform calibration of CRISM data 
 %  Input Parameters
 %   TRRIFdata, EDRdata: TRRIFdata is just for the information of CDR and

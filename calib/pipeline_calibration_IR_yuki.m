@@ -322,7 +322,7 @@ end
 TRRIFdata.readCDR('SP');
 for i=1:length(TRRIFdata.cdr.SP)
     spdata = TRRIFdata.cdr.SP(i);
-    spdata_prop = getProp_basenameCDR4(spdata.basename);
+    spdata_prop = crism_getProp_basenameCDR4(spdata.basename);
     switch upper(spdata_prop.sensor_id)
         case 'L'
             SPdata = spdata;

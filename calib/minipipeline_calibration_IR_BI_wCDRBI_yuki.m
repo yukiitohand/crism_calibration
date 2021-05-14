@@ -100,7 +100,7 @@ HKdata = CDRBIdata.readCDR('HK');
         end
 
         sclk_stop = max(sclk_EDRBI_list);
-        propBP_search = create_propCDR4basename;
+        propBP_search = crism_create_propCDR4basename;
         propBP_search.acro_calibration_type = 'BP';
         propBP_search.binning = get_binning_id(EDRBIdataList_s(1).lbl.PIXEL_AVERAGING_WIDTH);
         propBP_search.wavelength_filter = EDRBIdataList_s(1).lbl.MRO_WAVELENGTH_FILTER;
@@ -110,7 +110,7 @@ HKdata = CDRBIdata.readCDR('HK');
         propBP_search.sensor_id = EDRBIdataList_s(1).lbl.MRO_SENSOR_ID;
         propBP_search.sclk = floor(sclk_stop);
         [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1,'force',1);
-        get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
+        crism_get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
         BPdata = CRISMdata(basenameBPmrb,'');
         for ii=1:length(EDRBIdataList_s)
             basenameEDRBI_i = EDRBIdataList_s(ii).basename;

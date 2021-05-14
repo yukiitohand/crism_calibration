@@ -23,7 +23,7 @@ if isempty(SSdata.img), SSdata.readimg(); end
 % propNU7 = NUdata.prop;
 % propNU7.version = 3;
 % propNU7.version = 7;
-% basenameNU7 = get_basenameCDR4_fromProp(propNU7);
+% basenameNU7 = crism_get_basenameCDR4_fromProp(propNU7);
 % NUdata7 = CRISMdata(basenameNU7,'');
 % NUdata7.readimg();
 

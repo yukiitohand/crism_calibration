@@ -236,18 +236,18 @@ propIF.version = vr;
 if TRRIF_is_empty
     propIF.activity_id = 'IF';
 end
-bnameIF = get_basenameOBS_fromProp(propIF);
+bnameIF = crism_get_basenameOBS_fromProp(propIF);
 
-propRA = getProp_basenameOBSERVATION(TRRRAdata.basename);
+propRA = crism_getProp_basenameOBSERVATION(TRRRAdata.basename);
 propRA.product_type = product_type;
 propRA.version = vr;
-bnameRA = get_basenameOBS_fromProp(propRA);
+bnameRA = crism_get_basenameOBS_fromProp(propRA);
 
 propDF1_IF = DFdata1.prop;
 propDF1_IF.activity_id = 'IF';
 propDF1_IF.product_type = product_type;
 propDF1_IF.version = vr;
-bnameDF1_IF = get_basenameOBS_fromProp(propDF1_IF);
+bnameDF1_IF = crism_get_basenameOBS_fromProp(propDF1_IF);
 
 
 if ~any(strcmpi(TRRIFdata.lbl.OBSERVATION_TYPE,{'FRS','ATO'}))
@@ -255,7 +255,7 @@ if ~any(strcmpi(TRRIFdata.lbl.OBSERVATION_TYPE,{'FRS','ATO'}))
     propDF2_IF.activity_id = 'IF';
     propDF2_IF.product_type = product_type;
     propDF2_IF.version = vr;
-    bnameDF2_IF = get_basenameOBS_fromProp(propDF2_IF);
+    bnameDF2_IF = crism_get_basenameOBS_fromProp(propDF2_IF);
 
 else
     bnameDF2_IF = '';

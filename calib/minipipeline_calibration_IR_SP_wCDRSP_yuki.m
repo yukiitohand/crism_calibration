@@ -237,7 +237,7 @@ VLdata = SPdata.readCDR('VL');
 end
 
 function [DFdata] = get_DFdata(EDRSPdata,obs_counter,dwld)
-    propEDRDF = create_propOBSbasename();
+    propEDRDF = crism_create_propOBSbasename();
     propEDRDF.obs_counter = obs_counter;
     propEDRDF.obs_class_type = EDRSPdata.prop.obs_class_type;
     propEDRDF.obs_id = EDRSPdata.prop.obs_id;
@@ -252,7 +252,7 @@ function [DFdata] = get_DFdata(EDRSPdata,obs_counter,dwld)
 end
 
 function [BPdata] = get_BPdata_fromDF(DFdata,binning_id_sp,dwld)
-    propBP_search = create_propCDR4basename;
+    propBP_search = crism_create_propCDR4basename;
     propBP_search.acro_calibration_type = 'BP';
     propBP_search.binning = get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
     propBP_search.wavelength_filter = DFdata.lbl.MRO_WAVELENGTH_FILTER;
@@ -289,7 +289,7 @@ function [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,binning_id_sp,dwld)
 
     sclk_stop = max(sclk_EDRBI_list);
 
-    propBI_search = create_propCDR4basename;
+    propBI_search = crism_create_propCDR4basename;
     propBI_search.acro_calibration_type = 'BI';
     propBI_search.binning = get_binning_id(EDRBIdataList_s(1).lbl.PIXEL_AVERAGING_WIDTH);
     propBI_search.wavelength_filter = EDRBIdataList_s(1).lbl.MRO_WAVELENGTH_FILTER;
@@ -324,7 +324,7 @@ function [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,binning_id_sp,dwld)
 end
 
 function [BKdata] = get_BKdata_fromDF(DFdata,binning_id_sp,dwld)
-    propBK_search = create_propCDR4basename;
+    propBK_search = crism_create_propCDR4basename;
     propBK_search.acro_calibration_type = 'BK';
     propBK_search.binning = get_binning_id(DFdata.lbl.PIXEL_AVERAGING_WIDTH);
     propBK_search.wavelength_filter = DFdata.lbl.MRO_WAVELENGTH_FILTER;

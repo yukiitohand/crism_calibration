@@ -20,7 +20,7 @@ if isempty(SHdata.img), SHdata.readimg(); end
 
 % propSS8 = SSdata.prop;
 % propSS8.version = 8;
-% basenameSS8 = get_basenameCDR4_fromProp(propSS8);
+% basenameSS8 = crism_get_basenameCDR4_fromProp(propSS8);
 % SSdata8 = CRISMdata(basenameSS8,'');
 % SSdata8.readimg();
 

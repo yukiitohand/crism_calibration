@@ -250,7 +250,7 @@ RT14j_woc = RT14g_woc - SL;
 TRRIFdata.readCDR('SP');
 for i=1:length(TRRIFdata.cdr.SP)
     spdata = TRRIFdata.cdr.SP(i);
-    spdata_prop = getProp_basenameCDR4(spdata.basename);
+    spdata_prop = crism_getProp_basenameCDR4(spdata.basename);
     switch upper(spdata_prop.sensor_id)
 %         case 'L'
 %             SPdata = spdata;
@@ -274,7 +274,7 @@ SHdata = TRRIFdata.readCDR('SH');
 
 % propSS8 = SSdata.prop;
 % propSS8.version = 8;
-% basenameSS8 = get_basenameCDR4_fromProp(propSS8);
+% basenameSS8 = crism_get_basenameCDR4_fromProp(propSS8);
 % SSdata8 = CRISMdata(basenameSS8,'');
 % SSdata8.readimg();
 
@@ -295,7 +295,7 @@ NUdata = TRRIFdata.readCDR('NU');
 % propNU7 = NUdata.prop;
 % propNU7.version = 3;
 % propNU7.version = 7;
-% basenameNU7 = get_basenameCDR4_fromProp(propNU7);
+% basenameNU7 = crism_get_basenameCDR4_fromProp(propNU7);
 % NUdata7 = CRISMdata(basenameNU7,'');
 [RDm,FF] = calculate_RD_VNIR(RT14j,RSPl,SPdata,SSdata,NUdata,rowNumTableRSPj);
 [RDm_woc,FF_woc] = calculate_RD_VNIR(RT14j,RSPl,SPdata,SSdata,NUdata,rowNumTableRSPj);

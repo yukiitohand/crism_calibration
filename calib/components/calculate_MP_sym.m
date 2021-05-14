@@ -17,9 +17,9 @@ function [MP] = calculate_MP_sym(SPdataVNIR,SSdataVNIR,SHdataVNIR)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-propSH = getProp_basenameCDR4(SHdataVNIR.basename);
-propSP = getProp_basenameCDR4(SPdataVNIR.basename);
-propSS = getProp_basenameCDR4(SSdataVNIR.basename);
+propSH = crism_getProp_basenameCDR4(SHdataVNIR.basename);
+propSP = crism_getProp_basenameCDR4(SPdataVNIR.basename);
+propSS = crism_getProp_basenameCDR4(SSdataVNIR.basename);
 
 if isempty(SSdataVNIR.img), SSdataVNIR.readimg(); end;
 if isempty(SPdataVNIR.img), SPdataVNIR.readimg(); end;

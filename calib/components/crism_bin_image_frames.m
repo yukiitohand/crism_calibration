@@ -1,5 +1,5 @@
-function [img_fr_bn] = bin_image_frames(img_fr,varargin)
-% [img_fr_bn] = bin_image_frames(img_fr,varargin)
+function [img_fr_bn] = crism_bin_image_frames(img_fr,varargin)
+% [img_fr_bn] = crism_bin_image_frames(img_fr,varargin)
 %  apply binning to image_frames 
 %   Input
 %     img_fr   : image frames to be binned [L x S x B]

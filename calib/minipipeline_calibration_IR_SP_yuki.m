@@ -137,7 +137,7 @@ rate_id = crism_get_frame_rate_id(frame_rate);
 DN = EDRSPdata.readimg();
 
 % apply binning this early
-DN = bin_image_frames(DN,'binning',binning_sp);
+DN = crism_bin_image_frames(DN,'binning',binning_sp);
 
 if saturation_rmvl
     flg_dsat = (DN==4095); % added by Yuki Feb.18, 2019 

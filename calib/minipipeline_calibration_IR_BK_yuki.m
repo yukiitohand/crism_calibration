@@ -84,7 +84,7 @@ DN12_df = DFdata.readimg();
 if binx>1 && binx_bk>binx
     error('Do you want to bin an already binned image?');
 end
-DN12_df = bin_image_frames(DN12_df,'binning',binning_bk);
+DN12_df = crism_bin_image_frames(DN12_df,'binning',binning_bk);
 
 %-------------------------------------------------------------------------%
 % flag saturated pixels

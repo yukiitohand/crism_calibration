@@ -199,8 +199,8 @@ DMdata_SP = crism_searchCDR4mrb('DM',SPdata.prop.sclk,'sensor_id','S',...
 
 %-------------------------------------------------------------------------%
 % binning
-RT14j_woc_bn = bin_image_frames(RT14j_woc,'binning',SPdata.prop.binning);
-RT14j_bn = bin_image_frames(RT14j,'binning',SPdata.prop.binning);
+RT14j_woc_bn = crism_bin_image_frames(RT14j_woc,'binning',SPdata.prop.binning);
+RT14j_bn = crism_bin_image_frames(RT14j,'binning',SPdata.prop.binning);
 
 RT14j_woc_bn = apply_DM(RT14j_woc_bn,DMdata_SP);
 RT14j_bn = apply_DM(RT14j_bn,DMdata_SP);

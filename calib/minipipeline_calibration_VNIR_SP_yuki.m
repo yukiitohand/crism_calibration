@@ -94,7 +94,7 @@ rate_id = crism_get_frame_rate_id(frame_rate);
 DN = EDRSPdata.readimg();
 
 % apply binning this early
-DN = bin_image_frames(DN,'binning',binning_sp);
+DN = crism_bin_image_frames(DN,'binning',binning_sp);
 
 if saturation_rmvl
     flg_dsat = (DN==4095);
@@ -116,7 +116,7 @@ end
 %-------------------------------------------------------------------------%
 % process darks
 DFdata1.readimg();
-DN12_df1 = bin_image_frames(DFdata1.img,'binning',binning_sp);
+DN12_df1 = crism_bin_image_frames(DFdata1.img,'binning',binning_sp);
 % BI is before the ghost correction, so I think saturation removal is not
 % necessary.
 % if saturation_rmvl
@@ -124,7 +124,7 @@ DN12_df1 = bin_image_frames(DFdata1.img,'binning',binning_sp);
 %     flg_dsat_df2 = (DFdata2.img==4095);
 % end
 DFdata2.readimg();
-DN12_df2 = bin_image_frames(DFdata2.img,'binning',binning_sp);
+DN12_df2 = crism_bin_image_frames(DFdata2.img,'binning',binning_sp);
 [ DN14_df1 ] = DN12toDN14_VNIR( DN12_df1,PPdata,rownum_table );
 [ DN14_df2 ] = DN12toDN14_VNIR( DN12_df2,PPdata,rownum_table );
 

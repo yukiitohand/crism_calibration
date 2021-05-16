@@ -210,13 +210,13 @@ crism_obs = CRISMObservation(obs_id,'SENSOR_ID','L',...
 % crism_obsS = CRISMObservation(obs_id,'SENSOR_ID','S');
 switch upper(crism_obs.info.obs_classType)
     case {'FRT','HRL','HRS','FRS','ATO','MSP','HSP'}
-        TRRIFdata = get_CRISMdata(crism_obs.info.basenameIF,'');
-        TRRRAdata = get_CRISMdata(crism_obs.info.basenameRA,'');
-        DDRdata = get_CRISMdata(crism_obs.info.basenameDDR,'');
+        TRRIFdata = get_CRISMdata(crism_obs.info.basenameIF ,'');
+        TRRRAdata = get_CRISMdata(crism_obs.info.basenameRA ,'');
+        DDRdata   = get_CRISMdata(crism_obs.info.basenameDDR,'','VERSION',1);
     case {'FFC'}
-        [TRRIFdata] = get_scene_CRISMdata_FFC(crism_obs.info.basenameIF,'',ffc_counter);
-        [TRRRAdata] = get_scene_CRISMdata_FFC(crism_obs.info.basenameRA,'',ffc_counter);
-        [DDRdata] = get_scene_CRISMdata_FFC(crism_obs.info.basenameDDR,'',ffc_counter);
+        [TRRIFdata] = get_scene_CRISMdata_FFC(crism_obs.info.basenameIF ,'',ffc_counter);
+        [TRRRAdata] = get_scene_CRISMdata_FFC(crism_obs.info.basenameRA ,'',ffc_counter);
+        [DDRdata]   = get_scene_CRISMdata_FFC(crism_obs.info.basenameDDR,'',ffc_counter);
 end
 TRRIF_is_empty = isempty(TRRIFdata);
 if TRRIF_is_empty

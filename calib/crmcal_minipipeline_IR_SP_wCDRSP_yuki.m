@@ -221,7 +221,7 @@ VLdata = SPdata.readCDR('VL');
 
 %-------------------------------------------------------------------------%
 % main pipeline
-[SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = minipipeline_calibration_IR_SP_yuki(...
+[SPdata_o,RT14j_woc,RT14j,RT14h2_bk1_o,RT14h2_bk2_o] = crmcal_minipipeline_IR_SP_yuki(...
     EDRSPdata,DFdata1,DFdata2,BKdata1,BKdata2,BPdata1,BPdata2,BIdata,...
     PPdata,BSdata,DBdata,EBdata,HDdata,HKdata,GHdata,VLdata,DMdata,LCdata,LLdata,...
     bkoption,'SAVE_MEMORY',save_mem,'APBPRMVL',apbprmvl,'MEAN_DN14',mean_DN14,...
@@ -244,7 +244,7 @@ function [DFdata] = get_DFdata(EDRSPdata,obs_counter,dwld)
     propEDRDF.sensor_id = EDRSPdata.prop.sensor_id;
     propEDRDF.activity_id = 'DF';
 
-    [~,~,~,~,~,basenameEDRDF] = crism_search_observation_fromProp(propEDRDF,'dwld',dwld);
+    [dir_info,basenameEDRDF] = crism_search_observation_fromProp(propEDRDF,'dwld',dwld);
 
     DFdata = CRISMdata(basenameEDRDF,'');
     DFdata.download(2);

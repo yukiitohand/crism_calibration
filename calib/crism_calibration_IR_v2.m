@@ -138,8 +138,12 @@ if save_file
             'Please update crismToolbox.json and rerun crism_init, ' ...
             'or manually specify "SAVE_PDIR".']);
     elseif ~exist(save_pdir,'dir')
-        mkdir(save_pdir);
-        system(['chmod --recursive 777 ' save_pdir]);
+        [status] = mkdir(save_pdir);
+        if status
+            system(['chmod --recursive 777 ' save_pdir]);
+        else
+            error('Failed to create %s',save_pdir);
+        end
     end
 end
 
@@ -232,19 +236,31 @@ if save_file
     if save_dir_yyyy_doy
         dirpath_yyyy_doy = joinPath(save_pdir,crism_obs.info.yyyy_doy);
         if ~exist(dirpath_yyyy_doy,'dir')
-            mkdir(dirpath_yyyy_doy);
-            system(['chmod --recursive 777 ' dirpath_yyyy_doy]);
+            status = mkdir(dirpath_yyyy_doy);
+            if status
+                system(['chmod --recursive 777 ' dirpath_yyyy_doy]);
+            else
+                error('Failed to create %s',dirpath_yyyy_doy);
+            end
         end
         save_dir = joinPath(dirpath_yyyy_doy,crism_obs.info.dirname);
         if ~exist(save_dir,'dir')
-            mkdir(save_dir);
-            system(['chmod --recursive 777 ' save_dir]);
+            status = mkdir(save_dir);
+            if status
+                system(['chmod --recursive 777 ' save_dir]);
+            else
+                error('Failed to create %s',save_dir);
+            end
         end
     else
         save_dir = joinPath(save_pdir,crism_obs.info.dirname);
         if ~exist(save_dir,'dir')
-            mkdir(save_dir);
-            system(['chmod --recursive 777 ' save_dir]);
+            status = mkdir(save_dir);
+            if status
+                system(['chmod --recursive 777 ' save_dir]);
+            else
+                error('Failed to create %s',save_pdir);
+            end
         end
     end
 end

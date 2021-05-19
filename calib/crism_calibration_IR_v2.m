@@ -127,16 +127,20 @@ else
             case 'VERBOSE'
                 verbose = varargin{i+1};
             otherwise
-                % Hmmm, something wrong with the parameter string
-                error(['Unrecognized option: ''' varargin{i} '''']);
+                error('Unrecognized option: %s', varargin{i});
         end
     end
 end
 
-if save_pdir==-1
-    error(['No default directory crism_env_vars.dir_YUK is defined. ' ...
-        'Please update crismToolbox.json and rerun crism_init, ' ...
-        'or manually specify "SAVE_PDIR".']);
+if save_file
+    if save_pdir==-1
+        error(['No default directory crism_env_vars.dir_YUK is defined. ' ...
+            'Please update crismToolbox.json and rerun crism_init, ' ...
+            'or manually specify "SAVE_PDIR".']);
+    elseif ~exist(save_pdir,'dir')
+        mkdir(save_pdir);
+        system(['chmod --recursive 777 ' save_pdir]);
+    end
 end
 
 if force && skip_ifexist
@@ -224,12 +228,26 @@ if TRRIF_is_empty
 end
 [DFdata1,DFdata2] = crism_get_DFdata4SC(TRRIFdata,crism_obs);
 %% setting saving directory
-if save_dir_yyyy_doy
-    save_dir = joinPath(save_pdir,crism_obs.info.yyyy_doy,crism_obs.info.dirname);
-else
-    save_dir = joinPath(save_pdir,crism_obs.info.dirname);
+if save_file
+    if save_dir_yyyy_doy
+        dirpath_yyyy_doy = joinPath(save_pdir,crism_obs.info.yyyy_doy);
+        if ~exist(dirpath_yyyy_doy,'dir')
+            mkdir(dirpath_yyyy_doy);
+            system(['chmod --recursive 777 ' dirpath_yyyy_doy]);
+        end
+        save_dir = joinPath(dirpath_yyyy_doy,crism_obs.info.dirname);
+        if ~exist(save_dir,'dir')
+            mkdir(save_dir);
+            system(['chmod --recursive 777 ' save_dir]);
+        end
+    else
+        save_dir = joinPath(save_pdir,crism_obs.info.dirname);
+        if ~exist(save_dir,'dir')
+            mkdir(save_dir);
+            system(['chmod --recursive 777 ' save_dir]);
+        end
+    end
 end
-
 propIF = TRRIFdata.prop;
 propIF.product_type = product_type;
 propIF.version = vr;
@@ -300,10 +318,6 @@ if exist_flg
             fprintf('processing continues and will overwrite...\n');
         end
     end
-end
-
-if save_file
-    if ~exist(save_dir,'dir'), mkdir(save_dir); end
 end
 
 %% main processing
@@ -395,18 +409,22 @@ if save_file
     fprintf('Saving %s ...\n',fpath_TRRYIF_lbl);
     % envihdrwritex(hdrif_cat,joinPath(save_dir,[bnameIF '.hdr']),'OPT_CMOUT','false');
     copyfile(TRRIFdata.lblpath,fpath_TRRYIF_lbl);
+    system(['chmod --recursive 777 ' fpath_TRRYIF_lbl]);
     fprintf('Done\n');
     fprintf('Saving %s ...\n',fpath_TRRYIF_img);
     envidatawrite(IoF_woc,fpath_TRRYIF_img,hdrif_cat);
+    system(['chmod --recursive 777 ' fpath_TRRYIF_img]);
     fprintf('Done\n');
 
     [hdrra_cat] = crism_const_cathdr(TRRRAdata,false);
     fprintf('Saving %s ...\n',fpath_TRRYRA_lbl);
     % envihdrwritex(hdrra_cat,joinPath(save_dir,[bnameRA '.hdr']),'OPT_CMOUT','false');
     copyfile(TRRRAdata.lblpath,fpath_TRRYRA_lbl);
+    system(['chmod --recursive 777 ' fpath_TRRYRA_lbl]);
     fprintf('Done\n');
     fprintf('Saving %s ...\n',fpath_TRRYRA_img);
     envidatawrite(RDn_woc,fpath_TRRYRA_img,hdrra_cat);
+    system(['chmod --recursive 777 ' fpath_TRRYRA_img]);
     fprintf('Done\n');
 end
 
@@ -425,6 +443,7 @@ switch lower(mode_calib)
         if save_file
             fprintf('Saving %s ...\n',fpath_TRRYIFDF1);
             save(fpath_TRRYIFDF1,'IoF_bk1_o');
+            system(['chmod --recursive 777 ' fpath_TRRYIFDF1]);
             fprintf('Done\n');
         end
         
@@ -433,6 +452,7 @@ switch lower(mode_calib)
             if save_file
                 fprintf('Saving %s ...\n',fpath_TRRYIFDF2);
                 save(fpath_TRRYIFDF2,'IoF_bk2_o');
+                system(['chmod --recursive 777 ' fpath_TRRYIFDF2]);
                 fprintf('Done\n');
             end        
         end

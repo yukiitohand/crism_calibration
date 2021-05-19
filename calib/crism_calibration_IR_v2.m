@@ -53,15 +53,15 @@ function [IoF_woc,RDn_woc,IoF_bk1_o,IoF_bk2_o] = crism_calibration_IR_v2(obs_id,
 %                  empty if not exist.
 
 global crism_env_vars
-if ~isfield(crism_env_vars,'dir_YUK')
-    dir_yuk = -1;
+if ~isfield(crism_env_vars,'dir_TRRX')
+    dir_trrx = -1;
 else
-    dir_yuk = crism_env_vars.dir_YUK;
+    dir_trrx = crism_env_vars.dir_TRRX;
 end
 
 
 %% setup initial values
-save_pdir = dir_yuk;
+save_pdir = dir_trrx;
 save_dir_yyyy_doy = true;
 save_file = true;
 force = false;
@@ -140,7 +140,11 @@ if save_file
     elseif ~exist(save_pdir,'dir')
         [status] = mkdir(save_pdir);
         if status
-            system(['chmod --recursive 777 ' save_pdir]);
+            if verbose, fprintf('"%s" is created.\n',save_pdir); end
+            if isunix
+                system(['chmod -R 777 ' save_pdir]);
+                if verbose, fprintf('"%s": permission is set to 777.\n',save_pdir); end
+            end
         else
             error('Failed to create %s',save_pdir);
         end
@@ -238,7 +242,11 @@ if save_file
         if ~exist(dirpath_yyyy_doy,'dir')
             status = mkdir(dirpath_yyyy_doy);
             if status
-                system(['chmod --recursive 777 ' dirpath_yyyy_doy]);
+                if verbose, fprintf('"%s" is created.\n',dirpath_yyyy_doy); end
+                if isunix
+                    system(['chmod -R 777 ' dirpath_yyyy_doy]);
+                    if verbose, fprintf('"%s": permission is set to 777.\n',dirpath_yyyy_doy); end
+                end
             else
                 error('Failed to create %s',dirpath_yyyy_doy);
             end
@@ -247,7 +255,11 @@ if save_file
         if ~exist(save_dir,'dir')
             status = mkdir(save_dir);
             if status
-                system(['chmod --recursive 777 ' save_dir]);
+                if verbose, fprintf('"%s" is created.\n',save_dir); end
+                if isunix
+                    system(['chmod -R 777 ' save_dir]);
+                    if verbose, fprintf('"%s": permission is set to 777.\n',save_dir); end
+                end
             else
                 error('Failed to create %s',save_dir);
             end
@@ -257,7 +269,11 @@ if save_file
         if ~exist(save_dir,'dir')
             status = mkdir(save_dir);
             if status
-                system(['chmod --recursive 777 ' save_dir]);
+                if verbose, fprintf('"%s" is created.\n',save_dir); end
+                if isunix
+                    system(['chmod -R 777 ' save_dir]);
+                    if verbose, fprintf('"%s": permission is set to 777.\n',save_dir); end
+                end
             else
                 error('Failed to create %s',save_pdir);
             end
@@ -425,22 +441,34 @@ if save_file
     fprintf('Saving %s ...\n',fpath_TRRYIF_lbl);
     % envihdrwritex(hdrif_cat,joinPath(save_dir,[bnameIF '.hdr']),'OPT_CMOUT','false');
     copyfile(TRRIFdata.lblpath,fpath_TRRYIF_lbl);
-    system(['chmod --recursive 777 ' fpath_TRRYIF_lbl]);
+    if isunix
+        system(['chmod 777 ' fpath_TRRYIF_lbl]);
+        if verbose, fprintf('"%s": permission is set to 777.\n',fpath_TRRYIF_lbl); end
+    end
     fprintf('Done\n');
     fprintf('Saving %s ...\n',fpath_TRRYIF_img);
     envidatawrite(IoF_woc,fpath_TRRYIF_img,hdrif_cat);
-    system(['chmod --recursive 777 ' fpath_TRRYIF_img]);
+    if isunix
+        system(['chmod 777 ' fpath_TRRYIF_img]);
+        if verbose, fprintf('"%s": permission is set to 777.\n',fpath_TRRYIF_img); end
+    end
     fprintf('Done\n');
 
     [hdrra_cat] = crism_const_cathdr(TRRRAdata,false);
     fprintf('Saving %s ...\n',fpath_TRRYRA_lbl);
     % envihdrwritex(hdrra_cat,joinPath(save_dir,[bnameRA '.hdr']),'OPT_CMOUT','false');
     copyfile(TRRRAdata.lblpath,fpath_TRRYRA_lbl);
-    system(['chmod --recursive 777 ' fpath_TRRYRA_lbl]);
+    if isunix
+        system(['chmod 777 ' fpath_TRRYRA_lbl]);
+        if verbose, fprintf('"%s": permission is set to 777.\n',fpath_TRRYRA_lbl); end
+    end
     fprintf('Done\n');
     fprintf('Saving %s ...\n',fpath_TRRYRA_img);
     envidatawrite(RDn_woc,fpath_TRRYRA_img,hdrra_cat);
-    system(['chmod --recursive 777 ' fpath_TRRYRA_img]);
+    if isunix
+        system(['chmod 777 ' fpath_TRRYRA_img]);
+        if verbose, fprintf('"%s": permission is set to 777.\n',fpath_TRRYRA_img); end
+    end
     fprintf('Done\n');
 end
 
@@ -459,7 +487,10 @@ switch lower(mode_calib)
         if save_file
             fprintf('Saving %s ...\n',fpath_TRRYIFDF1);
             save(fpath_TRRYIFDF1,'IoF_bk1_o');
-            system(['chmod --recursive 777 ' fpath_TRRYIFDF1]);
+            if isunix
+                system(['chmod 777 ' fpath_TRRYIFDF1]);
+                if verbose, fprintf('"%s": permission is set to 777.\n',fpath_TRRYIFDF1); end
+            end
             fprintf('Done\n');
         end
         
@@ -468,7 +499,10 @@ switch lower(mode_calib)
             if save_file
                 fprintf('Saving %s ...\n',fpath_TRRYIFDF2);
                 save(fpath_TRRYIFDF2,'IoF_bk2_o');
-                system(['chmod --recursive 777 ' fpath_TRRYIFDF2]);
+                if isunix
+                    system(['chmod 777 ' fpath_TRRYIFDF2]);
+                    if verbose, fprintf('"%s": permission is set to 777.\n',fpath_TRRYIFDF2); end
+                end
                 fprintf('Done\n');
             end        
         end

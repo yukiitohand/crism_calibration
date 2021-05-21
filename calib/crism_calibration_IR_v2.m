@@ -299,6 +299,7 @@ else
     bnameDF2_IF = '';
 end
 
+if save_file
 fpath_TRRYIF_img = joinPath(save_dir,[bnameIF,'.IMG']);
 fpath_TRRYIF_lbl = joinPath(save_dir,[bnameIF,'.LBL']);
 fpath_TRRYRA_img = joinPath(save_dir,[bnameRA,'.IMG']);
@@ -340,6 +341,7 @@ if exist_flg
     end
 end
 
+end
 %% main processing
 switch lower(mode_calib)
     case 'yuki'

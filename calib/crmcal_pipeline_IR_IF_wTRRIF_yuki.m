@@ -94,6 +94,14 @@ function [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = crmcal_pipeline_IR_IF_wTRRIF_yuki(.
 %                  1: before non-linearity correction
 %                  0: last (after divided by integration time
 %                  (default) 1
+%
+%   'SPdata'
+%       CRISMdata obj, CDR SPdata
+%       (default) []
+%   'BIdata'
+%       CRISMdata obj, CDR BIdata
+%       (default) []
+
 save_mem = false;
 dwld = 0;
 force_dwld = false;
@@ -101,6 +109,8 @@ dwld_index_cache_update = 0;
 verbose_dwld = 1;
 dwld_overwrite = 0;
 mode_SP = 'MAN';
+SPdata  = [];
+SPdataVNIR = [];
 %
 apbprmvl = 'HighOrd';
 saturation_rmvl = 2;
@@ -116,6 +126,7 @@ bk_mean_robust = 1;
 bk_bprmvl = false;
 bk_mean_DN14 = true;
 %
+BIdata = [];
 
 
 if (rem(length(varargin),2)==1)
@@ -155,6 +166,10 @@ else
                 flat_field = varargin{i+1};
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % for SP processing 
+            case 'SPDATA'
+                SPdata = varargin{i+1};
+            case 'SPDATAVNIR'
+                SPdataVNIR = varargin{i+1};
             case 'SP_APBPRMVL'
                 sp_apbprmvl = varargin{i+1};
                 if ~any(strcmpi(apbprmvl,{'HighOrd','None'}))
@@ -176,10 +191,20 @@ else
                 bk_mean_robust = varargin{i+1};
             case 'BK_MEAN_DN14'
                 bk_mean_DN14 = varargin{i+1};
+            
+                
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            case 'BIDATA'
+                BIdata = varargin{i+1};
+                
             otherwise
                 error('Undefined keyword: %s',varargin{i});
         end
     end
+end
+
+if (isempty(SPdata) && ~isempty(SPdataVNIR)) || (~isempty(SPdata) && isempty(SPdataVNIR))
+    error('You only give SPdata or SPdataVNIR. Enter both if you do custom SP');
 end
 
 TRRIFdata.load_basenamesCDR('Download',dwld,'Force',force_dwld,...
@@ -207,17 +232,19 @@ is_same_df1_df2 = strcmpi(DFdata1.basename,DFdata2.basename);
 
 %-------------------------------------------------------------------------%
 % get BIdata 
-TRRIFdata.readCDR('BI'); BIdata = [];
-for i=1:length(TRRIFdata.cdr.BI)
-    bidata = TRRIFdata.cdr.BI(i);
-    if bidata.lbl.MRO_FRAME_RATE.value == TRRIFdata.lbl.MRO_FRAME_RATE.value
-        if bidata.lbl.PIXEL_AVERAGING_WIDTH == TRRIFdata.lbl.PIXEL_AVERAGING_WIDTH
-            BIdata = [BIdata bidata];
+if isempty(BIdata)
+    TRRIFdata.readCDR('BI'); BIdata = [];
+    for i=1:length(TRRIFdata.cdr.BI)
+        bidata = TRRIFdata.cdr.BI(i);
+        if bidata.lbl.MRO_FRAME_RATE.value == TRRIFdata.lbl.MRO_FRAME_RATE.value
+            if bidata.lbl.PIXEL_AVERAGING_WIDTH == TRRIFdata.lbl.PIXEL_AVERAGING_WIDTH
+                BIdata = [BIdata bidata];
+            end
         end
     end
-end
-if length(BIdata)>1
-    error('BIdata detected twice');
+    if length(BIdata)>1
+        error('BIdata detected twice');
+    end
 end
 
 %-------------------------------------------------------------------------%
@@ -270,9 +297,13 @@ for i=1:length(TRRIFdata.cdr.SP)
     spdata_prop = crism_getProp_basenameCDR4(spdata.basename);
     switch upper(spdata_prop.sensor_id)
         case 'L'
-            SPdata = spdata;
+            if isempty(SPdata)
+                SPdata = spdata;
+            end
         case 'S'
-            SPdataVNIR = spdata;
+            if isempty(SPdataVNIR)
+                SPdataVNIR = spdata;
+            end
         otherwise
             error('sensor_id %s is wrong',sensor_id);
     end

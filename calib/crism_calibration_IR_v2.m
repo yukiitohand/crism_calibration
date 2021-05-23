@@ -45,6 +45,15 @@ function [IoF_woc,RDn_woc,IoF_bk1_o,IoF_bk2_o] = crism_calibration_IR_v2(obs_id,
 %   'VERBOSE'
 %       boolean, whether or not to show operations.
 %       (default) true
+%   'SPdata'
+%       CRISMdata obj, CDR SPdata
+%       (default) []
+%   'SPdataVNIR'
+%       CRISMdata obj, CDR SPdata for VNIR 
+%       (default) []
+%   'BIdata'
+%       CRISMdata obj, CDR BIdata
+%       (default) []
 %   OUTPUTS
 %    IoF_woc     : [L x S x B] I/F image cube, single
 %    RDn_woc     : [L x S x B] Radiance image cube, single
@@ -80,6 +89,9 @@ force_dwld = 0;
 dwld_index_cache_update = 0;
 dwld_overwrite = 0;
 force_dwld = 0;
+SPdata = [];
+SPdataVNIR = [];
+BIdata = [];
 %% variable input arguments
 if (rem(length(varargin),2)==1)
     error('Optional parameters should always go by pairs');
@@ -126,10 +138,19 @@ else
                 dwld_overwrite = varargin{i+1};
             case 'VERBOSE'
                 verbose = varargin{i+1};
+            case 'SPDATA'
+                SPdata = varargin{i+1};
+            case 'SPDATAVNIR'
+                SPdataVNIR = varargin{i+1};
+            case 'BIDATA'
+                SPdata = varargin{i+1};
             otherwise
                 error('Unrecognized option: %s', varargin{i});
         end
     end
+end
+if (isempty(SPdata) && ~isempty(SPdataVNIR)) || (~isempty(SPdata) && isempty(SPdataVNIR))
+    error('You only give SPdata or SPdataVNIR. Enter both if you do custom SP');
 end
 
 if save_file
@@ -378,7 +399,8 @@ switch lower(mode_calib)
         'DWLD_OVERWRITE',dwld_overwrite,'VERBOSE_DWLD',verbose, ...
         'DWLD_INDEX_CACHE_UPDATE',dwld_index_cache_update,...
         'MODE_SP','SOC', 'APBPRMVL','HighOrd','SATURATION_RMVL',2,...
-        'BK_SATURATION_RMVL',2,'BK_BPRMVL',false,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',0);
+        'BK_SATURATION_RMVL',2,'BK_BPRMVL',false,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',0, ...
+        'SPdata',SPdata,'SPdataVNIR',SPdataVNIR,'BIdata',BIdata);
         % [RDn,RDn_woc,RDn_bk1_o,RDn_bk2_o] = crmcal_pipeline_IR_yuki(...
         %     TRRIFdata,EDRdata,DFdata1,DFdata2,BKdata1,BKdata2,2,...
         %     'APBPRMVL','HighOrd','SAVE_MEMORY',save_mem,'SATURATION_RMVL',2,...
@@ -393,7 +415,8 @@ switch lower(mode_calib)
         'DWLD_INDEX_CACHE_UPDATE',dwld_index_cache_update,...
         'MODE_SP','MAN', 'APBPRMVL','HighOrd','SATURATION_RMVL',2,...
         'SP_SATURATION_RMVL',2,'SP_APBPRMVL','HighOrd','SP_MEAN_ROBUST',1,'SP_MEAN_DN14',1,...
-        'BK_SATURATION_RMVL',2,'BK_BPRMVL',false,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',1);
+        'BK_SATURATION_RMVL',2,'BK_BPRMVL',false,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',1, ...
+        'SPdata',SPdata,'SPdataVNIR',SPdataVNIR,'BIdata',BIdata);
     case 'yuki4'
         %custom SPdata
         bkoption = 2;
@@ -404,7 +427,8 @@ switch lower(mode_calib)
         'DWLD_INDEX_CACHE_UPDATE',dwld_index_cache_update,...
         'MODE_SP','MAN', 'APBPRMVL','HighOrd','SATURATION_RMVL',2,'FLAT_FIELD',false,...
         'SP_SATURATION_RMVL',2,'SP_APBPRMVL','HighOrd','SP_MEAN_ROBUST',1,'SP_MEAN_DN14',1,...
-        'BK_SATURATION_RMVL',2,'BK_BPRMVL',false,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',1);
+        'BK_SATURATION_RMVL',2,'BK_BPRMVL',false,'BK_MEAN_ROBUST',1,'BK_MEAN_DN14',1, ...
+        'SPdata',SPdata,'SPdataVNIR',SPdataVNIR,'BIdata',BIdata);
     case 'original'
         error('original mode is not supported yet');
         %[RDn,RDn_woc] = crmcal_pipeline_IR_original(TRRIFdata,EDRdata,...

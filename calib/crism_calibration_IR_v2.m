@@ -143,7 +143,7 @@ else
             case 'SPDATAVNIR'
                 SPdataVNIR = varargin{i+1};
             case 'BIDATA'
-                SPdata = varargin{i+1};
+                BIdata = varargin{i+1};
             otherwise
                 error('Unrecognized option: %s', varargin{i});
         end
@@ -155,8 +155,8 @@ end
 
 if save_file
     if save_pdir==-1
-        error(['No default directory crism_env_vars.dir_YUK is defined. ' ...
-            'Please update crismToolbox.json and rerun crism_init, ' ...
+        error(['No default directory crism_env_vars.dir_TRRX is defined. ' ...
+            'Please update crismToolbox.json and run crism_init, ' ...
             'or manually specify "SAVE_PDIR".']);
     elseif ~exist(save_pdir,'dir')
         [status] = mkdir(save_pdir);

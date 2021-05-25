@@ -242,9 +242,9 @@ if isempty(BIdata)
             end
         end
     end
-    if length(BIdata)>1
-        error('BIdata detected twice');
-    end
+end
+if length(BIdata)>1
+    error('BIdata detected twice');
 end
 
 %-------------------------------------------------------------------------%

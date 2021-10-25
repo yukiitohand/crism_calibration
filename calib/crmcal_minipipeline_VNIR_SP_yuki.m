@@ -63,7 +63,7 @@ else
         switch upper(varargin{i})
             case 'BINNING_SP'
                 binning_sp = varargin{i+1};
-                binx_sp = crism_get_binning(binning_sp);
+                binx_sp = crism_get_binx(binning_sp);
             case 'BINX_SP'
                 binx_sp = varargin{i+1};
                 binning_sp = crism_get_binning_id(binx_sp);

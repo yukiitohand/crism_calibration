@@ -42,7 +42,7 @@ else
                 rate_id = varargin{i+1};
             case 'BINNING'
                 binning = varargin{i+1};
-                binx = crism_get_binning(binning);
+                binx = crism_get_binx(binning);
             case 'BINX'
                 binx = varargin{i+1};
             otherwise

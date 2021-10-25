@@ -38,7 +38,7 @@ else
         switch upper(varargin{i})
             case 'BINNING'
                 binning = varargin{i+1};
-                binx = crism_get_binning(binning);
+                binx = crism_get_binx(binning);
                 columns = columns/binx;
             case 'BINX'
                 binx = varargin{i+1};

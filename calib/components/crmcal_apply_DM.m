@@ -25,17 +25,20 @@ else
     end
 end
 
-[L,~,~] = size(RDm);
+% [L,~,~] = size(RDm);
 
 if isempty(DMdata.img), DMdata.readimg(); end
 
 mask = DMdata.img;
 
-RDn = RDm;
-for l=1:L
-    RD_l = RDm(l,:,:);
-    RD_l(mask~=1) = missing_constant;
-    RDn(l,:,:) = RD_l;
-end
+% RDn = RDm;
+% for l=1:L
+%     RD_l = RDm(l,:,:);
+%     RD_l(mask~=1) = missing_constant;
+%     RDn(l,:,:) = RD_l;
+% end
+
+mask = (mask==1);
+RDn = RDm .* mask + (~mask) .* missing_constant;
 
 end

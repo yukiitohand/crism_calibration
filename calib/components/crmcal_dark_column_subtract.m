@@ -15,12 +15,17 @@ if isempty(DMdata.img), DMdata.readimg(); end
 darkMask = double(DMdata.img == 2);
 darkMask(darkMask==0) = nan;
 imgDark = RT14h;
-for l=1:L
-    imgDark(l,:,:) = imgDark(l,:,:) .* darkMask;
-end
-imgDark = reshape(permute(imgDark,[2,3,1]),[S*B,L]);
-dc = nanmedian(imgDark,1);
-dc = squeeze(dc)';
-RT14h2 = RT14h - repmat(dc,[1,S,B]);
+% for l=1:L
+%     imgDark(l,:,:) = imgDark(l,:,:) .* darkMask;
+% end
+
+imgDark = imgDark .* darkMask;
+% imgDark = reshape(permute(imgDark,[2,3,1]),[S*B,L]);
+% dc = median(imgDark,1,'omitnan');
+% dc = squeeze(dc)';
+% RT14h2 = RT14h - repmat(dc,[1,S,B]);
+
+dc = median(imgDark,[2,3],'omitnan');
+RT14h2 = RT14h - dc;
 
 end

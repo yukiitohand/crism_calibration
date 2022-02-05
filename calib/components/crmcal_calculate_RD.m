@@ -50,11 +50,16 @@ if flat_field
     %     FF(l,:,:) = FL + EP .* log(RTj(l,:,:) ./ RSPl) ;
     % end
     
-    FF = FL + EP .* log(RTj./RSPl) ;
+    if all(abs(EP)<1e-10)
+        FF = FL;
+    else
+        FF = FL + EP .* log(RTj./RSPl) ;
+    end
         
     % FF = repmat(FL,[L,1,1]) + repmat(EP,[L,1,1]) .* log( RTj ./ repmat(RSPl,[L,1,1]) );
 
-    RDm = RTj ./ (FF .* repmat(RSPl,[L,1,1]));
+    % RDm = RTj ./ (FF .* repmat(RSPl,[L,1,1]));
+    RDm = RTj ./ (FF.*RSPl);
 else
     RDm = RTj ./ RSPl;
     FF = [];

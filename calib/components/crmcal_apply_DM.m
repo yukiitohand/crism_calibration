@@ -25,7 +25,7 @@ else
     end
 end
 
-% [L,~,~] = size(RDm);
+[L,~,~] = size(RDm);
 
 if isempty(DMdata.img), DMdata.readimg(); end
 
@@ -39,6 +39,9 @@ mask = DMdata.img;
 % end
 
 mask = (mask==1);
-RDn = RDm .* mask + (~mask) .* missing_constant;
+RDn = RDm;
+notmask = ~mask;
+notmask = repmat(notmask,[L,1,1]);
+RDn(notmask) = missing_constant;
 
 end

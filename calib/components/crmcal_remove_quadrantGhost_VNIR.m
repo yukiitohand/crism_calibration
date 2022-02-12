@@ -54,13 +54,16 @@ C = crism_frame_rateTABformatter(rate,GHdata.tab,'VNIR_GHOST_C','BINX',binx);
 D = crism_frame_rateTABformatter(rate,GHdata.tab,'VNIR_GHOST_D','BINX',binx);
 E = crism_frame_rateTABformatter(rate,GHdata.tab,'VNIR_GHOST_E','BINX',binx);
 
-GHOST_DN = zeros([L,S,Bands]);
-for b=1:Bands
-    DN14a_b = DN14a(:,:,b);
-    GHOST_DN_b = A + D.*(B-C)./2.*log(cosh(E./D)) ...
-        + (B+C)./2.*DN14a_b-(D.*(B-C)./2.*log(cosh((DN14a_b-E)./D)));
-    GHOST_DN(:,:,b) = GHOST_DN_b;
-end
+% GHOST_DN = zeros([L,S,Bands]);
+% for b=1:Bands
+%     DN14a_b = DN14a(:,:,b);
+%     GHOST_DN_b = A + D.*(B-C)./2.*log(cosh(E./D)) ...
+%         + (B+C)./2.*DN14a_b-(D.*(B-C)./2.*log(cosh((DN14a_b-E)./D)));
+%     GHOST_DN(:,:,b) = GHOST_DN_b;
+% end
+
+GHOST_DN = A + D.*(B-C)./2.*log(cosh(E./D)) ...
+        + (B+C)./2.*DN14a-(D.*(B-C)./2.*log(cosh((DN14a-E)./D)));
 
 % sum GHOST_DN
 x = crism_get_quadrantPxl(1,'BINX',binx);

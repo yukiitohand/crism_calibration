@@ -24,6 +24,7 @@ end
 
 [t] = crism_get_integrationTime(integ_t,rate);
 
-RT14g = DN14g ./ repmat(t,[1,S,Bands]);
+% RT14g = DN14g ./ repmat(t,[1,S,Bands]);
+RT14g = DN14g ./ t;
 
 end

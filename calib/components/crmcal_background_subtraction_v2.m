@@ -46,7 +46,9 @@ t_scene = t_scene(:);
 %     Bkgd(l,:,:) = Bkgdl;
 % end
 % Bkgd = Bkgd ./ dt;
-Bkgd = repmat(RTD1,[L,1,1]); % just use the prior dark measurement
+% Bkgd = repmat(RTD1,[L,1,1]); % just use the prior dark measurement
+
+Bkgd = RTD1;
 
 RT14h = RT14g - Bkgd;
 

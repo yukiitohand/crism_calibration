@@ -48,8 +48,8 @@ SL = nan(L,S,B);
 % stripe removal of the band lam0
 %-------------------------------------------------------------------------%
 % lambda0 == (detector row 187)
-% [~,lam0] = ismember([185 186 187],rownum_table);
-[~,lam0] = ismember([187],rownum_table);
+[~,lam0] = ismember([186 187 188],rownum_table);
+% [~,lam0] = ismember([187],rownum_table);
 if any(lam0==0), error('detector 187 is not used'); end
 
 % s_w = zeros(1,S);
@@ -79,8 +79,8 @@ if any(blt563eq0), blt563 = blt563(blt563eq0); end
 
 % scatMask = (DMdata.img(:,:,lam0(1)) == 4);
 
-RT14h_ab_mean = nanmean(RT14h(:,scatMask,:),2); % L x 1 x B
-SW = nanmean(RT14h(:,:,lam0),3) ./ nanmean(RT14h_ab_mean(:,:,lam0),3); % L x S x 1
+RT14h_ab_mean = mean(RT14h(:,scatMask,:),2,'omitnan'); % L x 1 x B
+SW = mean(RT14h(:,:,lam0),3,'omitnan') ./ mean(RT14h_ab_mean(:,:,lam0),3,'omitnan'); % L x S x 1
 
 if L==1
     SL(:,:,blt563) = SW.*RT14h_ab_mean(:,:,blt563);
@@ -118,23 +118,24 @@ xk = xS .* xk_valid; % (size of xk) = [1,S,1]
 % end
 
 CB_coeff = 1 ./ (1+((xS-xk').*binx./10).^2);
-Bx = 1./nansum(CB_coeff,2);
+Bx = 1./sum(CB_coeff,1,'omitnan');
 CB_coeff_nrmed = CB_coeff.*Bx;
 CB = nan(L,S,B);
 for l=1:L
 %     CBlk = reshape(permute(RT14h(l,:,:),[1,3,2]),[1,1,B,S]);
 %     CB(l,:,:) = Bx .* nansum( CBlk .* CB_coeff , 4);
-    CBlk = squeeze(RT14h(l,:,:)); % S x B
-    for b=1:B
-        CBlb = nansum(CB_coeff_nrmed .* CBlk(:,b),1); % (SxS) .* (Sx1)
-        CB(l,:,b) = CBlb;
-    end
+%     CBlk = squeeze(RT14h(l,:,:)); % S x B
+%     for b=1:B
+%         CBlb = sum(CB_coeff_nrmed .* CBlk(:,b),1,'omitnan'); % (SxS) .* (Sx1)
+%         CB(l,:,b) = CBlb;
+%     end
+    CBlk = permute(RT14h(l,:,:),[2,1,3]); % S x 1 x B
+    CB(l,:,:) = sum(CB_coeff_nrmed .* CBlk,1,'omitnan');
 end
 
-
 % SW_cd_mean = nanmean(SW(:,c2d,:),2); % L x 1 x B
-RT14h_cd_mean = nanmean(RT14h(:,c2d,:),2); % L x 1 x B
-CS = SW .* (CB./nanmean(CB(:,:,lam0),3)) .* (nanmean(RT14h_cd_mean(:,:,lam0),3)./RT14h_cd_mean);
+RT14h_cd_mean = mean(RT14h(:,c2d,:),2,'omitnan'); % L x 1 x B
+CS = SW .* (CB./mean(CB(:,:,lam0),3,'omitnan')) .* (mean(RT14h_cd_mean(:,:,lam0),3,'omitnan')./RT14h_cd_mean);
 
 if L==1
     SL(:,:,bgt563) = CS(:,:,bgt563).*RT14h_ab_mean(:,:,bgt563);

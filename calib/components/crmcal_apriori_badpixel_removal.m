@@ -48,28 +48,42 @@ DN14c = DN14b;
 %     DN14c(l,:,:) = d;
 % end
 
-inMask = DMdata.img~=1;
+% inMask = DMdata.img~=1;
 outMask = DMdata.img==1;
 
 switch interpOpt
     case 1
         % interpolation
         for b = 1:B
-            imb = DN14c(:,:,b);
+            imb = DN14c(:,:,b)';
             imbip = imb;
             bp = squeeze(BP(1,:,b));
             bp = and((bp==1),squeeze(outMask(1,:,b)));
-            gp = and((bp==0),squeeze(outMask(1,:,b)));
-            gp = find(gp);
-            xq = 1:S;
-            for l=1:L
-                if length(gp) > 0.1*S
-                    y1ip = interp1(gp,imb(l,gp),xq(bp),'linear','extrap');
-                    imbip(l,bp) = y1ip;
-                end
+            gp_bool = and((bp==0),squeeze(outMask(1,:,b)));
+            gp = find(gp_bool)';
+            xq = 1:S; xq = xq(bp)';
+            if length(gp) > 0.1*S
+                imbip(bp,:) = interp1(gp,imb(gp_bool,:),xq,'linear','extrap');
+                % imbip(l,bp) = y1ip;
             end
-            DN14c(:,:,b) = imbip;
+            DN14c(:,:,b) = imbip';
         end
+%         for b = 1:B
+%             imb = DN14c(:,:,b);
+%             imbip = imb;
+%             bp = squeeze(BP(1,:,b));
+%             bp = and((bp==1),squeeze(outMask(1,:,b)));
+%             gp = and((bp==0),squeeze(outMask(1,:,b)));
+%             gp = find(gp);
+%             xq = 1:S;
+%             for l=1:L
+%                 if length(gp) > 0.1*S
+%                     y1ip = interp1(gp,imb(l,gp),xq(bp),'linear','extrap');
+%                     imbip(l,bp) = y1ip;
+%                 end
+%             end
+%             DN14c(:,:,b) = imbip;
+%         end
     case 2
 end
 

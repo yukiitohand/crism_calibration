@@ -27,7 +27,9 @@ ir_offset = IR_OFFSET(idx);
 ir_gain = reshape(ir_gain,[1,1,B]);
 ir_offset = reshape(ir_offset,[1,1,B]);
 
-DN14 = repmat(ir_offset,[L,S,1]) + DN ./ repmat(ir_gain,[L,S,1]);
+% DN14 = repmat(ir_offset,[L,S,1]) + DN ./ repmat(ir_gain,[L,S,1]);
+
+DN14 = ir_offset + DN ./ ir_gain;
 
 end
 

@@ -61,8 +61,9 @@ IR_SENSITIVITY_LIMIT = crism_rateQuadrantTABformatter(rate_id,VLdata.tab,'IR_SEN
 
 % next detect dead pixels
 RT14j_dm     = crmcal_apply_DM(RT14j,DMdata);
-RT14j_dm_ext = reshape(RT14j_dm,[L*S,B]);
-RT14j_dm_med = reshape(nanmedian(RT14j_dm_ext,1),[1,1,B]);
+% RT14j_dm_ext = reshape(RT14j_dm,[L*S,B]);
+% RT14j_dm_med = reshape(nanmedian(RT14j_dm_ext,1),[1,1,B]);
+RT14j_dm_med = median(RT14j_dm,[1,2],'omitnan');
 mask_dead = RT14j_dm < (IR_SENSITIVITY_LIMIT.*RT14j_dm_med);
 RT14jj(mask_dead) = nan;
 

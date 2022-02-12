@@ -27,6 +27,6 @@ vnir_offset = VNIR_OFFSET(idx);
 vnir_gain = reshape(vnir_gain,[1,1,B]);
 vnir_offset = reshape(vnir_offset,[1,1,B]);
 
-DN14 = repmat(vnir_offset,[L,S,1]) + DN ./ repmat(vnir_gain,[L,S,1]);
+DN14 = vnir_offset + DN ./ vnir_gain;
 
 end

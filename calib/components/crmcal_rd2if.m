@@ -10,9 +10,11 @@ function [IoF] = crmcal_rd2if(RDn,SFdata,r)
 
 if isempty(SFdata.img), SFdata.readimg(); end
 
-[L,S,B] = size(RDn);
+% [L,S,B] = size(RDn);
 
-IoF = pi .* RDn ./ SFdata.img .* (r.^2);
+% IoF = pi .* RDn ./ SFdata.img .* (r.^2);
+
+IoF = pi .* (r.^2) ./ SFdata.img .* RDn;
 
 % IoF = nan(size(RDn));
 % for l=1:L

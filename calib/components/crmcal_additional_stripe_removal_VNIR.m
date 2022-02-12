@@ -18,7 +18,7 @@ s_w = ones(1,S);
 sceneMask = DMdata.img(:,:,lam0(1))==1;
 s_w(squeeze(sceneMask)) = 9;
 
-imgmean = nanmean(RDm,1);
+imgmean = mean(RDm,1,'omitnan');
 imgmean_smooth = nan(size(imgmean));
 for b=1:B
     [imgmean_smooth(:,:,b)] = crmcal_movemean_robust1d_batchsort(imgmean(:,:,b)','Window_Size',s_w);

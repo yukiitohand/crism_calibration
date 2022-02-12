@@ -107,8 +107,10 @@ row_lambdaList = reshape(rownum_table,[1 1 B])+1;
 integ_t = cat(1,hkt.data.EXPOSURE);
 term_integ_t = (502/480)*(480-integ_t);
 
-term3 = repmat(a0I,[1,1,B]) ...
-    .*heaviside(repmat(row_lambdaList,[L,S,1])-repmat(term_integ_t,[1,S,B]));
+% term3 = repmat(a0I,[1,1,B]) ...
+%     .*heaviside(repmat(row_lambdaList,[L,S,1])-repmat(term_integ_t,[1,S,B]));
+
+term3 = a0I .* heaviside(row_lambdaList-term_integ_t);
 
 % what is the right way to do? mean or 
 beta_I = crism_rateQuadrantTABformatter(rate,DBdata.tab,'A','BINX',binx);
@@ -118,13 +120,17 @@ T_aI = cat(1,hkt.data.IR_DETECTOR_TEMP1);
 % T_aI = T_aI(:);
 T_bI = BIdata.lbl.MRO_DETECTOR_TEMPERATURE;
 
-term4 = repmat(beta_I,[1,1,B]) .* repmat(T_aI-T_bI,[1,S,B]);
+% term4 = repmat(beta_I,[1,1,B]) .* repmat(T_aI-T_bI,[1,S,B]);
+
+term4 = beta_I .* (T_aI-T_bI);
 
 beta_J = crism_rateQuadrantTABformatter(rate,EBdata.tab,'A','BINX',binx);
 T_aJ = cat(1,hkt.data.IR_FPU_BOARD_TEMP);
 T_bJ = BIdata.lbl.MRO_FPE_TEMPERATURE;
 
-term5 = repmat(beta_J,[1,1,B]) .* repmat(T_aJ-T_bJ,[1,S,B]);
+% term5 = repmat(beta_J,[1,1,B]) .* repmat(T_aJ-T_bJ,[1,S,B]);
+
+term5 = beta_J .* (T_aJ-T_bJ);
 
 BI_m = term2 - term3 - term4 + term5; % + or -?
 

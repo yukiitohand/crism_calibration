@@ -30,7 +30,8 @@ for n=1:6
         % I don't understand why +1 is necessary. 2018.11.24
         % +1 is removed.
         crd_index = arrayfun(@(x) find(LLdata.ROWNUM_TABLE==x),crd);
-        tmp = repmat(cffs(1,s,valids(s,:)),[L,1,1]) .* RT14i(:,s,crd_index);
+        % tmp = repmat(cffs(1,s,valids(s,:)),[L,1,1]) .* RT14i(:,s,crd_index);
+        tmp = cffs(1,s,valids(s,:)) .* RT14i(:,s,crd_index);
         tmp_isnan = isnan(tmp);
         tmp(tmp_isnan) = 0;
         if ~isempty(crd)

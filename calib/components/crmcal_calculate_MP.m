@@ -67,11 +67,16 @@ idxB_RGS = arrayfun(@(x) find(SHdataVNIR.ROWNUM_TABLE==x),rownum_B);
 idxA_SS = arrayfun(@(x) find(SSdataVNIR.ROWNUM_TABLE==x),rownum_A);
 idxB_SS = arrayfun(@(x) find(SSdataVNIR.ROWNUM_TABLE==x),rownum_B);
 RGSA = RGS14(1,:,idxA_RGS).*SR_Tc3(1,:,idxA_SS)./SR_Tg3(1,:,idxA_SS);
-RGSA = squeeze(nansum(nansum(RGSA,2),3));
+% RGSA = squeeze(nansum(nansum(RGSA,2),3));
+RGSA = sum(RGSA,[2,3],'omitnan');
 RGSB = RGS14(1,:,idxB_RGS).*SR_Tc3(1,:,idxB_SS)./SR_Tg3(1,:,idxB_SS);
-RGSB = squeeze(nansum(nansum(RGSB,2),3));
-MP = squeeze(nansum(nansum(RTS14(1,:,idxB_RTS),3),2)) ./ RGSB ...
-              - squeeze(nansum(nansum(RTS14(1,:,idxA_RTS),3),2)) ./ RGSA;
+% RGSB = squeeze(nansum(nansum(RGSB,2),3));
+RGSB = sum(RGSB,[2,3],'omitnan');
+% MP = squeeze(nansum(nansum(RTS14(1,:,idxB_RTS),3),2)) ./ RGSB ...
+%               - squeeze(nansum(nansum(RTS14(1,:,idxA_RTS),3),2)) ./ RGSA;
+
+MP = sum(RTS14(1,:,idxB_RTS),[2,3],'omitnan') ./ RGSB ...
+              - sum(RTS14(1,:,idxA_RTS),[2,3],'omitnan') ./ RGSA;
 
 end
 

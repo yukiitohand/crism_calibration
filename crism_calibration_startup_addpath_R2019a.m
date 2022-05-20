@@ -1,5 +1,5 @@
-function [] = crism_calibration_startup_addpath(error_if_not_unique,silent_if_not_unique)
-% crism_calibration_startup_addpath
+function [] = crism_calibration_startup_addpath_R2019a(varargin)
+% crism_calibration_startup_addpath_R2019a
 %  Add paths of crism_calibration toolbox, while solving dependent toolboxes.
 %  Dependent toolboxes: 
 %     base
@@ -8,9 +8,9 @@ function [] = crism_calibration_startup_addpath(error_if_not_unique,silent_if_no
 %     crism_toolbox
 % 
 %  USAGE
-%  >> crism_calibration_addpath()
-%  >> crism_calibration_addpath(error_if_not_unique)
-%  >> crism_calibration_addpath(error_if_not_unique,silent_if_not_unique)
+%  >> crism_calibration_startup_addpath_R2019a()
+%  >> crism_calibration_startup_addpath_R2019a(error_if_not_unique)
+%  >> crism_calibration_startup_addpath_R2019a(error_if_not_unique,silent_if_not_unique)
 %  
 % Optional Input Arguments
 % error_if_not_unique: boolean, (default) false
@@ -21,14 +21,23 @@ function [] = crism_calibration_startup_addpath(error_if_not_unique,silent_if_no
 %   found or multiple versions are detected. If error_if_not_unique, then
 %   this does not have any effect (since error will be thrown.)
 %
-% Only supports MATLAB versions since R2019b
+% Also supports MATLAB versions < R2019b
 % 
 
-% arguments block only supported versions since R2019b
-arguments
-    error_if_not_unique  (1,1) {mustBeMember(error_if_not_unique,[0,1])}  = false;
-    silent_if_not_unique (1,1) {mustBeMember(silent_if_not_unique,[0,1])} = false;
-end
+error_if_not_unique_default  = false;
+silent_if_not_unique_default = false;
+
+p = inputParser;
+p.FunctionName = mfilename;
+p.addOptional('error_if_not_unique' ,error_if_not_unique_default, ...
+    @(x)validateattributes(x,'numeric',{'scalar','binary'},1));
+p.addOptional('silent_if_not_unique',silent_if_not_unique_default, ...
+    @(x)validateattributes(x,'numeric',{'scalar','binary'},2));
+
+parse(p,varargin{:});
+
+error_if_not_unique  = p.Results.error_if_not_unique;
+silent_if_not_unique = p.Results.silent_if_not_unique;
 
 %% Automatically find the path to toolboxes
 fpath_self = mfilename('fullpath');

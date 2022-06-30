@@ -247,7 +247,7 @@ function [DFdata] = get_DFdata(EDRSPdata,obs_counter,dwld)
     [dir_info,basenameEDRDF] = crism_search_observation_fromProp(propEDRDF,'dwld',dwld);
 
     DFdata = CRISMdata(basenameEDRDF,'');
-    DFdata.download(2);
+    DFdata.download(dwld);
 end
 
 function [BPdata] = get_BPdata_fromDF(DFdata,binning_id_sp,dwld)

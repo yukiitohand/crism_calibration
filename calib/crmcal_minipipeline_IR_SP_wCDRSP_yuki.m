@@ -176,7 +176,7 @@ EDRBIdataList = SPdata.read_SOURCE_OBS('BI');
 frame_rate = SPdata.lbl.MRO_FRAME_RATE.value;
 EDRBIdataList_s = CRISMdata.empty(0,0);
 for i=1:length(EDRBIdataList)
-    if EDRBIdataList(i).lbl.MRO_FRAME_RATE.value == frame_rate
+    if ~isempty(EDRBIdataList(i).lbl) && EDRBIdataList(i).lbl.MRO_FRAME_RATE.value == frame_rate
         EDRBIdataList_s = [EDRBIdataList_s EDRBIdataList(i)];
     end
 end

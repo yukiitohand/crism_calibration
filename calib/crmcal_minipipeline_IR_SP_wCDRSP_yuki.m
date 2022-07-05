@@ -181,6 +181,10 @@ for i=1:length(EDRBIdataList)
     end
 end
 
+if isempty(EDRBIdataList_s)
+    error('There is no EDR BI data with the same frame-rate as SP data.');
+end
+
 % sometimes two or more different sets of BI EDR is selected.
 edrbi_dirnames_s = unique({EDRBIdataList_s.dirname});
 edrbi_groups_s = cellfun(@(x) find(strcmpi(x,edrbi_dirnames_s)), {EDRBIdataList_s.dirname});

@@ -93,6 +93,7 @@ function [onPath] = check_path_exist(dirpath, pathCell)
     end
 end
 
+<<<<<<< HEAD
 function [toolbox_dirpath,toolbox_dirname,Nt] = get_toolbox_dirname( ...
     dList,toolbox_dirname_wover,error_if_not_unique,silent_if_not_unique)
 % [toolbox_dirpath,toolbox_dirname,Nt] = get_toolbox_dirname( ...
@@ -124,8 +125,7 @@ function [toolbox_dirpath,toolbox_dirname,Nt] = get_toolbox_dirname( ...
 %     directory name of the toolbox (without versions if exists).
 %   Nt: number of toolboxes detected.
 %
-    dirname_ptrn = sprintf('(?<toolbox_dirname>%s(-[\\d\\.]+){0,1}[/]{0,1})',...
-        toolbox_dirname_wover);
+    dirname_ptrn = sprintf('(?<toolbox_dirname>%s(-[\\d\\.]+){0,1}[%s]{0,1})',toolbox_dirname_wover,filesep);
     mtch_toolbox_dirname = regexpi({dList.name},dirname_ptrn,'names');
     mtchidx = find(not(cellfun('isempty',mtch_toolbox_dirname)));
     toolbox_root_dir = dList(1).folder;

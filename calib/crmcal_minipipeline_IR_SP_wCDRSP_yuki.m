@@ -176,9 +176,13 @@ EDRBIdataList = SPdata.read_SOURCE_OBS('BI');
 frame_rate = SPdata.lbl.MRO_FRAME_RATE.value;
 EDRBIdataList_s = CRISMdata.empty(0,0);
 for i=1:length(EDRBIdataList)
-    if EDRBIdataList(i).lbl.MRO_FRAME_RATE.value == frame_rate
+    if ~isempty(EDRBIdataList(i).lbl) && EDRBIdataList(i).lbl.MRO_FRAME_RATE.value == frame_rate
         EDRBIdataList_s = [EDRBIdataList_s EDRBIdataList(i)];
     end
+end
+
+if isempty(EDRBIdataList_s)
+    error('There is no EDR BI data with the same frame-rate as SP data.');
 end
 
 % sometimes two or more different sets of BI EDR is selected.
@@ -247,7 +251,7 @@ function [DFdata] = get_DFdata(EDRSPdata,obs_counter,dwld)
     [dir_info,basenameEDRDF] = crism_search_observation_fromProp(propEDRDF,'dwld',dwld);
 
     DFdata = CRISMdata(basenameEDRDF,'');
-    DFdata.download(2);
+    DFdata.download(dwld);
 end
 
 function [BPdata] = get_BPdata_fromDF(DFdata,binning_id_sp,dwld)

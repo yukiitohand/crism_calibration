@@ -64,7 +64,7 @@ function [onPath] = check_path_exist(dirpath, pathCell)
 end
 
 function [toolbox_dirpath,toolbox_dirname] = get_toolbox_dirname(dList,toolbox_dirname_wover,error_if_not_unique)
-    dirname_ptrn = sprintf('(?<toolbox_dirname>%s(-[\\d\\.]+){0,1}[/]{0,1})',toolbox_dirname_wover);
+    dirname_ptrn = sprintf('(?<toolbox_dirname>%s(-[\\d\\.]+){0,1}[%s]{0,1})',toolbox_dirname_wover,filesep);
     mtch_toolbox_dirname = regexpi({dList.name},dirname_ptrn,'names');
     mtchidx = find(not(cellfun('isempty',mtch_toolbox_dirname)));
     toolbox_root_dir = dList(1).folder;

@@ -139,12 +139,12 @@ binx_sp = SPdata.lbl.PIXEL_AVERAGING_WIDTH;
 binning_id_sp = crism_get_binning_id(binx_sp);
 
 % if isempty(SPdata.basenamesCDR)
-    SPdata.load_basenamesCDR('Download',dwld,'Force',force_dwld, ...
-        'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
+    SPdata.load_basenamesCDR('Download',dwld, ...
+        'OVERWRITE',dwld_overwrite,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
 % end
 % if isempty(SPdata.basenames_SOURCE_OBS)
-    SPdata.load_basenames_SOURCE_OBS('Download',dwld,'Force',force_dwld, ...
-        'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
+    SPdata.load_basenames_SOURCE_OBS('Download',dwld, ...
+        'OVERWRITE',dwld_overwrite,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
 % end
 
 %-------------------------------------------------------------------------%
@@ -273,7 +273,7 @@ function [BPdata] = get_BPdata_fromDF(DFdata,binning_id_sp,dwld)
     if isempty(extractMatchedBasename_v2(DFdata.basename,BPdata.lbl.SOURCE_PRODUCT_ID))
         fprintf('It seems no BPdata associated with %s.\n in local database',DFdata.basename);
         fprintf('Connect to remote server...\n');
-        [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1,'force',1);
+        [basenameBPmrb,propBPmrb] = crism_searchCDRmrb(propBP_search,'dwld',1);
         crism_get_dirpath_cdr(basenameBPmrb,'dwld',dwld);
         BPdata = CRISMdata(basenameBPmrb,'');
         if isempty(extractMatchedBasename_v2(DFdata.basename,BPdata.lbl.SOURCE_PRODUCT_ID))
@@ -313,7 +313,7 @@ function [BIdata] = get_BIdata_fromEDRBI(EDRBIdataList_s,binning_id_sp,dwld)
         end
     end
     if ~is_in_local_database
-        [basenameBImrb,propBImrb] = crism_searchCDRmrb(propBI_search,'dwld',1,'force',1);
+        [basenameBImrb,propBImrb] = crism_searchCDRmrb(propBI_search,'dwld',1);
         crism_get_dirpath_cdr(basenameBImrb,'dwld',dwld);
         BIdata = CRISMdata(basenameBImrb,'');
         for ii=1:length(EDRBIdataList_s)
@@ -346,7 +346,7 @@ function [BKdata] = get_BKdata_fromDF(DFdata,binning_id_sp,dwld)
     if isempty(extractMatchedBasename_v2(DFdata.basename,BKdata.lbl.SOURCE_PRODUCT_ID))
         fprintf('It seems no BKdata associated with %s.\n in local database',DFdata.basename);
         fprintf('Connect to remote server...\n');
-        [basenameBKmrb,propBKmrb] = crism_searchCDRmrb(propBK_search,'dwld',1,'force',1);
+        [basenameBKmrb,propBKmrb] = crism_searchCDRmrb(propBK_search,'dwld',1);
         crism_get_dirpath_cdr(basenameBKmrb,'dwld',dwld);
         BKdata = CRISMdata(basenameBKmrb,'');
         if isempty(extractMatchedBasename_v2(DFdata.basename,BKdata.lbl.SOURCE_PRODUCT_ID))

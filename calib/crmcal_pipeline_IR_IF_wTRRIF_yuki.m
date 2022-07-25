@@ -207,10 +207,10 @@ if (isempty(SPdata) && ~isempty(SPdataVNIR)) || (~isempty(SPdata) && isempty(SPd
     error('You only give SPdata or SPdataVNIR. Enter both if you do custom SP');
 end
 
-TRRIFdata.load_basenamesCDR('Download',dwld,'Force',force_dwld,...
-    'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
-TRRIFdata.load_basenames_SOURCE_OBS('Download',dwld,'Force',force_dwld,...
-    'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
+TRRIFdata.load_basenamesCDR('Download',dwld,...
+    'OVERWRITE',dwld_overwrite,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
+TRRIFdata.load_basenames_SOURCE_OBS('Download',dwld,...
+    'OVERWRITE',dwld_overwrite,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
 
 %-------------------------------------------------------------------------%
 % get EDRdata from TRRIFdata
@@ -219,7 +219,7 @@ if iscell(basenameEDR)
     error('Mulitple EDR is used. not supported.');
 end
 EDRdata = CRISMdata(basenameEDR,'');
-EDRdata.download(dwld,'Force',force_dwld);
+EDRdata.download(dwld);
 
 %-------------------------------------------------------------------------%
 % get DFdata

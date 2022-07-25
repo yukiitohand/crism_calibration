@@ -86,12 +86,12 @@ else
 end
 
 if isempty(CDRBKdata.basenamesCDR)
-    CDRBKdata.load_basenamesCDR('Download',dwld,'FORCE',force_dwld, ...
-        'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
+    CDRBKdata.load_basenamesCDR('Download',dwld, ...
+        'OVERWRITE',dwld_overwrite,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
 end
 if isempty(CDRBKdata.basenames_SOURCE_OBS)
-    CDRBKdata.load_basenames_SOURCE_OBS('Download',dwld,'FORCE',force_dwld, ...
-        'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update); 
+    CDRBKdata.load_basenames_SOURCE_OBS('Download',dwld, ...
+        'OVERWRITE',dwld_overwrite,'INDEX_CACHE_UPDATE',dwld_index_cache_update); 
 end
 
 %-------------------------------------------------------------------------%

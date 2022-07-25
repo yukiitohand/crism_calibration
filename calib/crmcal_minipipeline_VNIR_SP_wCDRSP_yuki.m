@@ -122,12 +122,12 @@ binx_sp = SPdata.lbl.PIXEL_AVERAGING_WIDTH;
 binning_id_sp = crism_get_binning_id(binx_sp);
 
 % if isempty(SPdata.basenamesCDR)
-    SPdata.load_basenamesCDR('Download',dwld,'Force',force_dwld, ...
-        'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
+    SPdata.load_basenamesCDR('Download',dwld, ...
+        'OVERWRITE',dwld_overwrite,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
 % end
 % if isempty(SPdata.basenames_SOURCE_OBS)
-    SPdata.load_basenames_SOURCE_OBS('Download',dwld,'Force',force_dwld,...
-        'OVERWRITE',dwld_overwrite,'VERBOSE',verbose_dwld,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
+    SPdata.load_basenames_SOURCE_OBS('Download',dwld,...
+        'OVERWRITE',dwld_overwrite,'INDEX_CACHE_UPDATE',dwld_index_cache_update);
 % end
 
 %-------------------------------------------------------------------------%

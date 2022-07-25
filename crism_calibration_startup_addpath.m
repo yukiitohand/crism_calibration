@@ -93,7 +93,6 @@ function [onPath] = check_path_exist(dirpath, pathCell)
     end
 end
 
-<<<<<<< HEAD
 function [toolbox_dirpath,toolbox_dirname,Nt] = get_toolbox_dirname( ...
     dList,toolbox_dirname_wover,error_if_not_unique,silent_if_not_unique)
 % [toolbox_dirpath,toolbox_dirname,Nt] = get_toolbox_dirname( ...

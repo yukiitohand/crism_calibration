@@ -197,7 +197,7 @@ for gi=1:length(edrbi_dirnames_s)
         [sclk_start_i] = EDRBIdataList_s(idxes(iii)).get_sclk_start();
         sclk_mean_list(iii) = (sclk_start_i + sclk_stop_i) / 2;
     end
-    sclk_edrbi_groups(gi) = nanmean(sclk_mean_list);
+    sclk_edrbi_groups(gi) = mean(sclk_mean_list,'omitnan');
 end
 [~,edrbi_closest] = min(abs(SPdata.prop.sclk-sclk_edrbi_groups));
 EDRBIdataList_ss = EDRBIdataList_s(edrbi_groups_s==edrbi_closest);

@@ -172,19 +172,20 @@ DFdata2.download(dwld);
 % LCdata = TRRIFdata.readCDR('LC');
 % DMdata = TRRIFdata.readCDR('DM');
 % VLdata = TRRIFdata.readCDR('VL');
-PPdata = crism_searchCDR6mrb('PP',SPdata.prop.sclk,'sensor_id','S');
-DBdata = crism_searchCDR6mrb('DB',SPdata.prop.sclk,'sensor_id','S');
-EBdata = crism_searchCDR6mrb('EB',SPdata.prop.sclk,'sensor_id','S');
-HDdata = crism_searchCDR6mrb('HD',SPdata.prop.sclk,'sensor_id','J');
-HKdata = crism_searchCDR6mrb('HK',SPdata.prop.sclk,'sensor_id','J');
-GHdata = crism_searchCDR6mrb('GH',SPdata.prop.sclk,'sensor_id','S');
-LCdata = crism_searchCDR6mrb('LC',SPdata.prop.sclk,'sensor_id','S');
-VLdata = crism_searchCDR6mrb('VL',SPdata.prop.sclk,'sensor_id','S');
+PPdata = crism_searchCDR6mrb('PP',SPdata.prop.sclk,'sensor_id','S','dwld',dwld);
+DBdata = crism_searchCDR6mrb('DB',SPdata.prop.sclk,'sensor_id','S','dwld',dwld);
+EBdata = crism_searchCDR6mrb('EB',SPdata.prop.sclk,'sensor_id','S','dwld',dwld);
+HDdata = crism_searchCDR6mrb('HD',SPdata.prop.sclk,'sensor_id','J','dwld',dwld);
+HKdata = crism_searchCDR6mrb('HK',SPdata.prop.sclk,'sensor_id','J','dwld',dwld);
+GHdata = crism_searchCDR6mrb('GH',SPdata.prop.sclk,'sensor_id','S','dwld',dwld);
+LCdata = crism_searchCDR6mrb('LC',SPdata.prop.sclk,'sensor_id','S','dwld',dwld);
+VLdata = crism_searchCDR6mrb('VL',SPdata.prop.sclk,'sensor_id','S','dwld',dwld);
 
 DMdata = crism_searchCDR4mrb('DM',SPdata.prop.sclk,'sensor_id','S',...
-    'wavelength_filter',EDRSPdata.lbl.MRO_WAVELENGTH_FILTER,'binning',crism_get_binning_id(EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH));
+    'wavelength_filter',EDRSPdata.lbl.MRO_WAVELENGTH_FILTER, ...
+    'binning',crism_get_binning_id(EDRSPdata.lbl.PIXEL_AVERAGING_WIDTH),'dwld',dwld);
 DMdata_SP = crism_searchCDR4mrb('DM',SPdata.prop.sclk,'sensor_id','S',...
-    'wavelength_filter',SPdata.prop.wavelength_filter,'binning',SPdata.prop.binning);
+    'wavelength_filter',SPdata.prop.wavelength_filter,'binning',SPdata.prop.binning,'dwld',dwld);
 %-------------------------------------------------------------------------%
 % main pipeline
 [~,RT14j_woc,RT14j] = crmcal_minipipeline_VNIR_SP_yuki( EDRSPdata,DFdata1,DFdata2,...
@@ -209,9 +210,9 @@ RT14j_bn     = crmcal_apply_DM(RT14j_bn,DMdata_SP);
 % post processing
 SSdata = crism_searchCDR4mrb('SS',SPdata.prop.sclk,'sensor_id','S',...
     'wavelength_filter',SPdata.prop.wavelength_filter,'binning',SPdata.prop.binning,...
-    'version',2);
+    'version',2,'dwld',dwld);
 SHdata = crism_searchCDR4mrb('SH',SPdata.prop.sclk,'sensor_id','S',...
-    'wavelength_filter',SPdata.prop.wavelength_filter,'binning',SPdata.prop.binning);
+    'wavelength_filter',SPdata.prop.wavelength_filter,'binning',SPdata.prop.binning,'dwld',dwld);
 % SSdata = TRRIFdata.readCDR('SS');
 % SHdata = TRRIFdata.readCDR('SH');
 SPdata_o = CRISMdata(SPdata.basename,'');

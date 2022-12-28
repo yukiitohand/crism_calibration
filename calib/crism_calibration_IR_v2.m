@@ -462,16 +462,16 @@ if save_file
     chmod777(fpath_TRRYIF_img,verbose);
     fprintf('Done\n');
 
-    [hdrra_cat] = crism_const_cathdr(TRRRAdata,false);
-    fprintf('Saving %s ...\n',fpath_TRRYRA_lbl);
-    % envihdrwritex(hdrra_cat,joinPath(save_dir,[bnameRA '.hdr']),'OPT_CMOUT','false');
-    copyfile(TRRRAdata.lblpath,fpath_TRRYRA_lbl);
-    chmod777(fpath_TRRYRA_lbl,verbose);
-    fprintf('Done\n');
-    fprintf('Saving %s ...\n',fpath_TRRYRA_img);
-    envidatawrite(RDn_woc,fpath_TRRYRA_img,hdrra_cat);
-    chmod777(fpath_TRRYRA_img,verbose);
-    fprintf('Done\n');
+    % [hdrra_cat] = crism_const_cathdr(TRRRAdata,false);
+    % fprintf('Saving %s ...\n',fpath_TRRYRA_lbl);
+    % % envihdrwritex(hdrra_cat,joinPath(save_dir,[bnameRA '.hdr']),'OPT_CMOUT','false');
+    % copyfile(TRRRAdata.lblpath,fpath_TRRYRA_lbl);
+    % chmod777(fpath_TRRYRA_lbl,verbose);
+    % fprintf('Done\n');
+    % fprintf('Saving %s ...\n',fpath_TRRYRA_img);
+    % envidatawrite(RDn_woc,fpath_TRRYRA_img,hdrra_cat);
+    % chmod777(fpath_TRRYRA_img,verbose);
+    % fprintf('Done\n');
 end
 
 %%

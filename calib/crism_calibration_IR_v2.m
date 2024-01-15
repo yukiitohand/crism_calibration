@@ -334,8 +334,8 @@ end
 % fpath_TRRYIF_mat = joinPath(save_dir,[bnameIF,'.mat']);
 
 % outputs_fpath = {fpath_TRRYIF_img,fpath_TRRYIF_lbl,fpath_TRRYRA_img,fpath_TRRYRA_lbl,fpath_TRRYIF_mat};
-outputs_fpath = {fpath_TRRYIF_img,fpath_TRRYIF_lbl,fpath_TRRYRA_img,fpath_TRRYRA_lbl,fpath_TRRYIFDF1,fpath_TRRYIFDF2};
-
+% outputs_fpath = {fpath_TRRYIF_img,fpath_TRRYIF_lbl,fpath_TRRYRA_img,fpath_TRRYRA_lbl,fpath_TRRYIFDF1,fpath_TRRYIFDF2};
+outputs_fpath = {fpath_TRRYIF_img,fpath_TRRYIF_lbl,fpath_TRRYIFDF1,fpath_TRRYIFDF2};
 % examine if all the output files exist.
 exist_flg = all(cellfun(@(x) exist(x,'file'),outputs_fpath));
 

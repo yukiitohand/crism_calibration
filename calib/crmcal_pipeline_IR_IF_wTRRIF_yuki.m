@@ -250,6 +250,8 @@ end
 %-------------------------------------------------------------------------%
 % get BKdata using DFdata
 obs_id_scene = TRRIFdata.get_obsid;
+binning_id_scene = crism_get_binning_id(TRRIFdata.lbl.PIXEL_AVERAGING_WIDTH);
+wvfilter_id_scene = TRRIFdata.lbl.MRO_WAVELENGTH_FILTER;
 TRRIFdata.readCDR('BK');
 BKdata1 = []; BKdata2 = [];
 for j=1:length(TRRIFdata.cdr.BK)
@@ -257,10 +259,22 @@ for j=1:length(TRRIFdata.cdr.BK)
     if strcmpi(bkdata.get_obsid, obs_id_scene)
         if strcmpi(bkdata.get_obs_number,DFdata1.get_obs_number)
             BKdata1 = [BKdata1 bkdata];
-        elseif  ~isempty(DFdata2)
-            if strcmpi(bkdata.get_obs_number,DFdata2.get_obs_number)
-                BKdata2 = [BKdata2 bkdata];
+        elseif ~isempty(DFdata2) && strcmpi(bkdata.get_obs_number,DFdata2.get_obs_number)
+            BKdata2 = [BKdata2 bkdata];
+        else % Exceptions: sometimes BKdata is produced by different DF measurements.
+            if bkdata.prop.binning == binning_id_scene && bkdata.prop.wavelength_filter == wvfilter_id_scene
+                if hex2dec(bkdata.get_obs_number()) < hex2dec(TRRIFdata.get_obs_number())
+                    BKdata1 = [BKdata1 bkdata];
+                    % load different DFdata1
+                    bkdata.load_basenames_SOURCE_OBS('dwld',2);
+                    DFdata1 = CRISMdata(bkdata.basenames_SOURCE_OBS.DF, '');
+                else
+                    BKdata2 = [BKdata2 bkdata];
+                    bkdata.load_basenames_SOURCE_OBS('dwld',2);
+                    DFdata2 = CRISMdata(bkdata.basenames_SOURCE_OBS.DF, '');
+                end
             end
+
         end
     end
 end
@@ -268,14 +282,14 @@ if is_same_df1_df2
     BKdata2 = BKdata1;
 end
 
-if length(BKdata1)>2 || length(BKdata2)>2
+if length(BKdata1)>1 || length(BKdata2)>1
     error('BKdata detected twice');
 end
 
 %-------------------------------------------------------------------------%
 % get BPdata
 [BPdata1,BPdata2,BPdata_post] = crism_load_BPdataSC_fromDF(TRRIFdata,DFdata1.basename,DFdata2.basename);
-if length(BPdata1)>2 || length(BPdata2)>2
+if length(BPdata1)>1 || length(BPdata2)>1
     error('BPdata detected twice');
 end
 
